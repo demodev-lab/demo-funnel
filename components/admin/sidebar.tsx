@@ -38,7 +38,7 @@ export default function Sidebar() {
   const SidebarContent = () => (
     <>
       <div className="p-4 border-b border-gray-200">
-        <h2 className="text-xl font-bold text-[#5046E4]">CodeUnlock</h2>
+        <h2 className="text-xl font-bold text-[#5046E4]">demo-funnel</h2>
         <p className="text-sm text-gray-500">관리자 백오피스</p>
       </div>
 
