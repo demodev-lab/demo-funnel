@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Select,
   SelectContent,
@@ -20,6 +20,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
+import { createClient } from "@/utils/supabase/client";
+import { useRouter } from "next/navigation";
 
 // 기수와 날짜 정보를 담은 타입 정의
 type CohortInfo = {
@@ -55,6 +57,30 @@ export default function Header() {
   const [selectedCohort, setSelectedCohort] = useState<CohortInfo>(
     COHORT_DATA[0],
   );
+  const [userName, setUserName] = useState<string>("");
+  const router = useRouter();
+
+  useEffect(() => {
+    const supabase = createClient();
+
+    const getUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      console.log(user);
+      if (user) {
+        setUserName(user.user_metadata.user_name || user.email || "관리자");
+      }
+    };
+
+    getUser();
+  }, []);
+
+  const handleLogout = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/admin/login");
+  };
 
   return (
     <header className="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
@@ -105,17 +131,19 @@ export default function Header() {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="flex items-center gap-2">
             <Avatar className="h-8 w-8">
-              <AvatarImage src="/placeholder.svg" alt="Admin" />
-              <AvatarFallback>AD</AvatarFallback>
+              <AvatarImage src="/placeholder.svg" alt={userName} />
+              <AvatarFallback>
+                {userName.slice(0, 2).toUpperCase()}
+              </AvatarFallback>
             </Avatar>
-            <span className="hidden md:inline">관리자</span>
+            <span className="hidden md:inline">{userName}</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>내 계정</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem>프로필 설정</DropdownMenuItem>
-          <DropdownMenuItem>로그아웃</DropdownMenuItem>
+          <DropdownMenuItem onClick={handleLogout}>로그아웃</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </header>
