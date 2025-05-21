@@ -6,8 +6,8 @@ import Sidebar from "@/components/admin/sidebar";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "CodeUnlock Admin",
-  description: "Admin for CodeUnlock",
+  title: "demo-funnel Admin",
+  description: "Admin for demo-funnel",
   generator: "v0.dev",
 };
 
