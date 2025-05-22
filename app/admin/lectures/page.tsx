@@ -83,11 +83,13 @@ export default function LecturesPage() {
                 강의 추가
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px]">
-              <DialogHeader>
+            <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col p-0">
+              <DialogHeader className="px-6 pt-6">
                 <DialogTitle>강의 추가</DialogTitle>
               </DialogHeader>
-              <LectureForm onSuccess={() => setIsOpen(false)} />
+              <div className="flex-1 overflow-y-auto px-6">
+                <LectureForm onSuccess={() => setIsOpen(false)} />
+              </div>
             </DialogContent>
           </Dialog>
         </div>
