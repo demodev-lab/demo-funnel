@@ -43,7 +43,10 @@ export default function LoginPage() {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-2">
-            <Button formAction={login} className="w-full">
+            <Button
+              formAction={login}
+              className="w-full bg-[#5046E4] hover:bg-[#5046E4]/90"
+            >
               로그인
             </Button>
             <div className="text-sm text-center">
