@@ -1,3 +1,5 @@
+"use client";
+
 import { signup } from "@/app/admin/login/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,8 +12,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
 
 export default function SignupPage() {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <Card className="w-[400px]">
@@ -51,18 +58,49 @@ export default function SignupPage() {
               <label htmlFor="password" className="text-sm font-medium">
                 비밀번호
               </label>
-              <Input id="password" name="password" type="password" required />
+              <div className="relative">
+                <Input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
             </div>
             <div className="space-y-2">
               <label htmlFor="confirmPassword" className="text-sm font-medium">
                 비밀번호 확인
               </label>
-              <Input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                required
-              />
+              <div className="relative">
+                <Input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-2">
