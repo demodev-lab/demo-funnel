@@ -17,6 +17,7 @@ export default function LecturePlayer({
   isPlaying,
   onTogglePlay,
 }: LecturePlayerProps) {
+
   return (
     <>
       <h2 className="text-lg md:text-xl font-bold m-4">{title}</h2>

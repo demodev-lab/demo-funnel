@@ -93,16 +93,8 @@ export function DemoUI() {
   const [submissionLink, setSubmissionLink] = useState("");
   const [submitterName, setSubmitterName] = useState("");
   const [submitterEmail, setSubmitterEmail] = useState("");
-  const [selectedVideo, setSelectedVideo] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [isLockedModalOpen, setIsLockedModalOpen] = useState(false);
   const [lockedVideoTitle, setLockedVideoTitle] = useState("");
-
-  const mainVideo = {
-    title: dummyLectures[selectedVideo].title,
-    description: dummyLectures[selectedVideo].description,
-    videoUrl: dummyLectures[selectedVideo].videoUrl,
-  };
 
   const handleAddSubmission = (e: { preventDefault: () => void; }) => {
     e.preventDefault();
@@ -139,15 +131,6 @@ export function DemoUI() {
     setSubmitterEmail("");
   };
 
-  const togglePlay = () => {
-    setIsPlaying(!isPlaying);
-  };
-
-  const handleVideoSelect = (index) => {
-    setSelectedVideo(index);
-    setIsPlaying(false);
-  };
-
   const handleLockedVideoClick = (videoTitle: string) => {
     setLockedVideoTitle(videoTitle);
     setIsLockedModalOpen(true);
@@ -176,14 +159,10 @@ export function DemoUI() {
       {/* Lecture Section */}
       <DailyLecture
         videos={dummyLectures}
-        selectedVideoIndex={selectedVideo}
-        isPlaying={isPlaying}
         isLockedModalOpen={isLockedModalOpen}
         lockedVideoTitle={lockedVideoTitle}
         onLockedClick={handleLockedVideoClick}
-        onVideoSelect={handleVideoSelect}
         onLockedModalChange={setIsLockedModalOpen}
-        onTogglePlay={togglePlay}
       />
 
       {/* Assignment Submission Section */}

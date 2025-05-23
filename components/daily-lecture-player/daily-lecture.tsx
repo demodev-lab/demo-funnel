@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import DailyLectureItem from "./daily-lecture-item";
 import LecturePlayer from "./lecture-player";
 import {
@@ -18,31 +19,35 @@ interface Video {
 
 interface DailyLectureProps {
   videos: Video[];
-  selectedVideoIndex: number;
-  isPlaying: boolean;
   isLockedModalOpen: boolean;
   lockedVideoTitle: string;
   onLockedClick: (title: string) => void;
-  onVideoSelect: (index: number) => void;
   onLockedModalChange: (open: boolean) => void;
-  onTogglePlay: () => void;
 }
 
 export default function DailyLecture({
   videos,
-  selectedVideoIndex,
-  isPlaying,
   isLockedModalOpen,
   lockedVideoTitle,
   onLockedClick,
-  onVideoSelect,
   onLockedModalChange,
-  onTogglePlay,
 }: DailyLectureProps) {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [selectedVideoIdx, setSelectedVideoIdx] = useState(0);
+
   const mainVideo = {
-    title: videos[selectedVideoIndex].title,
-    description: videos[selectedVideoIndex].description,
-    videoUrl: videos[selectedVideoIndex].videoUrl,
+    title: videos[selectedVideoIdx].title,
+    description: videos[selectedVideoIdx].description,
+    videoUrl: videos[selectedVideoIdx].videoUrl,
+  };
+
+  const togglePlay = () => {
+    setIsPlaying(!isPlaying);
+  };
+
+  const handleVideoSelect = (index) => {
+    setSelectedVideoIdx(index);
+    setIsPlaying(false);
   };
 
   return (
@@ -53,7 +58,7 @@ export default function DailyLecture({
         description={mainVideo.description}
         videoUrl={mainVideo.videoUrl}
         isPlaying={isPlaying}
-        onTogglePlay={onTogglePlay}
+        onTogglePlay={togglePlay}
       />
 
       <div className="p-6">
@@ -65,7 +70,7 @@ export default function DailyLecture({
               key={video.id}
               video={video}
               onLockedClick={onLockedClick}
-              onVideoSelect={onVideoSelect}
+              onVideoSelect={handleVideoSelect}
               videoIndex={index}
             />
           ))}
