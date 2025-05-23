@@ -49,15 +49,6 @@ export default function LoginPage() {
             >
               로그인
             </Button>
-            <div className="text-sm text-center">
-              계정이 없으신가요?{" "}
-              <Link
-                href="/admin/signup"
-                className="text-primary hover:underline"
-              >
-                회원가입
-              </Link>
-            </div>
           </CardFooter>
         </form>
       </Card>
