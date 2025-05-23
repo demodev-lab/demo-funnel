@@ -20,6 +20,8 @@ import {
   useDeleteStudent,
   type Student,
 } from "@/hooks/useStudents";
+import * as XLSX from "xlsx";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface ValidationErrors {
   name?: string;
@@ -33,6 +35,7 @@ export default function StudentList() {
   const createStudentMutation = useCreateStudent();
   const updateStudentMutation = useUpdateStudent();
   const deleteStudentMutation = useDeleteStudent();
+  const queryClient = useQueryClient();
 
   // 상태 관리
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -48,6 +51,9 @@ export default function StudentList() {
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
     {},
   );
+  // 엑셀 업로드 모달 상태 및 로딩 상태
+  const [isExcelDialogOpen, setIsExcelDialogOpen] = useState(false);
+  const [isExcelUploading, setIsExcelUploading] = useState(false);
 
   // 입력 검증 함수들
   const validateEmail = (email: string): string | undefined => {
@@ -123,11 +129,69 @@ export default function StudentList() {
     return Object.keys(errors).length === 0;
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
-    if (file) {
-      // TODO: 엑셀 파일 처리 로직 구현
-      console.log("Uploaded file:", file);
+    if (!file) return;
+    setIsExcelUploading(true);
+    try {
+      // 1. 파일 읽기
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data, { type: "array" });
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const json: any[] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+      if (!json.length) throw new Error("엑셀 데이터가 비어 있습니다.");
+      // 2. 헤더 검증
+      const [header, ...rows] = json;
+      if (
+        !Array.isArray(header) ||
+        header.length !== 3 ||
+        header[0] !== "name" ||
+        header[1] !== "email" ||
+        header[2] !== "phone"
+      ) {
+        toast.error("엑셀 양식이 올바르지 않습니다. 헤더를 확인해주세요.");
+        setIsExcelUploading(false);
+        return;
+      }
+      // 3. 학생 데이터 매핑
+      const studentsToAdd = rows
+        .filter((row) => row.length >= 3 && row[0] && row[1] && row[2])
+        .map((row) => ({
+          name: String(row[0]),
+          email: String(row[1]),
+          phone: String(row[2]),
+        }));
+      if (!studentsToAdd.length) {
+        toast.error("추가할 학생 데이터가 없습니다.");
+        setIsExcelUploading(false);
+        return;
+      }
+      // 4. 학생 추가 (병렬)
+      const results = await Promise.allSettled(
+        studentsToAdd.map((student) =>
+          createStudentMutation.mutateAsync(student),
+        ),
+      );
+      const hasError = results.some((r) => r.status === "rejected");
+      // 5. 목록 갱신
+      await queryClient.invalidateQueries({ queryKey: ["students"] });
+      if (hasError) {
+        toast.error(
+          "일부 학생 추가에 실패했습니다. 네트워크 또는 중복 데이터를 확인하세요.",
+        );
+      } else {
+        toast.success("엑셀에서 불러온 학생이 목록에 추가되었습니다.");
+      }
+      setIsExcelDialogOpen(false);
+    } catch (err: any) {
+      toast.error(err?.message || "엑셀 업로드 중 오류가 발생했습니다.");
+    } finally {
+      setIsExcelUploading(false);
+      // 파일 input 초기화
+      event.target.value = "";
     }
   };
 
@@ -293,10 +357,20 @@ export default function StudentList() {
     <div className="space-y-4">
       <div className="py-4 flex justify-end">
         <div className="space-x-2">
-          <Dialog>
+          {/* 엑셀 업로드 다이얼로그 */}
+          <Dialog open={isExcelDialogOpen} onOpenChange={setIsExcelDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
-                <Upload className="w-4 h-4 mr-2" />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsExcelDialogOpen(true)}
+                disabled={isExcelUploading}
+              >
+                {isExcelUploading ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Upload className="w-4 h-4 mr-2" />
+                )}
                 엑셀 파일 업로드
               </Button>
             </DialogTrigger>
@@ -309,7 +383,14 @@ export default function StudentList() {
                   type="file"
                   accept=".xlsx,.xls"
                   onChange={handleFileUpload}
+                  disabled={isExcelUploading}
                 />
+                {isExcelUploading && (
+                  <div className="flex items-center mt-2 text-sm text-gray-500">
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    업로드 중...
+                  </div>
+                )}
               </div>
             </DialogContent>
           </Dialog>
