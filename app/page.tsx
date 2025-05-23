@@ -6,7 +6,7 @@ export default function Home() {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
           <h1 className="text-3xl md:text-4xl font-bold text-center mb-6">
-            <span className="text-[#5046E4]">Code Unlock</span>
+            <span className="text-[#5046E4]">demo-funnel</span>
           </h1>
           <p className="text-center text-gray-400 mb-12">
             개발 챌린지를 깨우는 매일의 잠금 해제 서비스

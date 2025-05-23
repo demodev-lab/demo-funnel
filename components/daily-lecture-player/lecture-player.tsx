@@ -17,30 +17,22 @@ export default function LecturePlayer({
   isPlaying,
   onTogglePlay,
 }: LecturePlayerProps) {
-
   return (
     <>
       <h2 className="text-lg md:text-xl font-bold m-4">{title}</h2>
       <div className="relative aspect-video w-full bg-black">
+        
         {isPlaying ? (
-          <div className="absolute inset-0 flex items-center justify-center bg-black text-white text-center p-4">
-            <div>
-              <p className="text-xl font-bold mb-2">{title}</p>
-              <p className="text-sm text-gray-300">{description}</p>
-              <Button
-                onClick={onTogglePlay}
-                className="mt-4 bg-[#5046E4] hover:bg-[#DCD9FF] text-[#1C1F2B]"
-              >
-                일시정지
-              </Button>
-            </div>
-          </div>
+          <iframe
+            src={`https://www.youtube.com/embed/${videoUrl.split("v=")[1]}?autoplay=1`}
+            className="absolute inset-0 w-full h-full"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
             <Image
-              src={`https://img.youtube.com/vi/${
-                videoUrl.split("v=")[1]
-              }/maxresdefault.jpg`}
+              src={`https://img.youtube.com/vi/${videoUrl.split("v=")[1]}/maxresdefault.jpg`}
               alt={title}
               fill
               className="object-cover"
@@ -55,9 +47,9 @@ export default function LecturePlayer({
             </Button>
           </div>
         )}
-        <div className="absolute bottom-4 left-4 bg-[#1C1F2B]/80 px-3 py-1 rounded-md">
-          <p className="text-sm font-medium">오늘의 강의: {title}</p>
-        </div>
+      </div>
+      <div className="bg-[#1C1F2B] p-4">
+        <p className="text-sm font-medium">오늘의 강의: {title}</p>
       </div>
     </>
   );
