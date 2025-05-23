@@ -1,11 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-export interface Student {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-}
+// 공통 데이터 모듈에서 타입 가져오기
+export type { Student } from "@/lib/data/students-data";
+import type { Student } from "@/lib/data/students-data";
 
 interface ApiResponse<T> {
   data: T;
@@ -73,16 +70,22 @@ const studentsApi = {
 
   // 학생 삭제
   deleteStudent: async (id: string): Promise<Student> => {
+    console.log(`deleteStudent 호출됨: ID=${id}`); // 디버깅
+
     const response = await fetch(`/api/students/${id}`, {
       method: "DELETE",
     });
 
+    console.log(`DELETE 응답 상태: ${response.status}`); // 디버깅
+
     if (!response.ok) {
       const error: ApiError = await response.json();
+      console.error(`DELETE 실패:`, error); // 디버깅
       throw new Error(error.error || "학생 삭제에 실패했습니다.");
     }
 
     const result: ApiResponse<Student> = await response.json();
+    console.log(`DELETE 성공:`, result); // 디버깅
     return result.data;
   },
 };
@@ -125,8 +128,12 @@ export const useDeleteStudent = () => {
   return useMutation({
     mutationFn: studentsApi.deleteStudent,
     onSuccess: () => {
+      console.log("DELETE mutation 성공 - 쿼리 무효화 중..."); // 디버깅
       // 학생 목록 다시 불러오기
       queryClient.invalidateQueries({ queryKey: ["students"] });
+    },
+    onError: (error) => {
+      console.error("DELETE mutation 실패:", error); // 디버깅
     },
   });
 };

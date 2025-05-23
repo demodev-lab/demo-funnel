@@ -1,28 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Student } from "../route";
-
-// 임시 데이터 (실제로는 데이터베이스에서 가져와야 함)
-// 주의: 실제 앱에서는 데이터베이스를 사용해야 합니다
-let students: Student[] = [
-  {
-    id: "1",
-    name: "김철수",
-    email: "kim@example.com",
-    phone: "010-1234-5678",
-  },
-  {
-    id: "2",
-    name: "이영희",
-    email: "lee@example.com",
-    phone: "010-2345-6789",
-  },
-  {
-    id: "3",
-    name: "박지민",
-    email: "park@example.com",
-    phone: "010-3456-7890",
-  },
-];
+import { studentsDataManager } from "@/lib/data/students-data";
 
 // PUT /api/students/[id] - 학생 수정
 export async function PUT(
@@ -34,6 +11,8 @@ export async function PUT(
     const body = await request.json();
     const { name, email, phone } = body;
 
+    console.log(`PUT /api/students/${id} - 수정 요청:`, { name, email, phone }); // 디버깅
+
     // 입력값 검증
     if (!name || !email || !phone) {
       return NextResponse.json(
@@ -42,9 +21,10 @@ export async function PUT(
       );
     }
 
-    // 학생 찾기
-    const studentIndex = students.findIndex((student) => student.id === id);
-    if (studentIndex === -1) {
+    // 학생 존재 여부 확인
+    const existingStudent = studentsDataManager.findById(id);
+    if (!existingStudent) {
+      console.log(`PUT - 학생을 찾을 수 없음: ID=${id}`); // 디버깅
       return NextResponse.json(
         { error: "해당 학생을 찾을 수 없습니다." },
         { status: 404 },
@@ -52,10 +32,8 @@ export async function PUT(
     }
 
     // 이메일 중복 검증 (자기 자신 제외)
-    const existingStudent = students.find(
-      (student) => student.email === email && student.id !== id,
-    );
-    if (existingStudent) {
+    const duplicateStudent = studentsDataManager.findByEmail(email, id);
+    if (duplicateStudent) {
       return NextResponse.json(
         { error: "이미 등록된 이메일입니다." },
         { status: 409 },
@@ -63,18 +41,19 @@ export async function PUT(
     }
 
     // 학생 정보 업데이트
-    students[studentIndex] = {
-      id,
+    const updatedStudent = studentsDataManager.update(id, {
       name,
       email,
       phone,
-    };
+    });
+
+    console.log(`PUT - 학생 수정 완료:`, updatedStudent); // 디버깅
 
     // 네트워크 지연 시뮬레이션
     await new Promise((resolve) => setTimeout(resolve, 300));
 
     return NextResponse.json({
-      data: students[studentIndex],
+      data: updatedStudent,
       message: "학생 정보가 성공적으로 수정되었습니다.",
     });
   } catch (error) {
@@ -94,17 +73,29 @@ export async function DELETE(
   try {
     const { id } = params;
 
-    // 학생 찾기
-    const studentIndex = students.findIndex((student) => student.id === id);
-    if (studentIndex === -1) {
+    console.log(`DELETE /api/students/${id} - 삭제 요청 받음`); // 디버깅
+
+    // 삭제 전 현재 데이터 상태 확인
+    studentsDataManager.debug();
+
+    // 학생 존재 여부 확인 및 삭제
+    const deletedStudent = studentsDataManager.delete(id);
+
+    if (!deletedStudent) {
+      console.log(`DELETE - 학생을 찾을 수 없음: ID=${id}`); // 디버깅
       return NextResponse.json(
         { error: "해당 학생을 찾을 수 없습니다." },
         { status: 404 },
       );
     }
 
-    // 학생 삭제
-    const deletedStudent = students.splice(studentIndex, 1)[0];
+    console.log(`DELETE - 학생 삭제 완료:`, deletedStudent); // 디버깅
+
+    // 삭제 후 데이터 상태 확인
+    console.log(
+      `DELETE - 삭제 후 남은 학생 수:`,
+      studentsDataManager.getAll().length,
+    );
 
     // 네트워크 지연 시뮬레이션
     await new Promise((resolve) => setTimeout(resolve, 300));

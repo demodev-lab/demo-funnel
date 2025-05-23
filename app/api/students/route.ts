@@ -1,39 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
+import { studentsDataManager, type Student } from "@/lib/data/students-data";
 
-export interface Student {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-}
-
-// 임시 데이터 (실제로는 데이터베이스에서 가져와야 함)
-let students: Student[] = [
-  {
-    id: "1",
-    name: "김철수",
-    email: "kim@example.com",
-    phone: "010-1234-5678",
-  },
-  {
-    id: "2",
-    name: "이영희",
-    email: "lee@example.com",
-    phone: "010-2345-6789",
-  },
-  {
-    id: "3",
-    name: "박지민",
-    email: "park@example.com",
-    phone: "010-3456-7890",
-  },
-];
+// 공통 데이터 모듈에서 타입 재내보내기
+export type { Student } from "@/lib/data/students-data";
 
 // GET /api/students - 학생 목록 조회
 export async function GET() {
   try {
-    // 실제로는 데이터베이스에서 조회
-    // const students = await db.students.findMany();
+    // 공통 데이터 매니저에서 조회
+    const students = studentsDataManager.getAll();
+
+    console.log("GET /api/students - 현재 학생 수:", students.length); // 디버깅
 
     // 네트워크 지연 시뮬레이션
     await new Promise((resolve) => setTimeout(resolve, 500));
@@ -66,7 +43,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 이메일 중복 검증
-    const existingStudent = students.find((student) => student.email === email);
+    const existingStudent = studentsDataManager.findByEmail(email);
     if (existingStudent) {
       return NextResponse.json(
         { error: "이미 등록된 이메일입니다." },
@@ -74,18 +51,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 새 학생 생성
-    const newId = (
-      Math.max(...students.map((s) => parseInt(s.id))) + 1
-    ).toString();
-    const newStudent: Student = {
-      id: newId,
-      name,
-      email,
-      phone,
-    };
+    // 새 학생 추가
+    const newStudent = studentsDataManager.add({ name, email, phone });
 
-    students.push(newStudent);
+    console.log("POST /api/students - 새 학생 추가:", newStudent); // 디버깅
 
     // 네트워크 지연 시뮬레이션
     await new Promise((resolve) => setTimeout(resolve, 300));
