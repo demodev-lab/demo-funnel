@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import ReactQueryProvider from "@/lib/providers/react-query-provider";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "v0 App",
@@ -14,7 +16,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body suppressHydrationWarning>{children}</body>
+      <body suppressHydrationWarning>
+        <ReactQueryProvider>{children}</ReactQueryProvider>
+        <Toaster position="top-right" richColors />
+      </body>
     </html>
   );
 }
