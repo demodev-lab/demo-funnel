@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
-  Play,
   Send,
   FileText,
   LinkIcon,
@@ -11,16 +10,7 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import Image from "next/image";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import DailyLectureItem from "./daily-lecture-player/daily-lecture-item";
-import LecturePlayer from "./daily-lecture-player/lecture-player";
+import DailyLecture from "./daily-lecture-player/daily-lecture";
 
 // TODO: 더미 데이터 제거
 const dummyLectures = [
@@ -114,17 +104,7 @@ export function DemoUI() {
     videoUrl: dummyLectures[selectedVideo].videoUrl,
   };
 
-  const subVideos = dummyLectures
-    .filter((_, index) => index !== selectedVideo)
-    .slice(0, 4)
-    .map((lecture) => ({
-      id: lecture.id,
-      title: lecture.title,
-      locked: lecture.locked,
-      videoUrl: lecture.videoUrl,
-    }));
-
-  const handleAddSubmission = (e) => {
+  const handleAddSubmission = (e: { preventDefault: () => void; }) => {
     e.preventDefault();
     if (
       !newSubmission.trim() ||
@@ -193,47 +173,18 @@ export function DemoUI() {
 
   return (
     <div className="bg-[#252A3C] rounded-xl overflow-hidden">
-      {/* Main Video Player */}
-      <LecturePlayer
-        title={mainVideo.title}
-        description={mainVideo.description}
-        videoUrl={mainVideo.videoUrl}
+      {/* Lecture Section */}
+      <DailyLecture
+        videos={dummyLectures}
+        selectedVideoIndex={selectedVideo}
         isPlaying={isPlaying}
+        isLockedModalOpen={isLockedModalOpen}
+        lockedVideoTitle={lockedVideoTitle}
+        onLockedClick={handleLockedVideoClick}
+        onVideoSelect={handleVideoSelect}
+        onLockedModalChange={setIsLockedModalOpen}
         onTogglePlay={togglePlay}
       />
-
-      {/* Sub Videos */}
-      <div className="p-6">
-        <h3 className="text-xl font-bold mb-4">강의 목록</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {dummyLectures.map((video, index) => (
-            <DailyLectureItem
-              key={video.id}
-              video={video}
-              onLockedClick={handleLockedVideoClick}
-              onVideoSelect={handleVideoSelect}
-              videoIndex={index}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Locked Video Modal */}
-      <Dialog open={isLockedModalOpen} onOpenChange={setIsLockedModalOpen}>
-        <DialogContent className="bg-[#1C1F2B] border-gray-700 text-white">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold">강의 잠금</DialogTitle>
-            <DialogDescription className="text-gray-400">
-              {lockedVideoTitle} 강의는 아직 잠겨 있습니다.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="mt-4">
-            <p className="text-sm text-gray-400">
-              이 강의는 아직 오픈되지 않았습니다. 추후 업데이트를 기다려주세요.
-            </p>
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {/* Assignment Submission Section */}
       <div className="border-t border-gray-700 mt-4">
