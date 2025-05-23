@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { toast } from "sonner";
 import {
   useStudents,
@@ -54,6 +54,11 @@ export default function StudentList() {
   // 엑셀 업로드 모달 상태 및 로딩 상태
   const [isExcelDialogOpen, setIsExcelDialogOpen] = useState(false);
   const [isExcelUploading, setIsExcelUploading] = useState(false);
+  const [parsedStudents, setParsedStudents] = useState<
+    Array<{ name: string; email: string; phone: string }>
+  >([]);
+  const [isExcelAdding, setIsExcelAdding] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 입력 검증 함수들
   const validateEmail = (email: string): string | undefined => {
@@ -169,14 +174,42 @@ export default function StudentList() {
         setIsExcelUploading(false);
         return;
       }
-      // 4. 학생 추가 (병렬)
+      setParsedStudents(studentsToAdd);
+      setIsExcelUploading(false);
+    } catch (err: any) {
+      toast.error(err?.message || "엑셀 업로드 중 오류가 발생했습니다.");
+      setIsExcelUploading(false);
+    }
+  };
+
+  const handleExcelDialogClose = (open: boolean) => {
+    setIsExcelDialogOpen(open);
+    if (!open) {
+      setParsedStudents([]);
+      setIsExcelUploading(false);
+      setIsExcelAdding(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const handleExcelCancel = () => {
+    setParsedStudents([]);
+    setIsExcelDialogOpen(false);
+    setIsExcelUploading(false);
+    setIsExcelAdding(false);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleExcelConfirm = async () => {
+    if (!parsedStudents.length) return;
+    setIsExcelAdding(true);
+    try {
       const results = await Promise.allSettled(
-        studentsToAdd.map((student) =>
+        parsedStudents.map((student) =>
           createStudentMutation.mutateAsync(student),
         ),
       );
       const hasError = results.some((r) => r.status === "rejected");
-      // 5. 목록 갱신
       await queryClient.invalidateQueries({ queryKey: ["students"] });
       if (hasError) {
         toast.error(
@@ -185,13 +218,12 @@ export default function StudentList() {
       } else {
         toast.success("엑셀에서 불러온 학생이 목록에 추가되었습니다.");
       }
+      setParsedStudents([]);
       setIsExcelDialogOpen(false);
     } catch (err: any) {
-      toast.error(err?.message || "엑셀 업로드 중 오류가 발생했습니다.");
+      toast.error(err?.message || "엑셀 추가 중 오류가 발생했습니다.");
     } finally {
-      setIsExcelUploading(false);
-      // 파일 input 초기화
-      event.target.value = "";
+      setIsExcelAdding(false);
     }
   };
 
@@ -358,15 +390,18 @@ export default function StudentList() {
       <div className="py-4 flex justify-end">
         <div className="space-x-2">
           {/* 엑셀 업로드 다이얼로그 */}
-          <Dialog open={isExcelDialogOpen} onOpenChange={setIsExcelDialogOpen}>
+          <Dialog
+            open={isExcelDialogOpen}
+            onOpenChange={handleExcelDialogClose}
+          >
             <DialogTrigger asChild>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setIsExcelDialogOpen(true)}
-                disabled={isExcelUploading}
+                disabled={isExcelUploading || isExcelAdding}
               >
-                {isExcelUploading ? (
+                {isExcelUploading || isExcelAdding ? (
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 ) : (
                   <Upload className="w-4 h-4 mr-2" />
@@ -379,17 +414,64 @@ export default function StudentList() {
                 <DialogTitle>엑셀 파일 업로드</DialogTitle>
               </DialogHeader>
               <div className="py-4">
-                <Input
-                  type="file"
-                  accept=".xlsx,.xls"
-                  onChange={handleFileUpload}
-                  disabled={isExcelUploading}
-                />
-                {isExcelUploading && (
-                  <div className="flex items-center mt-2 text-sm text-gray-500">
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    업로드 중...
-                  </div>
+                {parsedStudents.length === 0 ? (
+                  <>
+                    <Input
+                      type="file"
+                      accept=".xlsx,.xls"
+                      onChange={handleFileUpload}
+                      disabled={isExcelUploading}
+                      ref={fileInputRef}
+                    />
+                    {isExcelUploading && (
+                      <div className="flex items-center mt-2 text-sm text-gray-500">
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        업로드 중...
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <div className="max-h-64 overflow-y-auto border rounded mb-4">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="bg-gray-50">
+                            <th className="px-2 py-1 text-left">이름</th>
+                            <th className="px-2 py-1 text-left">이메일</th>
+                            <th className="px-2 py-1 text-left">전화번호</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {parsedStudents.map((s, i) => (
+                            <tr key={i} className="border-b">
+                              <td className="px-2 py-1">{s.name}</td>
+                              <td className="px-2 py-1">{s.email}</td>
+                              <td className="px-2 py-1">{s.phone}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    <div className="flex justify-end space-x-2">
+                      <Button
+                        variant="outline"
+                        onClick={handleExcelCancel}
+                        disabled={isExcelAdding}
+                      >
+                        취소
+                      </Button>
+                      <Button
+                        className="bg-[#5046E4] hover:bg-[#4038c7]"
+                        onClick={handleExcelConfirm}
+                        disabled={isExcelAdding}
+                      >
+                        {isExcelAdding && (
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        )}
+                        확인
+                      </Button>
+                    </div>
+                  </>
                 )}
               </div>
             </DialogContent>
