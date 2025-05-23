@@ -20,6 +20,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import DailyLectureItem from "./daily-lecture-player/daily-lecture-item";
 
 // TODO: 더미 데이터 제거
 const dummyLectures = [
@@ -30,6 +31,7 @@ const dummyLectures = [
     videoUrl: "https://www.youtube.com/watch?v=H-yo6dzJ13g",
     duration: "2시간 30분",
     createdAt: "2024-03-15",
+    locked: false,
   },
   {
     id: 2,
@@ -38,6 +40,7 @@ const dummyLectures = [
     videoUrl: "https://www.youtube.com/watch?v=LzsB2AJI90s",
     duration: "2시간 30분",
     createdAt: "2024-03-15",
+    locked: false,
   },
   {
     id: 3,
@@ -46,6 +49,7 @@ const dummyLectures = [
     videoUrl: "https://www.youtube.com/watch?v=Q4YV_bWrSkg",
     duration: "2시간 30분",
     createdAt: "2024-03-15",
+    locked: true,
   },
   {
     id: 4,
@@ -54,6 +58,7 @@ const dummyLectures = [
     videoUrl: "https://www.youtube.com/watch?v=H-yo6dzJ13g",
     duration: "2시간 30분",
     createdAt: "2024-03-15",
+    locked: true,
   },
   {
     id: 5,
@@ -62,6 +67,7 @@ const dummyLectures = [
     videoUrl: "https://www.youtube.com/watch?v=H-yo6dzJ13g",
     duration: "2시간 30분",
     createdAt: "2024-03-15",
+    locked: true,
   },
 ];
 
@@ -111,10 +117,10 @@ export function DemoUI() {
   const subVideos = dummyLectures
     .filter((_, index) => index !== selectedVideo)
     .slice(0, 4)
-    .map((lecture, index) => ({
+    .map((lecture) => ({
       id: lecture.id,
       title: lecture.title,
-      locked: index >= 2,
+      locked: lecture.locked,
       videoUrl: lecture.videoUrl,
     }));
 
@@ -232,41 +238,14 @@ export function DemoUI() {
       <div className="p-6">
         <h3 className="text-xl font-bold mb-4">강의 목록</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {subVideos.map((video, index) => (
-            <div
+          {dummyLectures.map((video, index) => (
+            <DailyLectureItem
               key={video.id}
-              className="relative rounded-lg overflow-hidden cursor-pointer"
-              onClick={() =>
-                video.locked
-                  ? handleLockedVideoClick(video.title)
-                  : handleVideoSelect(
-                      dummyLectures.findIndex(
-                        (l) => l.videoUrl === video.videoUrl,
-                      ),
-                    )
-              }
-            >
-              <div className="aspect-video bg-gray-800 relative">
-                <Image
-                  src={`https://img.youtube.com/vi/${
-                    video.videoUrl.split("v=")[1]
-                  }/maxresdefault.jpg`}
-                  alt={video.title}
-                  fill
-                  className={`object-cover ${
-                    video.locked ? "opacity-50 blur-[2px]" : ""
-                  }`}
-                />
-                {video.locked && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                    <Lock className="h-8 w-8 text-[#5046E4]" />
-                  </div>
-                )}
-              </div>
-              <div className="p-2 bg-[#1C1F2B]">
-                <p className="text-sm font-medium truncate">{video.title}</p>
-              </div>
-            </div>
+              video={video}
+              onLockedClick={handleLockedVideoClick}
+              onVideoSelect={handleVideoSelect}
+              videoIndex={index}
+            />
           ))}
         </div>
       </div>
