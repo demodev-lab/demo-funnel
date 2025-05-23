@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Plus, Upload } from "lucide-react";
+import { Plus, Upload, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -12,13 +12,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
-
-interface Student {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-}
+import { toast } from "sonner";
+import {
+  useStudents,
+  useCreateStudent,
+  useUpdateStudent,
+  useDeleteStudent,
+  type Student,
+} from "@/hooks/useStudents";
 
 interface ValidationErrors {
   name?: string;
@@ -26,29 +27,14 @@ interface ValidationErrors {
   phone?: string;
 }
 
-const initialStudents: Student[] = [
-  {
-    id: "1",
-    name: "김철수",
-    email: "kim@example.com",
-    phone: "010-1234-5678",
-  },
-  {
-    id: "2",
-    name: "이영희",
-    email: "lee@example.com",
-    phone: "010-2345-6789",
-  },
-  {
-    id: "3",
-    name: "박지민",
-    email: "park@example.com",
-    phone: "010-3456-7890",
-  },
-];
-
 export default function StudentList() {
-  const [students, setStudents] = useState<Student[]>(initialStudents);
+  // React Query 훅들
+  const { data: students = [], isLoading, error, isError } = useStudents();
+  const createStudentMutation = useCreateStudent();
+  const updateStudentMutation = useUpdateStudent();
+  const deleteStudentMutation = useDeleteStudent();
+
+  // 상태 관리
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -145,39 +131,37 @@ export default function StudentList() {
     }
   };
 
-  const handleAddStudent = () => {
+  const handleAddStudent = async () => {
     // 폼 검증
     if (!validateForm()) {
       return;
     }
 
-    if (isEditMode && editingStudentId) {
-      // 수정 모드
-      setStudents(
-        students.map((student) =>
-          student.id === editingStudentId
-            ? { ...currentStudent, id: editingStudentId }
-            : student,
-        ),
-      );
-    } else {
-      // 추가 모드
-      const newId = (
-        Math.max(...students.map((s) => parseInt(s.id))) + 1
-      ).toString();
-      const newStudent: Student = {
-        id: newId,
-        ...currentStudent,
-      };
-      setStudents([...students, newStudent]);
-    }
+    try {
+      if (isEditMode && editingStudentId) {
+        // 수정 모드
+        await updateStudentMutation.mutateAsync({
+          id: editingStudentId,
+          ...currentStudent,
+        });
+        toast.success("학생 정보가 성공적으로 수정되었습니다.");
+      } else {
+        // 추가 모드
+        await createStudentMutation.mutateAsync(currentStudent);
+        toast.success("학생이 성공적으로 추가되었습니다.");
+      }
 
-    // 폼 초기화
-    setCurrentStudent({ name: "", email: "", phone: "" });
-    setValidationErrors({});
-    setIsFormOpen(false);
-    setIsEditMode(false);
-    setEditingStudentId(null);
+      // 폼 초기화
+      setCurrentStudent({ name: "", email: "", phone: "" });
+      setValidationErrors({});
+      setIsFormOpen(false);
+      setIsEditMode(false);
+      setEditingStudentId(null);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "오류가 발생했습니다.",
+      );
+    }
   };
 
   const handleEditClick = (student: Student) => {
@@ -205,11 +189,18 @@ export default function StudentList() {
     setIsDeleteOpen(true);
   };
 
-  const confirmDelete = () => {
-    if (studentToDelete) {
-      setStudents(students.filter((student) => student.id !== studentToDelete));
+  const confirmDelete = async () => {
+    if (!studentToDelete) return;
+
+    try {
+      await deleteStudentMutation.mutateAsync(studentToDelete);
+      toast.success("학생이 성공적으로 삭제되었습니다.");
       setStudentToDelete(null);
       setIsDeleteOpen(false);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "삭제 중 오류가 발생했습니다.",
+      );
     }
   };
 
@@ -228,6 +219,75 @@ export default function StudentList() {
       setValidationErrors({ ...validationErrors, [field]: undefined });
     }
   };
+
+  // 로딩 상태
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <div className="py-4 flex justify-end">
+          <div className="space-x-2">
+            <Button variant="outline" size="sm" disabled>
+              <Upload className="w-4 h-4 mr-2" />
+              엑셀 파일 업로드
+            </Button>
+            <Button
+              size="sm"
+              className="bg-[#5046E4] hover:bg-[#4038c7]"
+              disabled
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              수강생 추가
+            </Button>
+          </div>
+        </div>
+        <div className="border rounded-xl overflow-hidden">
+          <div className="flex justify-center items-center py-20">
+            <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+            <span className="ml-2 text-gray-500">
+              학생 목록을 불러오는 중...
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 에러 상태
+  if (isError) {
+    return (
+      <div className="space-y-4">
+        <div className="py-4 flex justify-end">
+          <div className="space-x-2">
+            <Button variant="outline" size="sm" disabled>
+              <Upload className="w-4 h-4 mr-2" />
+              엑셀 파일 업로드
+            </Button>
+            <Button
+              size="sm"
+              className="bg-[#5046E4] hover:bg-[#4038c7]"
+              disabled
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              수강생 추가
+            </Button>
+          </div>
+        </div>
+        <div className="border rounded-xl overflow-hidden">
+          <div className="flex flex-col justify-center items-center py-20">
+            <div className="text-red-500 mb-2">오류가 발생했습니다</div>
+            <div className="text-gray-500 text-sm mb-4">
+              {error instanceof Error
+                ? error.message
+                : "알 수 없는 오류가 발생했습니다."}
+            </div>
+            <Button onClick={() => window.location.reload()} variant="outline">
+              페이지 새로고침
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -326,7 +386,15 @@ export default function StudentList() {
                 <Button
                   className="w-full bg-[#5046E4] hover:bg-[#4038c7]"
                   onClick={handleAddStudent}
+                  disabled={
+                    createStudentMutation.isPending ||
+                    updateStudentMutation.isPending
+                  }
                 >
+                  {(createStudentMutation.isPending ||
+                    updateStudentMutation.isPending) && (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  )}
                   {isEditMode ? "수정하기" : "추가하기"}
                 </Button>
               </div>
@@ -348,10 +416,21 @@ export default function StudentList() {
             </p>
           </div>
           <div className="flex justify-end space-x-2">
-            <Button variant="outline" onClick={cancelDelete}>
+            <Button
+              variant="outline"
+              onClick={cancelDelete}
+              disabled={deleteStudentMutation.isPending}
+            >
               취소
             </Button>
-            <Button variant="destructive" onClick={confirmDelete}>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={deleteStudentMutation.isPending}
+            >
+              {deleteStudentMutation.isPending && (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              )}
               삭제
             </Button>
           </div>
@@ -369,33 +448,43 @@ export default function StudentList() {
             </tr>
           </thead>
           <tbody>
-            {students.map((student) => (
-              <tr key={student.id} className="border-b">
-                <td className="px-4 py-2">{student.name}</td>
-                <td className="px-4 py-2">{student.email}</td>
-                <td className="px-4 py-2">{student.phone}</td>
-                <td className="px-4 py-2 text-center">
-                  <div className="flex justify-center space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="border-gray-300"
-                      onClick={() => handleEditClick(student)}
-                    >
-                      수정
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="border-red-300 text-red-600 hover:text-red-700 hover:bg-red-50"
-                      onClick={() => handleDeleteClick(student.id)}
-                    >
-                      삭제
-                    </Button>
-                  </div>
+            {students.length === 0 ? (
+              <tr>
+                <td colSpan={4} className="px-4 py-8 text-center text-gray-500">
+                  등록된 수강생이 없습니다.
                 </td>
               </tr>
-            ))}
+            ) : (
+              students.map((student) => (
+                <tr key={student.id} className="border-b">
+                  <td className="px-4 py-2">{student.name}</td>
+                  <td className="px-4 py-2">{student.email}</td>
+                  <td className="px-4 py-2">{student.phone}</td>
+                  <td className="px-4 py-2 text-center">
+                    <div className="flex justify-center space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-gray-300"
+                        onClick={() => handleEditClick(student)}
+                        disabled={updateStudentMutation.isPending}
+                      >
+                        수정
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-red-300 text-red-600 hover:text-red-700 hover:bg-red-50"
+                        onClick={() => handleDeleteClick(student.id)}
+                        disabled={deleteStudentMutation.isPending}
+                      >
+                        삭제
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
