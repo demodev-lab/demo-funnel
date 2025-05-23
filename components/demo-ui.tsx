@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
-  Lock,
   Play,
   Send,
   FileText,
@@ -21,6 +20,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import DailyLectureItem from "./daily-lecture-player/daily-lecture-item";
+import LecturePlayer from "./daily-lecture-player/lecture-player";
 
 // TODO: 더미 데이터 제거
 const dummyLectures = [
@@ -194,45 +194,13 @@ export function DemoUI() {
   return (
     <div className="bg-[#252A3C] rounded-xl overflow-hidden">
       {/* Main Video Player */}
-      <h2 className="text-lg md:text-xl font-bold m-4">{mainVideo.title}</h2>
-      <div className="relative aspect-video w-full bg-black">
-        {isPlaying ? (
-          <div className="absolute inset-0 flex items-center justify-center bg-black text-white text-center p-4">
-            <div>
-              <p className="text-xl font-bold mb-2">{mainVideo.title}</p>
-              <p className="text-sm text-gray-300">{mainVideo.description}</p>
-              <Button
-                onClick={togglePlay}
-                className="mt-4 bg-[#5046E4] hover:bg-[#DCD9FF] text-[#1C1F2B]"
-              >
-                일시정지
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <Image
-              src={`https://img.youtube.com/vi/${
-                mainVideo.videoUrl.split("v=")[1]
-              }/maxresdefault.jpg`}
-              alt={mainVideo.title}
-              fill
-              className="object-cover"
-            />
-            <Button
-              variant="outline"
-              size="icon"
-              className="rounded-full h-16 w-16 bg-[#000000]/20 border-[#5046E4] z-10"
-              onClick={togglePlay}
-            >
-              <Play className="h-8 w-8 text-[#5046E4]" />
-            </Button>
-          </div>
-        )}
-        <div className="absolute bottom-4 left-4 bg-[#1C1F2B]/80 px-3 py-1 rounded-md">
-          <p className="text-sm font-medium">오늘의 강의: {mainVideo.title}</p>
-        </div>
-      </div>
+      <LecturePlayer
+        title={mainVideo.title}
+        description={mainVideo.description}
+        videoUrl={mainVideo.videoUrl}
+        isPlaying={isPlaying}
+        onTogglePlay={togglePlay}
+      />
 
       {/* Sub Videos */}
       <div className="p-6">
