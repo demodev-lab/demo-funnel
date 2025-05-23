@@ -1,5 +1,6 @@
 import Header from "@/components/admin/header";
 import StudentList from "@/components/admin/student-list";
+import { Sidebar } from "@/components/admin/sidebar";
 
 export default function StudentsPage() {
   return (
