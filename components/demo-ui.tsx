@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import DailyLecture from "./daily-lecture-player/daily-lecture";
+import DailyLectureSection from "./daily-lecture-player/daily-lecture-section";
 
 // TODO: 더미 데이터 제거
 const dummyLectures = [
@@ -157,7 +157,7 @@ export function DemoUI() {
   return (
     <div className="bg-[#252A3C] rounded-xl overflow-hidden">
       {/* Lecture Section */}
-      <DailyLecture
+      <DailyLectureSection
         videos={dummyLectures}
         isLockedModalOpen={isLockedModalOpen}
         lockedVideoTitle={lockedVideoTitle}

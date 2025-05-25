@@ -17,7 +17,7 @@ interface Video {
   description: string;
 }
 
-interface DailyLectureProps {
+interface DailyLectureSectionProps {
   videos: Video[];
   isLockedModalOpen: boolean;
   lockedVideoTitle: string;
@@ -25,13 +25,13 @@ interface DailyLectureProps {
   onLockedModalChange: (open: boolean) => void;
 }
 
-export default function DailyLecture({
+export default function DailyLectureSection({
   videos,
   isLockedModalOpen,
   lockedVideoTitle,
   onLockedClick,
   onLockedModalChange,
-}: DailyLectureProps) {
+}: DailyLectureSectionProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [selectedVideoIdx, setSelectedVideoIdx] = useState(0);
 
