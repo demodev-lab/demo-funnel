@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import DailyLectureItem from "./daily-lecture-item";
 import LecturePlayer from "./lecture-player";
 import {
@@ -40,6 +40,20 @@ export default function DailyLectureSection({
     description: videos[selectedVideoIdx].description,
     videoUrl: videos[selectedVideoIdx].videoUrl,
   };
+
+  useEffect(() => {
+    fetch('/api/test')
+      .then((res) => {
+        console.log('raw response:', res); // Response 객체
+        return res.json();
+      })
+      .then((data) => {
+        console.log('parsed json:', data); // 실제 데이터 출력
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
 
   const togglePlay = () => {
     setIsPlaying(!isPlaying);
