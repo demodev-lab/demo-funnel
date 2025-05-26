@@ -106,6 +106,19 @@ export default function StudentList() {
     return undefined;
   };
 
+  const checkDuplicatePhone = (
+    phone: string,
+    excludeId?: string,
+  ): string | undefined => {
+    const isDuplicate = students.some(
+      (student) => student.phone === phone && student.id !== excludeId,
+    );
+    if (isDuplicate) {
+      return "이미 등록된 전화번호입니다.";
+    }
+    return undefined;
+  };
+
   const validateForm = (): boolean => {
     const errors: ValidationErrors = {};
 
@@ -119,16 +132,25 @@ export default function StudentList() {
       errors.email = emailError;
     } else {
       // 중복 이메일 검증 (수정 모드일 때는 현재 편집 중인 학생 제외)
-      const duplicateError = checkDuplicateEmail(
+      const duplicateEmailError = checkDuplicateEmail(
         currentStudent.email,
         editingStudentId || undefined,
       );
-      if (duplicateError) errors.email = duplicateError;
+      if (duplicateEmailError) errors.email = duplicateEmailError;
     }
 
     // 전화번호 검증
     const phoneError = validatePhone(currentStudent.phone);
-    if (phoneError) errors.phone = phoneError;
+    if (phoneError) {
+      errors.phone = phoneError;
+    } else {
+      // 중복 전화번호 검증 (수정 모드일 때는 현재 편집 중인 학생 제외)
+      const duplicatePhoneError = checkDuplicatePhone(
+        currentStudent.phone,
+        editingStudentId || undefined,
+      );
+      if (duplicatePhoneError) errors.phone = duplicatePhoneError;
+    }
 
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
@@ -203,14 +225,69 @@ export default function StudentList() {
   const handleExcelConfirm = async () => {
     if (!parsedStudents.length) return;
     setIsExcelAdding(true);
+
     try {
+      // 이메일 중복 검사
+      const duplicateEmails = parsedStudents.filter((student) =>
+        students.some(
+          (existingStudent) => existingStudent.email === student.email,
+        ),
+      );
+      const internalDuplicateEmails = parsedStudents.filter(
+        (student, index) =>
+          parsedStudents.findIndex((s) => s.email === student.email) !== index,
+      );
+
+      // 전화번호 중복 검사
+      const duplicatePhones = parsedStudents.filter((student) =>
+        students.some(
+          (existingStudent) => existingStudent.phone === student.phone,
+        ),
+      );
+      const internalDuplicatePhones = parsedStudents.filter(
+        (student, index) =>
+          parsedStudents.findIndex((s) => s.phone === student.phone) !== index,
+      );
+
+      const duplicates = {
+        emails: Array.from(
+          new Set(
+            [...duplicateEmails, ...internalDuplicateEmails].map(
+              (s) => s.email,
+            ),
+          ),
+        ),
+        phones: Array.from(
+          new Set(
+            [...duplicatePhones, ...internalDuplicatePhones].map(
+              (s) => s.phone,
+            ),
+          ),
+        ),
+      };
+
+      if (duplicates.emails.length > 0 || duplicates.phones.length > 0) {
+        let errorMessage = [];
+        if (duplicates.emails.length > 0) {
+          errorMessage.push(`중복된 이메일: ${duplicates.emails.join(", ")}`);
+        }
+        if (duplicates.phones.length > 0) {
+          errorMessage.push(`중복된 전화번호: ${duplicates.phones.join(", ")}`);
+        }
+        toast.error(errorMessage.join("\n"));
+        setIsExcelAdding(false);
+        return;
+      }
+
       const results = await Promise.allSettled(
         parsedStudents.map((student) =>
           createStudentMutation.mutateAsync(student),
         ),
       );
+
       const hasError = results.some((r) => r.status === "rejected");
       await queryClient.invalidateQueries({ queryKey: ["students"] });
+
       if (hasError) {
         toast.error(
           "일부 학생 추가에 실패했습니다. 네트워크 또는 중복 데이터를 확인하세요.",
