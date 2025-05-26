@@ -79,13 +79,13 @@ export default function LecturesPage() {
         <div className="flex justify-end">
           <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-[#5046E4] hover:bg-[#4038c7]">
+              <Button className="bg-gradient-to-r from-[#5046E4] to-[#6A5AFF] hover:brightness-110 text-white shadow-md hover:shadow-xl transition-all duration-300">
                 강의 추가
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col p-0">
+            <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col p-0 bg-[#252A3C] border-gray-700/30 text-white">
               <DialogHeader className="px-6 pt-6">
-                <DialogTitle>강의 추가</DialogTitle>
+                <DialogTitle className="text-white">강의 추가</DialogTitle>
               </DialogHeader>
               <div className="flex-1 overflow-y-auto px-6">
                 <LectureForm onSuccess={() => setIsOpen(false)} />
@@ -100,7 +100,7 @@ export default function LecturesPage() {
         {dummyLectures.map((lecture) => (
           <div
             key={lecture.id}
-            className="border rounded-lg overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
+            className="bg-[#252A3C] border border-gray-700/30 rounded-xl overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
             onClick={() => setSelectedLecture(lecture)}
           >
             <div className="aspect-video relative">
@@ -111,8 +111,8 @@ export default function LecturesPage() {
               />
             </div>
             <div className="p-4">
-              <h3 className="font-semibold text-lg mb-2">{lecture.title}</h3>
-              <p className="text-gray-600 mb-2 line-clamp-2">
+              <h3 className="font-semibold text-lg mb-2 text-white">{lecture.title}</h3>
+              <p className="text-gray-400 mb-2 line-clamp-2">
                 {lecture.description}
               </p>
               <div className="flex justify-between text-sm text-gray-500">
@@ -128,22 +128,22 @@ export default function LecturesPage() {
         open={!!selectedLecture}
         onOpenChange={() => setSelectedLecture(null)}
       >
-        <DialogContent className="sm:max-w-[800px]">
+        <DialogContent className="sm:max-w-[800px] bg-[#252A3C] border-gray-700/30 text-white">
           <DialogHeader>
-            <DialogTitle>{selectedLecture?.title}</DialogTitle>
+            <DialogTitle className="text-white">{selectedLecture?.title}</DialogTitle>
           </DialogHeader>
           {selectedLecture && (
             <div className="space-y-4">
               <div className="aspect-video">
                 <iframe
                   src={getYouTubeEmbedUrl(selectedLecture.videoUrl)}
-                  className="w-full h-full rounded-lg"
+                  className="w-full h-full rounded-lg border border-gray-700/30"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                 />
               </div>
               <div className="space-y-2">
-                <p className="text-gray-600">{selectedLecture.description}</p>
+                <p className="text-gray-400">{selectedLecture.description}</p>
                 <div className="flex justify-between text-sm text-gray-500">
                   <span>소요시간: {selectedLecture.duration}</span>
                   <span>생성일: {selectedLecture.createdAt}</span>

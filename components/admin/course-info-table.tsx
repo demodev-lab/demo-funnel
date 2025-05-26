@@ -48,10 +48,10 @@ export default function CourseInfoTable() {
 
   return (
     <>
-      <div className="rounded-md border">
+      <div className="bg-[#252A3C] border border-gray-700/30 rounded-xl overflow-hidden shadow-lg">
         <Table>
-          <TableHeader>
-            <TableRow>
+          <TableHeader className="bg-[#1A1D29]/60">
+            <TableRow className="hover:bg-transparent">
               <TableHead>수강생 이름</TableHead>
               <TableHead>이메일</TableHead>
               <TableHead className="text-center">1강</TableHead>
@@ -63,13 +63,13 @@ export default function CourseInfoTable() {
           </TableHeader>
           <TableBody>
             {students.map((student) => (
-              <TableRow key={student.id}>
-                <TableCell className="font-medium">{student.name}</TableCell>
-                <TableCell>{student.email}</TableCell>
+              <TableRow key={student.id} className="hover:bg-[#1C1F2B]/50">
+                <TableCell className="font-medium text-gray-300">{student.name}</TableCell>
+                <TableCell className="text-gray-400">{student.email}</TableCell>
                 {student.submissions.map((submitted, index) => (
                   <TableCell
                     key={index}
-                    className="text-center"
+                    className="text-center cursor-pointer"
                     onClick={() =>
                       setSelectedSubmission({
                         studentId: student.id,
@@ -80,11 +80,11 @@ export default function CourseInfoTable() {
                   >
                     <div className="flex justify-center">
                       {submitted ? (
-                        <div className="w-6 h-6 rounded-full bg-[#DCD9FF] flex items-center justify-center">
-                          <Check className="h-4 w-4 text-[#5046E4]" />
+                        <div className="w-6 h-6 rounded-full bg-[#5046E4]/20 flex items-center justify-center">
+                          <Check className="h-4 w-4 text-[#8C7DFF]" />
                         </div>
                       ) : (
-                        <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center">
+                        <div className="w-6 h-6 rounded-full bg-[#1A1D29]/60 flex items-center justify-center">
                           <X className="h-4 w-4 text-gray-400" />
                         </div>
                       )}
@@ -98,32 +98,32 @@ export default function CourseInfoTable() {
       </div>
 
       <Dialog open={selectedSubmission !== null} onOpenChange={() => setSelectedSubmission(null)}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md bg-[#252A3C] border-gray-700/30 text-white">
           <DialogHeader>
-            <DialogTitle>{selectedSubmission?.submitted ? "과제 제출 정보" : "미제출 과제"}</DialogTitle>
+            <DialogTitle className="text-white">{selectedSubmission?.submitted ? "과제 제출 정보" : "미제출 과제"}</DialogTitle>
           </DialogHeader>
           {selectedSubmission?.submitted ? (
             <div className="space-y-4">
               <div>
-                <h3 className="font-medium">
-                  {students.find((s) => s.id === selectedSubmission.studentId)?.name} -{selectedSubmission.lectureId}강
+                <h3 className="font-medium text-gray-200">
+                  {students.find((s) => s.id === selectedSubmission.studentId)?.name} - {selectedSubmission.lectureId}강
                   과제
                 </h3>
-                <p className="text-sm text-gray-500">제출일: 2024-05-15 14:30</p>
+                <p className="text-sm text-gray-400">제출일: 2024-05-15 14:30</p>
               </div>
-              <div className="border rounded-md p-4 bg-gray-50">
-                <p>
+              <div className="border border-gray-700/30 rounded-md p-4 bg-[#1A1D29]/60">
+                <p className="text-gray-300">
                   과제 내용이 여기에 표시됩니다. 실제 구현 시에는 과제 내용을 불러오거나 외부 링크로 연결할 수 있습니다.
                 </p>
               </div>
               <div className="flex justify-end">
-                <a href="#" className="text-[#5046E5] text-sm hover:underline">
+                <a href="#" className="text-[#8C7DFF] text-sm hover:underline">
                   외부 링크로 보기
                 </a>
               </div>
             </div>
           ) : (
-            <div className="py-6 text-center text-gray-500">
+            <div className="py-6 text-center text-gray-400">
               <p>아직 과제가 제출되지 않았습니다.</p>
             </div>
           )}

@@ -232,20 +232,23 @@ export default function ChallengesPage() {
         <div className="flex justify-end">
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-[#5046E4] hover:bg-[#5046E4]/90">
+              <Button className="bg-gradient-to-r from-[#5046E4] to-[#6A5AFF] hover:brightness-110 text-white shadow-md hover:shadow-xl transition-all duration-300">
                 챌린지 추가
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="bg-[#252A3C] border-gray-700/30 text-white">
               <DialogHeader>
-                <DialogTitle>새 챌린지 추가</DialogTitle>
+                <DialogTitle className="text-white">새 챌린지 추가</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">기수 이름</Label>
+                  <Label htmlFor="name" className="text-gray-300">
+                    기수 이름
+                  </Label>
                   <Input
                     id="name"
                     value={newChallenge.name}
+                    className="bg-[#1A1D29]/70 border-gray-700/50 text-white placeholder:text-gray-500 focus:border-[#5046E4] focus:ring-[#5046E4]/20"
                     onChange={(e) =>
                       setNewChallenge({
                         ...newChallenge,
@@ -257,10 +260,13 @@ export default function ChallengesPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="open_date">시작일</Label>
+                  <Label htmlFor="open_date" className="text-gray-300">
+                    시작일
+                  </Label>
                   <Input
                     id="open_date"
                     type="date"
+                    className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20"
                     value={newChallenge.open_date}
                     onChange={(e) =>
                       setNewChallenge({
@@ -272,10 +278,13 @@ export default function ChallengesPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="close_date">종료일</Label>
+                  <Label htmlFor="close_date" className="text-gray-300">
+                    종료일
+                  </Label>
                   <Input
                     id="close_date"
                     type="date"
+                    className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20"
                     value={newChallenge.close_date}
                     onChange={(e) =>
                       setNewChallenge({
@@ -287,10 +296,13 @@ export default function ChallengesPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lecture_num">강의 개수</Label>
+                  <Label htmlFor="lecture_num" className="text-gray-300">
+                    강의 개수
+                  </Label>
                   <Input
                     id="lecture_num"
                     type="number"
+                    className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20"
                     min="1"
                     value={newChallenge.lecture_num}
                     onChange={(e) =>
@@ -323,160 +335,168 @@ export default function ChallengesPage() {
         </div>
 
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-          <DialogContent>
+          <DialogContent className="bg-[#252A3C] border-gray-700/30 text-white">
             <DialogHeader>
-              <DialogTitle>챌린지 수정</DialogTitle>
+              <DialogTitle className="text-white">챌린지 수정</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="edit-name">기수 이름</Label>
-                <Input
-                  id="edit-name"
-                  value={editingChallenge?.name || ""}
-                  onChange={(e) =>
-                    setEditingChallenge(
-                      editingChallenge
-                        ? { ...editingChallenge, name: e.target.value }
-                        : null,
-                    )
-                  }
-                  disabled={isUpdating}
-                  placeholder="예: 2024년 1기"
-                />
+            {editingChallenge && (
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-name" className="text-gray-300">
+                    기수 이름
+                  </Label>
+                  <Input
+                    id="edit-name"
+                    value={editingChallenge.name}
+                    className="bg-[#1A1D29]/70 border-gray-700/50 text-white placeholder:text-gray-500 focus:border-[#5046E4] focus:ring-[#5046E4]/20"
+                    onChange={(e) =>
+                      setEditingChallenge({
+                        ...editingChallenge,
+                        name: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-startDate" className="text-gray-300">
+                    시작일
+                  </Label>
+                  <Input
+                    id="edit-startDate"
+                    type="date"
+                    className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20"
+                    value={
+                      editingChallenge.startDate.toISOString().split("T")[0]
+                    }
+                    onChange={(e) =>
+                      setEditingChallenge({
+                        ...editingChallenge,
+                        startDate: new Date(e.target.value),
+                      })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-endDate" className="text-gray-300">
+                    종료일
+                  </Label>
+                  <Input
+                    id="edit-endDate"
+                    type="date"
+                    className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20"
+                    value={editingChallenge.endDate.toISOString().split("T")[0]}
+                    onChange={(e) =>
+                      setEditingChallenge({
+                        ...editingChallenge,
+                        endDate: new Date(e.target.value),
+                      })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-lectureCount" className="text-gray-300">
+                    강의 개수
+                  </Label>
+                  <Input
+                    id="edit-lectureCount"
+                    type="number"
+                    className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20"
+                    value={editingChallenge.lectureCount}
+                    onChange={(e) =>
+                      setEditingChallenge({
+                        ...editingChallenge,
+                        lectureCount: parseInt(e.target.value),
+                      })
+                    }
+                  />
+                </div>
+                <Button
+                  onClick={handleUpdateChallenge}
+                  className="w-full bg-gradient-to-r from-[#5046E4] to-[#6A5AFF] hover:brightness-110 text-white shadow-md hover:shadow-xl transition-all duration-300"
+                >
+                  수정 완료
+                </Button>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-open_date">시작일</Label>
-                <Input
-                  id="edit-open_date"
-                  type="date"
-                  value={editingChallenge?.open_date || ""}
-                  onChange={(e) =>
-                    setEditingChallenge(
-                      editingChallenge
-                        ? {
-                            ...editingChallenge,
-                            open_date: e.target.value,
-                          }
-                        : null,
-                    )
-                  }
-                  disabled={isUpdating}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-close_date">종료일</Label>
-                <Input
-                  id="edit-close_date"
-                  type="date"
-                  value={editingChallenge?.close_date || ""}
-                  onChange={(e) =>
-                    setEditingChallenge(
-                      editingChallenge
-                        ? {
-                            ...editingChallenge,
-                            close_date: e.target.value,
-                          }
-                        : null,
-                    )
-                  }
-                  disabled={isUpdating}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-lecture_num">강의 개수</Label>
-                <Input
-                  id="edit-lecture_num"
-                  type="number"
-                  min="1"
-                  value={editingChallenge?.lecture_num || ""}
-                  onChange={(e) =>
-                    setEditingChallenge(
-                      editingChallenge
-                        ? {
-                            ...editingChallenge,
-                            lecture_num: parseInt(e.target.value) || 0,
-                          }
-                        : null,
-                    )
-                  }
-                  disabled={isUpdating}
-                  placeholder="예: 12"
-                />
-              </div>
-              <Button
-                onClick={handleUpdateChallenge}
-                className="w-full"
-                disabled={isUpdating}
-              >
-                {isUpdating ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    수정 중...
-                  </>
-                ) : (
-                  "수정"
-                )}
-              </Button>
-            </div>
+            )}
           </DialogContent>
         </Dialog>
 
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>기수 이름</TableHead>
-              <TableHead>시작일</TableHead>
-              <TableHead>종료일</TableHead>
-              <TableHead>강의 개수</TableHead>
-              <TableHead className="text-right">관리</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {[...challenges]
-              .sort((a, b) => a.id - b.id)
-              .map((challenge) => (
-                <TableRow key={challenge.id}>
-                  <TableCell>{challenge.name}</TableCell>
-                  <TableCell>
-                    {new Date(challenge.open_date).toLocaleDateString("ko-KR")}
+        <div className="bg-[#252A3C] border border-gray-700/30 rounded-xl overflow-hidden shadow-lg">
+          <Table>
+            <TableHeader className="bg-[#1A1D29]/60">
+              <TableRow className="hover:bg-transparent">
+                <TableHead>기수 이름</TableHead>
+                <TableHead>시작일</TableHead>
+                <TableHead>종료일</TableHead>
+                <TableHead>강의 개수</TableHead>
+                <TableHead className="text-right">관리</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {challenges.map((challenge) => (
+                <TableRow key={challenge.id} className="hover:bg-[#1C1F2B]/50">
+                  <TableCell className="font-medium text-gray-300">
+                    {challenge.name}
                   </TableCell>
-                  <TableCell>
-                    {new Date(challenge.close_date).toLocaleDateString("ko-KR")}
+                  <TableCell className="text-gray-400">
+                    {challenge.startDate.toLocaleDateString("ko-KR")}
                   </TableCell>
-                  <TableCell>{challenge.lecture_num}개</TableCell>
+                  <TableCell className="text-gray-400">
+                    {challenge.endDate.toLocaleDateString("ko-KR")}
+                  </TableCell>
+                  <TableCell className="text-gray-300">
+                    {challenge.lectureCount}개
+                  </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEditChallenge(challenge)}
-                        disabled={isUpdating}
+                    <Button
+                      onClick={() => handleEditChallenge(challenge.id)}
+                      variant="ghost"
+                      className="h-8 w-8 p-0 mr-1 text-gray-400 hover:text-[#8C7DFF] hover:bg-[#1A1D29]/60"
+                    >
+                      <span className="sr-only">Edit</span>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="h-4 w-4"
                       >
-                        수정
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() =>
-                          handleDeleteChallenge(challenge.id.toString())
-                        }
-                        disabled={
-                          isDeleting && deletingId === challenge.id.toString()
-                        }
+                        <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34" />
+                        <polygon points="18 2 22 6 12 16 8 16 8 12 18 2" />
+                      </svg>
+                    </Button>
+                    <Button
+                      onClick={() => handleDeleteChallenge(challenge.id)}
+                      variant="ghost"
+                      className="h-8 w-8 p-0 text-gray-400 hover:text-red-400 hover:bg-[#1A1D29]/60"
+                    >
+                      <span className="sr-only">Delete</span>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="h-4 w-4"
                       >
-                        {isDeleting &&
-                        deletingId === challenge.id.toString() ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          "삭제"
-                        )}
-                      </Button>
-                    </div>
+                        <path d="M3 6h18" />
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                        <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                        <line x1="10" y1="11" x2="10" y2="17" />
+                        <line x1="14" y1="11" x2="14" y2="17" />
+                      </svg>
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
-          </TableBody>
-        </Table>
+            </TableBody>
+          </Table>
+        </div>
       </div>
     </div>
   );
