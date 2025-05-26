@@ -60,26 +60,39 @@ export default function EmailSender() {
   }
 
   return (
-    <Tabs defaultValue="send">
-      <TabsList>
-        <TabsTrigger value="send">이메일 발송</TabsTrigger>
-        <TabsTrigger value="logs">발송 로그</TabsTrigger>
+    <Tabs defaultValue="send" className="pt-6">
+      <TabsList className="bg-[#1A1D29]/60 border border-gray-700/30">
+        <TabsTrigger
+          value="send"
+          className="data-[state=active]:bg-[#5046E4] data-[state=active]:text-white"
+        >
+          이메일 발송
+        </TabsTrigger>
+        <TabsTrigger
+          value="logs"
+          className="data-[state=active]:bg-[#5046E4] data-[state=active]:text-white"
+        >
+          발송 로그
+        </TabsTrigger>
       </TabsList>
 
-      <TabsContent value="send">
+      <TabsContent value="send" className="pt-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card>
+          <Card className="bg-[#252A3C] border-gray-700/30 shadow-lg rounded-xl overflow-hidden">
             <CardContent className="pt-6">
               <div className="space-y-4">
                 <div>
-                  <Label className="text-base">대상 선택</Label>
+                  <Label className="text-base text-gray-300">대상 선택</Label>
                   <div className="mt-2">
-                    <Input placeholder="이름 또는 이메일 검색" className="mb-2" />
+                    <Input
+                      placeholder="이름 또는 이메일 검색"
+                      className="mb-2 bg-[#1A1D29]/70 border-gray-700/50 text-white placeholder:text-gray-500 focus:border-[#5046E4] focus:ring-[#5046E4]/20"
+                    />
 
-                    <div className="border rounded-md">
+                    <div className="bg-[#1A1D29]/40 border border-gray-700/30 rounded-lg overflow-hidden">
                       <Table>
-                        <TableHeader>
-                          <TableRow>
+                        <TableHeader className="bg-[#1A1D29]/60">
+                          <TableRow className="hover:bg-transparent">
                             <TableHead className="w-12">
                               <Checkbox checked={selectAll} onCheckedChange={handleSelectAll} />
                             </TableHead>
@@ -89,22 +102,22 @@ export default function EmailSender() {
                         </TableHeader>
                         <TableBody>
                           {studentList.map((student) => (
-                            <TableRow key={student.id}>
+                            <TableRow key={student.id} className="hover:bg-[#1C1F2B]/50">
                               <TableCell>
                                 <Checkbox
                                   checked={student.selected}
                                   onCheckedChange={() => handleSelectStudent(student.id)}
                                 />
                               </TableCell>
-                              <TableCell>{student.name}</TableCell>
-                              <TableCell>{student.email}</TableCell>
+                              <TableCell className="text-gray-300">{student.name}</TableCell>
+                              <TableCell className="text-gray-400">{student.email}</TableCell>
                             </TableRow>
                           ))}
                         </TableBody>
                       </Table>
                     </div>
 
-                    <div className="mt-2 text-sm text-gray-500">
+                    <div className="mt-2 text-sm text-gray-400">
                       {studentList.filter((s) => s.selected).length}명 선택됨
                     </div>
                   </div>
@@ -113,21 +126,21 @@ export default function EmailSender() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-[#252A3C] border-gray-700/30 shadow-lg rounded-xl overflow-hidden">
             <CardContent className="pt-6">
               <div className="space-y-4">
                 <div>
-                  <Label className="text-base">템플릿 선택</Label>
+                  <Label className="text-base text-gray-300">템플릿 선택</Label>
                   <RadioGroup value={selectedTemplate} onValueChange={setSelectedTemplate} className="mt-2 space-y-2">
-                    <div className="flex items-center space-x-2 rounded-md border p-3">
+                    <div className="flex items-center space-x-2 rounded-md border border-gray-700/30 bg-[#1A1D29]/40 p-3 hover:bg-[#1A1D29]/60 transition-colors">
                       <RadioGroupItem value="lecture-open" id="lecture-open" />
-                      <Label htmlFor="lecture-open" className="flex-1">
+                      <Label htmlFor="lecture-open" className="flex-1 text-gray-300">
                         📢 강의 오픈 알림
                       </Label>
                     </div>
-                    <div className="flex items-center space-x-2 rounded-md border p-3">
+                    <div className="flex items-center space-x-2 rounded-md border border-gray-700/30 bg-[#1A1D29]/40 p-3 hover:bg-[#1A1D29]/60 transition-colors">
                       <RadioGroupItem value="assignment-reminder" id="assignment-reminder" />
-                      <Label htmlFor="assignment-reminder" className="flex-1">
+                      <Label htmlFor="assignment-reminder" className="flex-1 text-gray-300">
                         📬 과제 제출 독려
                       </Label>
                     </div>
@@ -135,25 +148,27 @@ export default function EmailSender() {
                 </div>
 
                 <div>
-                  <Label className="text-base">이메일 미리보기</Label>
-                  <div className="mt-2 p-4 border rounded-md bg-gray-50 whitespace-pre-line">
+                  <Label className="text-base text-gray-300">이메일 미리보기</Label>
+                  <div className="mt-2 p-4 border border-gray-700/30 rounded-md bg-[#1A1D29]/60 text-gray-300 whitespace-pre-line">
                     {getTemplatePreview()}
                   </div>
                 </div>
 
-                <Button className="w-full bg-[#5046E4] hover:bg-[#4038c7]">발송하기</Button>
+                <Button className="w-full bg-gradient-to-r from-[#5046E4] to-[#6A5AFF] hover:brightness-110 text-white shadow-md hover:shadow-xl transition-all duration-300">
+                  발송하기
+                </Button>
               </div>
             </CardContent>
           </Card>
         </div>
       </TabsContent>
 
-      <TabsContent value="logs">
-        <Card>
+      <TabsContent value="logs" className="pt-6">
+        <Card className="bg-[#252A3C] border-gray-700/30 shadow-lg rounded-xl overflow-hidden">
           <CardContent className="pt-6">
             <Table>
-              <TableHeader>
-                <TableRow>
+              <TableHeader className="bg-[#1A1D29]/60">
+                <TableRow className="hover:bg-transparent">
                   <TableHead>발송 날짜</TableHead>
                   <TableHead>템플릿 유형</TableHead>
                   <TableHead className="text-right">대상 수</TableHead>
@@ -162,11 +177,11 @@ export default function EmailSender() {
               </TableHeader>
               <TableBody>
                 {emailLogs.map((log) => (
-                  <TableRow key={log.id}>
-                    <TableCell>{log.date}</TableCell>
-                    <TableCell>{log.template}</TableCell>
-                    <TableCell className="text-right">{log.targets}명</TableCell>
-                    <TableCell className="text-right">{log.success}명</TableCell>
+                  <TableRow key={log.id} className="hover:bg-[#1C1F2B]/50">
+                    <TableCell className="text-gray-300">{log.date}</TableCell>
+                    <TableCell className="text-gray-300">{log.template}</TableCell>
+                    <TableCell className="text-right text-gray-300">{log.targets}명</TableCell>
+                    <TableCell className="text-right text-green-400">{log.success}명</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

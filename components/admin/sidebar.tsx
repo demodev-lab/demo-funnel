@@ -11,6 +11,7 @@ import {
   Users,
   LogOut,
   Trophy,
+  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -38,63 +39,85 @@ export default function Sidebar() {
   ];
 
   const SidebarContent = () => (
-    <>
-      <div className="p-4 border-b border-gray-200">
-        <h2 className="text-xl font-bold text-[#5046E4]">demo-funnel</h2>
-        <p className="text-sm text-gray-500">관리자 백오피스</p>
+    <div className="flex flex-col h-full bg-gradient-to-b from-[#1A1D29] to-[#252A3C] text-white">
+      <div className="p-6 border-b border-gray-700/30">
+        <h2 className="text-xl font-bold">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#5046E4] to-[#8C7DFF]">
+            demo-funnel
+          </span>
+        </h2>
+        <p className="text-sm text-gray-400 mt-1">관리자 백오피스</p>
       </div>
 
-      <div className="flex-1 overflow-y-auto py-4">
-        <nav className="px-2 space-y-1">
+      <div className="flex-1 overflow-y-auto py-6 px-4">
+        <nav className="space-y-1.5">
           {navigation.map((item) => {
             const isActive = pathname === item.href;
             return (
               <Link
                 key={item.name}
                 href={item.href}
-                className={`flex items-center px-4 py-2 text-sm font-medium rounded-md ${
+                className={`flex items-center justify-between px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 group ${
                   isActive
-                    ? "bg-[#DCD9FF] text-[#5046E4]"
-                    : "text-gray-600 hover:bg-gray-50"
+                    ? "bg-[#5046E4]/10 text-[#8C7DFF] border-l-2 border-[#8C7DFF]"
+                    : "text-gray-300 hover:bg-[#1C1F2B] hover:text-white"
                 }`}
                 onClick={() => !isDesktop && setOpen(false)}
               >
-                <item.icon
-                  className={`mr-3 h-5 w-5 ${
-                    isActive ? "text-[#5046E4]" : "text-gray-400"
-                  }`}
-                />
-                {item.name}
+                <div className="flex items-center">
+                  <div className={`mr-3 p-1 rounded-md ${isActive ? "bg-[#5046E4]/10" : "bg-transparent group-hover:bg-[#1C1F2B]/50"}`}>
+                    <item.icon
+                      className={`h-5 w-5 ${
+                        isActive ? "text-[#8C7DFF]" : "text-gray-400 group-hover:text-gray-200"
+                      }`}
+                    />
+                  </div>
+                  <span>{item.name}</span>
+                </div>
+                {isActive && (
+                  <ChevronRight className="h-4 w-4 text-[#8C7DFF] opacity-70" />
+                )}
               </Link>
             );
           })}
         </nav>
       </div>
 
-      <div className="p-4 border-t border-gray-200">
-        <button className="flex items-center w-full px-4 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50">
-          <LogOut className="mr-3 h-5 w-5 text-gray-400" />
-          로그아웃
+      <div className="p-4 border-t border-gray-700/30 mt-auto">
+        <button className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-gray-300 rounded-lg hover:bg-[#1C1F2B] hover:text-white transition-colors duration-200 group">
+          <div className="flex items-center">
+            <div className="mr-3 p-1 rounded-md bg-transparent group-hover:bg-[#1C1F2B]/50">
+              <LogOut className="h-5 w-5 text-gray-400 group-hover:text-gray-200" />
+            </div>
+            <span>로그아웃</span>
+          </div>
         </button>
       </div>
-    </>
+    </div>
   );
 
   return (
     <>
       {/* Desktop Sidebar */}
-      <div className="hidden md:flex md:flex-col md:w-64 md:bg-white md:border-r md:border-gray-200">
+      <div className="hidden md:block md:w-64 border-r border-gray-700/30 shadow-lg h-screen">
         <SidebarContent />
       </div>
 
       {/* Mobile Sidebar */}
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild className="md:hidden absolute top-4 left-4 z-10">
-          <Button variant="ghost" size="icon" className="md:hidden">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden text-white hover:bg-[#1C1F2B]/70"
+          >
             <span className="sr-only">Open sidebar</span>
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="p-0 w-64">
+        <SheetContent
+          side="left"
+          className="p-0 w-64 border-r border-gray-700/30 shadow-lg"
+        >
           <SidebarContent />
         </SheetContent>
       </Sheet>
