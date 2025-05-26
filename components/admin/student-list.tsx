@@ -382,6 +382,13 @@ export default function StudentList() {
     }
   };
 
+  const resetFormState = () => {
+    setCurrentStudent({ name: "", email: "", phone: "" });
+    setValidationErrors({});
+    setIsEditMode(false);
+    setEditingStudentId(null);
+  };
+
   // 로딩 상태
   if (isLoading) {
     return (
@@ -543,7 +550,15 @@ export default function StudentList() {
             </DialogContent>
           </Dialog>
 
-          <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+          <Dialog
+            open={isFormOpen}
+            onOpenChange={(open) => {
+              setIsFormOpen(open);
+              if (!open) {
+                resetFormState();
+              }
+            }}
+          >
             <DialogTrigger asChild>
               <Button size="sm" className="bg-[#5046E4] hover:bg-[#4038c7]">
                 <Plus className="w-4 h-4 mr-2" />
