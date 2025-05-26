@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
 import DailyLectureItem from "./daily-lecture-item";
 import LecturePlayer from "./lecture-player";
 import {
@@ -18,15 +20,19 @@ interface Video {
 }
 
 interface DailyLectureSectionProps {
-  videos: Video[];
   isLockedModalOpen: boolean;
   lockedVideoTitle: string;
   onLockedClick: (title: string) => void;
   onLockedModalChange: (open: boolean) => void;
 }
 
+// TODO: api 경로 수정 및 분리
+const fetchLectures = async () => {
+  const { data } = await axios.get('/api/test');
+  return data.lectures;
+};
+
 export default function DailyLectureSection({
-  videos,
   isLockedModalOpen,
   lockedVideoTitle,
   onLockedClick,
@@ -35,20 +41,27 @@ export default function DailyLectureSection({
   const [isPlaying, setIsPlaying] = useState(false);
   const [selectedVideoIdx, setSelectedVideoIdx] = useState(0);
 
-  const mainVideo = {
+  const { data: videos = [] } = useQuery({
+    queryKey: ['lectures'],
+    queryFn: fetchLectures,
+  });
+
+  const mainVideo = videos[selectedVideoIdx] ? {
     title: videos[selectedVideoIdx].title,
     description: videos[selectedVideoIdx].description,
     videoUrl: videos[selectedVideoIdx].videoUrl,
-  };
+  } : null;
 
   const togglePlay = () => {
     setIsPlaying(!isPlaying);
   };
 
-  const handleVideoSelect = (index) => {
+  const handleVideoSelect = (index: number) => {
     setSelectedVideoIdx(index);
     setIsPlaying(false);
   };
+
+  if (!mainVideo) return null;
 
   return (
     <>
@@ -64,8 +77,7 @@ export default function DailyLectureSection({
       <div className="p-6">
         <h3 className="text-xl font-bold mb-4">강의 목록</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {/* TODO: 4개로 고정 후 슬라이더 or 페이지네이션 추가 */}
-          {videos.map((video, index) => (
+          {videos.map((video: Video, index: number) => (
             <DailyLectureItem
               key={video.id}
               video={video}

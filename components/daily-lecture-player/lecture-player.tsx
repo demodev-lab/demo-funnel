@@ -48,7 +48,7 @@ export default function LecturePlayer({
           </div>
         )}
       </div>
-      <div className="bg-[#1C1F2B] p-4">
+      <div className="bg-black p-4">
         <p className="text-sm font-medium">오늘의 강의: {title}</p>
       </div>
     </>
