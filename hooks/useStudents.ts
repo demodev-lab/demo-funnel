@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getUsers } from "@/apis/users";
+import { getUsers, addUsers } from "@/apis/users";
 
 // 공통 데이터 모듈에서 타입 가져오기
 export type { Student } from "@/lib/data/students-data";
@@ -103,7 +103,7 @@ export const useCreateStudent = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: studentsApi.createStudent,
+    mutationFn: (data: StudentInput) => addUsers(data),
     onSuccess: () => {
       // 학생 목록 다시 불러오기
       queryClient.invalidateQueries({ queryKey: ["students"] });

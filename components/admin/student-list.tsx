@@ -228,31 +228,16 @@ export default function StudentList() {
   };
 
   const handleAddStudent = async () => {
-    // 폼 검증
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     try {
-      if (isEditMode && editingStudentId) {
-        // 수정 모드
-        await updateStudentMutation.mutateAsync({
-          id: editingStudentId,
-          ...currentStudent,
-        });
-        toast.success("학생 정보가 성공적으로 수정되었습니다.");
-      } else {
-        // 추가 모드
-        await createStudentMutation.mutateAsync(currentStudent);
-        toast.success("학생이 성공적으로 추가되었습니다.");
-      }
+      await createStudentMutation.mutateAsync(currentStudent);
+      toast.success("학생이 성공적으로 추가되었습니다.");
 
       // 폼 초기화
       setCurrentStudent({ name: "", email: "", phone: "" });
       setValidationErrors({});
       setIsFormOpen(false);
-      setIsEditMode(false);
-      setEditingStudentId(null);
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "오류가 발생했습니다.",
@@ -549,13 +534,9 @@ export default function StudentList() {
                 <Button
                   className="w-full bg-[#5046E4] hover:bg-[#4038c7]"
                   onClick={handleAddStudent}
-                  disabled={
-                    createStudentMutation.isPending ||
-                    updateStudentMutation.isPending
-                  }
+                  disabled={createStudentMutation.isPending}
                 >
-                  {(createStudentMutation.isPending ||
-                    updateStudentMutation.isPending) && (
+                  {createStudentMutation.isPending && (
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   )}
                   {isEditMode ? "수정하기" : "추가하기"}
