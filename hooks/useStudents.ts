@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { getUsers } from "@/apis/users";
 
 // 공통 데이터 모듈에서 타입 가져오기
 export type { Student } from "@/lib/data/students-data";
@@ -92,9 +93,9 @@ const studentsApi = {
 
 // React Query 훅들
 export const useStudents = () => {
-  return useQuery({
+  return useQuery<Student[]>({
     queryKey: ["students"],
-    queryFn: studentsApi.getStudents,
+    queryFn: getUsers,
   });
 };
 
