@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getUsers, addUsers, updateUser } from "@/apis/users";
+import { getUsers, addUsers, updateUser, deleteUser } from "@/apis/users";
 
 // 공통 데이터 모듈에서 타입 가져오기
 export type { Student } from "@/lib/data/students-data";
@@ -122,18 +122,13 @@ export function useUpdateStudent() {
   });
 }
 
-export const useDeleteStudent = () => {
+export function useDeleteStudent() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: studentsApi.deleteStudent,
+    mutationFn: deleteUser,
     onSuccess: () => {
-      console.log("DELETE mutation 성공 - 쿼리 무효화 중..."); // 디버깅
-      // 학생 목록 다시 불러오기
       queryClient.invalidateQueries({ queryKey: ["students"] });
     },
-    onError: (error) => {
-      console.error("DELETE mutation 실패:", error); // 디버깅
-    },
   });
-};
+}
