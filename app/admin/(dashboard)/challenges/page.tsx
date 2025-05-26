@@ -39,6 +39,9 @@ interface Challenge {
   lecture_num: number;
   created_at?: string;
   updated_at?: string;
+  startDate?: Date;
+  endDate?: Date;
+  lectureCount?: number;
 }
 
 export default function ChallengesPage() {
@@ -154,7 +157,13 @@ export default function ChallengesPage() {
   };
 
   const handleEditChallenge = (challenge: Challenge) => {
-    setEditingChallenge(challenge);
+    const editChallenge = {
+      ...challenge,
+      startDate: new Date(challenge.open_date),
+      endDate: new Date(challenge.close_date),
+      lectureCount: challenge.lecture_num,
+    };
+    setEditingChallenge(editChallenge);
     setIsEditDialogOpen(true);
   };
 
@@ -163,23 +172,23 @@ export default function ChallengesPage() {
 
     if (
       !editingChallenge.name ||
-      !editingChallenge.open_date ||
-      !editingChallenge.close_date
+      !editingChallenge.startDate ||
+      !editingChallenge.endDate
     ) {
       toast.error("모든 필수 항목을 입력해주세요.");
       return;
     }
 
     // 날짜 유효성 검사
-    const openDate = new Date(editingChallenge.open_date);
-    const closeDate = new Date(editingChallenge.close_date);
+    const openDate = editingChallenge.startDate;
+    const closeDate = editingChallenge.endDate;
 
     if (closeDate <= openDate) {
       toast.error("종료일은 시작일보다 늦어야 합니다.");
       return;
     }
 
-    if (editingChallenge.lecture_num <= 0) {
+    if (editingChallenge.lectureCount && editingChallenge.lectureCount <= 0) {
       toast.error("강의 개수는 1개 이상이어야 합니다.");
       return;
     }
@@ -188,9 +197,9 @@ export default function ChallengesPage() {
       id: editingChallenge.id.toString(),
       data: {
         name: editingChallenge.name,
-        open_date: editingChallenge.open_date,
-        close_date: editingChallenge.close_date,
-        lecture_num: editingChallenge.lecture_num,
+        open_date: editingChallenge.startDate.toISOString().split("T")[0],
+        close_date: editingChallenge.endDate.toISOString().split("T")[0],
+        lecture_num: editingChallenge.lectureCount || 0,
       },
     });
   };
@@ -366,7 +375,7 @@ export default function ChallengesPage() {
                     type="date"
                     className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20"
                     value={
-                      editingChallenge.startDate.toISOString().split("T")[0]
+                      editingChallenge.startDate?.toISOString().split("T")[0]
                     }
                     onChange={(e) =>
                       setEditingChallenge({
@@ -384,7 +393,9 @@ export default function ChallengesPage() {
                     id="edit-endDate"
                     type="date"
                     className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20"
-                    value={editingChallenge.endDate.toISOString().split("T")[0]}
+                    value={
+                      editingChallenge.endDate?.toISOString().split("T")[0]
+                    }
                     onChange={(e) =>
                       setEditingChallenge({
                         ...editingChallenge,
@@ -401,11 +412,11 @@ export default function ChallengesPage() {
                     id="edit-lectureCount"
                     type="number"
                     className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20"
-                    value={editingChallenge.lectureCount}
+                    value={editingChallenge.lectureCount || 0}
                     onChange={(e) =>
                       setEditingChallenge({
                         ...editingChallenge,
-                        lectureCount: parseInt(e.target.value),
+                        lectureCount: parseInt(e.target.value) || 0,
                       })
                     }
                   />
@@ -439,17 +450,17 @@ export default function ChallengesPage() {
                     {challenge.name}
                   </TableCell>
                   <TableCell className="text-gray-400">
-                    {challenge.startDate.toLocaleDateString("ko-KR")}
+                    {new Date(challenge.open_date).toLocaleDateString("ko-KR")}
                   </TableCell>
                   <TableCell className="text-gray-400">
-                    {challenge.endDate.toLocaleDateString("ko-KR")}
+                    {new Date(challenge.close_date).toLocaleDateString("ko-KR")}
                   </TableCell>
                   <TableCell className="text-gray-300">
-                    {challenge.lectureCount}개
+                    {challenge.lecture_num}개
                   </TableCell>
                   <TableCell className="text-right">
                     <Button
-                      onClick={() => handleEditChallenge(challenge.id)}
+                      onClick={() => handleEditChallenge(challenge)}
                       variant="ghost"
                       className="h-8 w-8 p-0 mr-1 text-gray-400 hover:text-[#8C7DFF] hover:bg-[#1A1D29]/60"
                     >
@@ -469,7 +480,9 @@ export default function ChallengesPage() {
                       </svg>
                     </Button>
                     <Button
-                      onClick={() => handleDeleteChallenge(challenge.id)}
+                      onClick={() =>
+                        handleDeleteChallenge(challenge.id.toString())
+                      }
                       variant="ghost"
                       className="h-8 w-8 p-0 text-gray-400 hover:text-red-400 hover:bg-[#1A1D29]/60"
                     >
