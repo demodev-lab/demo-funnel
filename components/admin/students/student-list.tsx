@@ -1,0 +1,314 @@
+"use client";
+
+import { Button } from "@/components/ui/button";
+import { Plus, Upload, Loader2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { useState, useRef } from "react";
+import { toast } from "sonner";
+import {
+  useStudents,
+  useCreateStudent,
+  useUpdateStudent,
+  useDeleteStudent,
+  type Student,
+} from "@/hooks/useStudents";
+import { useQueryClient } from "@tanstack/react-query";
+import { StudentTable } from "./student-table";
+import { StudentForm } from "./student-form";
+import { ExcelUploadDialogContent } from "./excel-upload-dialog";
+import { DeleteDialogContent } from "./delete-dialog";
+import {
+  validateStudentForm,
+  type ValidationErrors,
+} from "@/utils/validations/student";
+import { parseExcelFile } from "@/utils/excel/student";
+import { StudentListState } from "./student-list-state";
+
+export default function StudentList() {
+  // React Query 훅들
+  const { data: students = [], isLoading, error, isError } = useStudents();
+  const createStudentMutation = useCreateStudent();
+  const updateStudentMutation = useUpdateStudent();
+  const deleteStudentMutation = useDeleteStudent();
+  const queryClient = useQueryClient();
+
+  // 상태 관리
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [studentToDelete, setStudentToDelete] = useState<string | null>(null);
+  const [currentStudent, setCurrentStudent] = useState<Omit<Student, "id">>({
+    name: "",
+    email: "",
+    phone: "",
+  });
+  const [editingStudentId, setEditingStudentId] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
+    {},
+  );
+
+  // 엑셀 업로드 상태
+  const [isExcelDialogOpen, setIsExcelDialogOpen] = useState(false);
+  const [isExcelUploading, setIsExcelUploading] = useState(false);
+  const [parsedStudents, setParsedStudents] = useState<
+    Array<Omit<Student, "id">>
+  >([]);
+  const [isExcelAdding, setIsExcelAdding] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsExcelUploading(true);
+    try {
+      const studentsToAdd = await parseExcelFile(file);
+      setParsedStudents(studentsToAdd);
+    } catch (err: any) {
+      toast.error(err?.message || "엑셀 업로드 중 오류가 발생했습니다.");
+    } finally {
+      setIsExcelUploading(false);
+    }
+  };
+
+  const handleExcelDialogClose = (open: boolean) => {
+    setIsExcelDialogOpen(open);
+    if (!open) {
+      setParsedStudents([]);
+      setIsExcelUploading(false);
+      setIsExcelAdding(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const handleExcelCancel = () => {
+    setParsedStudents([]);
+    setIsExcelDialogOpen(false);
+    setIsExcelUploading(false);
+    setIsExcelAdding(false);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleExcelConfirm = async () => {
+    if (!parsedStudents.length) return;
+
+    setIsExcelAdding(true);
+    try {
+      const results = await Promise.allSettled(
+        parsedStudents.map((student) =>
+          createStudentMutation.mutateAsync(student),
+        ),
+      );
+      const hasError = results.some((r) => r.status === "rejected");
+      await queryClient.invalidateQueries({ queryKey: ["students"] });
+
+      if (hasError) {
+        toast.error(
+          "일부 학생 추가에 실패했습니다. 네트워크 또는 중복 데이터를 확인하세요.",
+        );
+      } else {
+        toast.success("엑셀에서 불러온 학생이 목록에 추가되었습니다.");
+      }
+
+      setParsedStudents([]);
+      setIsExcelDialogOpen(false);
+    } catch (err: any) {
+      toast.error(err?.message || "엑셀 추가 중 오류가 발생했습니다.");
+    } finally {
+      setIsExcelAdding(false);
+    }
+  };
+
+  const handleAddStudent = async () => {
+    const errors = validateStudentForm(
+      currentStudent,
+      students,
+      editingStudentId,
+    );
+    setValidationErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+
+    try {
+      if (isEditMode && editingStudentId) {
+        await updateStudentMutation.mutateAsync({
+          id: editingStudentId,
+          ...currentStudent,
+        });
+        toast.success("학생 정보가 성공적으로 수정되었습니다.");
+      } else {
+        await createStudentMutation.mutateAsync(currentStudent);
+        toast.success("학생이 성공적으로 추가되었습니다.");
+      }
+
+      setCurrentStudent({ name: "", email: "", phone: "" });
+      setValidationErrors({});
+      setIsFormOpen(false);
+      setIsEditMode(false);
+      setEditingStudentId(null);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "오류가 발생했습니다.",
+      );
+    }
+  };
+
+  const handleEditClick = (student: Student) => {
+    setCurrentStudent({
+      name: student.name,
+      email: student.email,
+      phone: student.phone,
+    });
+    setEditingStudentId(student.id);
+    setIsEditMode(true);
+    setValidationErrors({});
+    setIsFormOpen(true);
+  };
+
+  const handleDeleteClick = (studentId: string) => {
+    setStudentToDelete(studentId);
+    setIsDeleteOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!studentToDelete) return;
+
+    try {
+      await deleteStudentMutation.mutateAsync(studentToDelete);
+      toast.success("학생이 성공적으로 삭제되었습니다.");
+      setStudentToDelete(null);
+      setIsDeleteOpen(false);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "삭제 중 오류가 발생했습니다.",
+      );
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setStudentToDelete(null);
+    setIsDeleteOpen(false);
+  };
+
+  const handleInputChange = (
+    field: keyof Omit<Student, "id">,
+    value: string,
+  ) => {
+    setCurrentStudent({ ...currentStudent, [field]: value });
+    if (validationErrors[field]) {
+      setValidationErrors({ ...validationErrors, [field]: undefined });
+    }
+  };
+
+  if (isLoading || isError) {
+    return (
+      <StudentListState
+        isLoading={isLoading}
+        error={isError ? error : null}
+        onRetry={() => window.location.reload()}
+      />
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="py-4 flex justify-end">
+        <div className="space-x-2">
+          {/* 엑셀 업로드 다이얼로그 */}
+          <Dialog
+            open={isExcelDialogOpen}
+            onOpenChange={handleExcelDialogClose}
+          >
+            <DialogTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsExcelDialogOpen(true)}
+                disabled={isExcelUploading || isExcelAdding}
+              >
+                {isExcelUploading || isExcelAdding ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Upload className="w-4 h-4 mr-2" />
+                )}
+                엑셀 파일 업로드
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>엑셀 파일 업로드</DialogTitle>
+              </DialogHeader>
+              <ExcelUploadDialogContent
+                parsedStudents={parsedStudents}
+                isUploading={isExcelUploading}
+                isAdding={isExcelAdding}
+                onFileChange={handleFileUpload}
+                onCancel={handleExcelCancel}
+                onConfirm={handleExcelConfirm}
+                fileInputRef={fileInputRef}
+              />
+            </DialogContent>
+          </Dialog>
+
+          {/* 학생 추가/수정 다이얼로그 */}
+          <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm" className="bg-[#5046E4] hover:bg-[#4038c7]">
+                <Plus className="w-4 h-4 mr-2" />
+                수강생 추가
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>
+                  {isEditMode ? "수강생 수정" : "수강생 추가"}
+                </DialogTitle>
+              </DialogHeader>
+              <StudentForm
+                student={currentStudent}
+                onSubmit={handleAddStudent}
+                onChange={handleInputChange}
+                validationErrors={validationErrors}
+                isSubmitting={
+                  createStudentMutation.isPending ||
+                  updateStudentMutation.isPending
+                }
+                isEditMode={isEditMode}
+              />
+            </DialogContent>
+          </Dialog>
+        </div>
+      </div>
+
+      {/* 삭제 확인 다이얼로그 */}
+      <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>수강생 삭제</DialogTitle>
+          </DialogHeader>
+          <DeleteDialogContent
+            onCancel={handleDeleteCancel}
+            onConfirm={handleDeleteConfirm}
+            isDeleting={deleteStudentMutation.isPending}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* 학생 목록 테이블 */}
+      <StudentTable
+        students={students}
+        onEdit={handleEditClick}
+        onDelete={handleDeleteClick}
+        isUpdating={updateStudentMutation.isPending}
+        isDeleting={deleteStudentMutation.isPending}
+      />
+    </div>
+  );
+}

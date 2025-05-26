@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { getUsers, addUsers, updateUser, deleteUser } from "@/apis/users";
 
 // 공통 데이터 모듈에서 타입 가져오기
 export type { Student } from "@/lib/data/students-data";
@@ -52,7 +53,7 @@ const studentsApi = {
   // 학생 수정
   updateStudent: async ({ id, ...studentData }: Student): Promise<Student> => {
     const response = await fetch(`/api/students/${id}`, {
-      method: "PUT",
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
@@ -92,9 +93,9 @@ const studentsApi = {
 
 // React Query 훅들
 export const useStudents = () => {
-  return useQuery({
+  return useQuery<Student[]>({
     queryKey: ["students"],
-    queryFn: studentsApi.getStudents,
+    queryFn: getUsers,
   });
 };
 
@@ -102,7 +103,7 @@ export const useCreateStudent = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: studentsApi.createStudent,
+    mutationFn: (data: StudentInput) => addUsers(data),
     onSuccess: () => {
       // 학생 목록 다시 불러오기
       queryClient.invalidateQueries({ queryKey: ["students"] });
@@ -110,30 +111,24 @@ export const useCreateStudent = () => {
   });
 };
 
-export const useUpdateStudent = () => {
+export function useUpdateStudent() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: studentsApi.updateStudent,
+    mutationFn: ({ id, ...data }: Student) => updateUser(id, data),
     onSuccess: () => {
-      // 학생 목록 다시 불러오기
       queryClient.invalidateQueries({ queryKey: ["students"] });
     },
   });
-};
+}
 
-export const useDeleteStudent = () => {
+export function useDeleteStudent() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: studentsApi.deleteStudent,
+    mutationFn: deleteUser,
     onSuccess: () => {
-      console.log("DELETE mutation 성공 - 쿼리 무효화 중..."); // 디버깅
-      // 학생 목록 다시 불러오기
       queryClient.invalidateQueries({ queryKey: ["students"] });
     },
-    onError: (error) => {
-      console.error("DELETE mutation 실패:", error); // 디버깅
-    },
   });
-};
+}
