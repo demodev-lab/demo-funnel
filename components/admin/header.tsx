@@ -22,6 +22,7 @@ import {
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/admin/useAuth";
 
 // 기수와 날짜 정보를 담은 타입 정의
 type CohortInfo = {
@@ -58,6 +59,7 @@ export default function Header() {
     COHORT_DATA[0],
   );
   const [userName, setUserName] = useState<string>("");
+  const { logout } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -75,12 +77,6 @@ export default function Header() {
 
     getUser();
   }, []);
-
-  const handleLogout = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push("/admin/login");
-  };
 
   return (
     <header className="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
@@ -143,7 +139,7 @@ export default function Header() {
           <DropdownMenuLabel>내 계정</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem>프로필 설정</DropdownMenuItem>
-          <DropdownMenuItem onClick={handleLogout}>로그아웃</DropdownMenuItem>
+          <DropdownMenuItem onClick={logout}>로그아웃</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </header>

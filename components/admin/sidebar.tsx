@@ -15,8 +15,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useMediaQuery } from "@/hooks/admin/use-media-query";
+import { useAuth } from "@/hooks/admin/useAuth";
 
 export default function Sidebar() {
+  const { logout } = useAuth();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
@@ -72,7 +74,10 @@ export default function Sidebar() {
       </div>
 
       <div className="p-4 border-t border-gray-200">
-        <button className="flex items-center w-full px-4 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50">
+        <button
+          onClick={logout}
+          className="flex items-center w-full px-4 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50"
+        >
           <LogOut className="mr-3 h-5 w-5 text-gray-400" />
           로그아웃
         </button>
