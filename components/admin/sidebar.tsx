@@ -10,6 +10,7 @@ import {
   Mail,
   Users,
   LogOut,
+  Trophy,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -31,6 +32,7 @@ export default function Sidebar() {
     { name: "대시보드", href: "/admin", icon: BarChart3 },
     { name: "수강 정보", href: "/admin/course-info", icon: BookOpen },
     { name: "강의 관리", href: "/admin/lectures", icon: FileText },
+    { name: "챌린지 관리", href: "/admin/challenges", icon: Trophy },
     { name: "이메일", href: "/admin/email", icon: Mail },
     { name: "수강생 관리", href: "/admin/students", icon: Users },
   ];
@@ -38,7 +40,7 @@ export default function Sidebar() {
   const SidebarContent = () => (
     <>
       <div className="p-4 border-b border-gray-200">
-        <h2 className="text-xl font-bold text-[#5046E4]">CodeUnlock</h2>
+        <h2 className="text-xl font-bold text-[#5046E4]">demo-funnel</h2>
         <p className="text-sm text-gray-500">관리자 백오피스</p>
       </div>
 

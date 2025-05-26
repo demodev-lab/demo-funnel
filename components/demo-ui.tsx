@@ -3,8 +3,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
-  Lock,
-  Play,
   Send,
   FileText,
   LinkIcon,
@@ -12,58 +10,7 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import Image from "next/image";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-
-// TODO: 더미 데이터 제거
-const dummyLectures = [
-  {
-    id: 1,
-    title: "피그마 MCP로 디자인 딸깍 가능?",
-    description: "피그마 MCP로 디자인 딸깍 가능?",
-    videoUrl: "https://www.youtube.com/watch?v=H-yo6dzJ13g",
-    duration: "2시간 30분",
-    createdAt: "2024-03-15",
-  },
-  {
-    id: 2,
-    title: "React 기초 강의",
-    description: "React의 기본 개념과 사용법을 배웁니다.",
-    videoUrl: "https://www.youtube.com/watch?v=LzsB2AJI90s",
-    duration: "2시간 30분",
-    createdAt: "2024-03-15",
-  },
-  {
-    id: 3,
-    title: "React 기초 강의",
-    description: "React의 기본 개념과 사용법을 배웁니다.",
-    videoUrl: "https://www.youtube.com/watch?v=Q4YV_bWrSkg",
-    duration: "2시간 30분",
-    createdAt: "2024-03-15",
-  },
-  {
-    id: 4,
-    title: "React 기초 강의",
-    description: "React의 기본 개념과 사용법을 배웁니다.",
-    videoUrl: "https://www.youtube.com/watch?v=H-yo6dzJ13g",
-    duration: "2시간 30분",
-    createdAt: "2024-03-15",
-  },
-  {
-    id: 5,
-    title: "React 기초 강의",
-    description: "React의 기본 개념과 사용법을 배웁니다.",
-    videoUrl: "https://www.youtube.com/watch?v=H-yo6dzJ13g",
-    duration: "2시간 30분",
-    createdAt: "2024-03-15",
-  },
-];
+import DailyLectureSection from "./daily-lecture-player/daily-lecture-section";
 
 export function DemoUI() {
   const [submissions, setSubmissions] = useState([
@@ -97,28 +44,10 @@ export function DemoUI() {
   const [submissionLink, setSubmissionLink] = useState("");
   const [submitterName, setSubmitterName] = useState("");
   const [submitterEmail, setSubmitterEmail] = useState("");
-  const [selectedVideo, setSelectedVideo] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [isLockedModalOpen, setIsLockedModalOpen] = useState(false);
   const [lockedVideoTitle, setLockedVideoTitle] = useState("");
 
-  const mainVideo = {
-    title: dummyLectures[selectedVideo].title,
-    description: dummyLectures[selectedVideo].description,
-    videoUrl: dummyLectures[selectedVideo].videoUrl,
-  };
-
-  const subVideos = dummyLectures
-    .filter((_, index) => index !== selectedVideo)
-    .slice(0, 4)
-    .map((lecture, index) => ({
-      id: lecture.id,
-      title: lecture.title,
-      locked: index >= 2,
-      videoUrl: lecture.videoUrl,
-    }));
-
-  const handleAddSubmission = (e) => {
+  const handleAddSubmission = (e: { preventDefault: () => void; }) => {
     e.preventDefault();
     if (
       !newSubmission.trim() ||
@@ -153,15 +82,6 @@ export function DemoUI() {
     setSubmitterEmail("");
   };
 
-  const togglePlay = () => {
-    setIsPlaying(!isPlaying);
-  };
-
-  const handleVideoSelect = (index) => {
-    setSelectedVideo(index);
-    setIsPlaying(false);
-  };
-
   const handleLockedVideoClick = (videoTitle: string) => {
     setLockedVideoTitle(videoTitle);
     setIsLockedModalOpen(true);
@@ -187,106 +107,13 @@ export function DemoUI() {
 
   return (
     <div className="bg-[#252A3C] rounded-xl overflow-hidden">
-      {/* Main Video Player */}
-      <h2 className="text-lg md:text-xl font-bold m-4">{mainVideo.title}</h2>
-      <div className="relative aspect-video w-full bg-black">
-        {isPlaying ? (
-          <div className="absolute inset-0 flex items-center justify-center bg-black text-white text-center p-4">
-            <div>
-              <p className="text-xl font-bold mb-2">{mainVideo.title}</p>
-              <p className="text-sm text-gray-300">{mainVideo.description}</p>
-              <Button
-                onClick={togglePlay}
-                className="mt-4 bg-[#5046E4] hover:bg-[#DCD9FF] text-[#1C1F2B]"
-              >
-                일시정지
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <Image
-              src={`https://img.youtube.com/vi/${
-                mainVideo.videoUrl.split("v=")[1]
-              }/maxresdefault.jpg`}
-              alt={mainVideo.title}
-              fill
-              className="object-cover"
-            />
-            <Button
-              variant="outline"
-              size="icon"
-              className="rounded-full h-16 w-16 bg-[#000000]/20 border-[#5046E4] z-10"
-              onClick={togglePlay}
-            >
-              <Play className="h-8 w-8 text-[#5046E4]" />
-            </Button>
-          </div>
-        )}
-        <div className="absolute bottom-4 left-4 bg-[#1C1F2B]/80 px-3 py-1 rounded-md">
-          <p className="text-sm font-medium">오늘의 강의: {mainVideo.title}</p>
-        </div>
-      </div>
-
-      {/* Sub Videos */}
-      <div className="p-6">
-        <h3 className="text-xl font-bold mb-4">강의 목록</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {subVideos.map((video, index) => (
-            <div
-              key={video.id}
-              className="relative rounded-lg overflow-hidden cursor-pointer"
-              onClick={() =>
-                video.locked
-                  ? handleLockedVideoClick(video.title)
-                  : handleVideoSelect(
-                      dummyLectures.findIndex(
-                        (l) => l.videoUrl === video.videoUrl,
-                      ),
-                    )
-              }
-            >
-              <div className="aspect-video bg-gray-800 relative">
-                <Image
-                  src={`https://img.youtube.com/vi/${
-                    video.videoUrl.split("v=")[1]
-                  }/maxresdefault.jpg`}
-                  alt={video.title}
-                  fill
-                  className={`object-cover ${
-                    video.locked ? "opacity-50 blur-[2px]" : ""
-                  }`}
-                />
-                {video.locked && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                    <Lock className="h-8 w-8 text-[#5046E4]" />
-                  </div>
-                )}
-              </div>
-              <div className="p-2 bg-[#1C1F2B]">
-                <p className="text-sm font-medium truncate">{video.title}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Locked Video Modal */}
-      <Dialog open={isLockedModalOpen} onOpenChange={setIsLockedModalOpen}>
-        <DialogContent className="bg-[#1C1F2B] border-gray-700 text-white">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold">강의 잠금</DialogTitle>
-            <DialogDescription className="text-gray-400">
-              {lockedVideoTitle} 강의는 아직 잠겨 있습니다.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="mt-4">
-            <p className="text-sm text-gray-400">
-              이 강의는 아직 오픈되지 않았습니다. 추후 업데이트를 기다려주세요.
-            </p>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* Lecture Section */}
+      <DailyLectureSection
+        isLockedModalOpen={isLockedModalOpen}
+        lockedVideoTitle={lockedVideoTitle}
+        onLockedClick={handleLockedVideoClick}
+        onLockedModalChange={setIsLockedModalOpen}
+      />
 
       {/* Assignment Submission Section */}
       <div className="border-t border-gray-700 mt-4">
