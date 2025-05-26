@@ -14,98 +14,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import DailyLectureSection from "./daily-lecture-player/daily-lecture-section";
+import { AssignmentSubmissionSection } from "./daily-assignment/assignment-submission-section";
 
 export function DemoUI() {
-  const [submissions, setSubmissions] = useState([
-    {
-      id: 1,
-      user: "김코딩",
-      time: "2시간 전",
-      text: "React 컴포넌트 최적화 과제 제출합니다. useMemo와 useCallback을 활용한 최적화 예제를 구현했습니다.",
-      link: "https://github.com/kimcoding/react-optimization-example",
-      linkType: "GitHub",
-    },
-    {
-      id: 2,
-      user: "이리액트",
-      time: "3시간 전",
-      text: "메모이제이션을 활용한 렌더링 최적화 과제입니다. 피드백 부탁드립니다!",
-      link: "https://codesandbox.io/s/react-optimization-demo-x7y9z2",
-      linkType: "CodeSandbox",
-    },
-    {
-      id: 3,
-      user: "박자바",
-      time: "어제",
-      text: "React.memo를 사용한 컴포넌트 최적화 예제입니다. 불필요한 리렌더링을 방지하는 방법을 구현했습니다.",
-      link: "https://codepen.io/parkjava/pen/abcdef",
-      linkType: "CodePen",
-    },
-  ]);
-
-  const [newSubmission, setNewSubmission] = useState("");
-  const [submissionLink, setSubmissionLink] = useState("");
-  const [submitterName, setSubmitterName] = useState("");
-  const [submitterEmail, setSubmitterEmail] = useState("");
   const [isLockedModalOpen, setIsLockedModalOpen] = useState(false);
   const [lockedVideoTitle, setLockedVideoTitle] = useState("");
-
-  const handleAddSubmission = (e: { preventDefault: () => void; }) => {
-    e.preventDefault();
-    if (
-      !newSubmission.trim() ||
-      !submitterName.trim() ||
-      !submitterEmail.trim() ||
-      !submissionLink.trim()
-    )
-      return;
-
-    let linkType = "링크";
-    if (submissionLink.includes("github.com")) linkType = "GitHub";
-    else if (submissionLink.includes("codesandbox.io"))
-      linkType = "CodeSandbox";
-    else if (submissionLink.includes("codepen.io")) linkType = "CodePen";
-    else if (submissionLink.includes("replit.com")) linkType = "Replit";
-    else if (submissionLink.includes("stackblitz.com")) linkType = "StackBlitz";
-
-    const newSubmissionObj = {
-      id: submissions.length + 1,
-      user: submitterName,
-      email: submitterEmail,
-      time: "방금 전",
-      text: newSubmission,
-      link: submissionLink,
-      linkType: linkType,
-    };
-
-    setSubmissions([newSubmissionObj, ...submissions]);
-    setNewSubmission("");
-    setSubmissionLink("");
-    setSubmitterName("");
-    setSubmitterEmail("");
-  };
 
   const handleLockedVideoClick = (videoTitle: string) => {
     setLockedVideoTitle(videoTitle);
     setIsLockedModalOpen(true);
-  };
-
-  // Function to get link icon based on link type
-  const getLinkIcon = (linkType) => {
-    switch (linkType) {
-      case "GitHub":
-        return "G";
-      case "CodeSandbox":
-        return "CS";
-      case "CodePen":
-        return "CP";
-      case "Replit":
-        return "RP";
-      case "StackBlitz":
-        return "SB";
-      default:
-        return "🔗";
-    }
   };
 
   return (
