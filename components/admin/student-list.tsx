@@ -231,13 +231,25 @@ export default function StudentList() {
     if (!validateForm()) return;
 
     try {
-      await createStudentMutation.mutateAsync(currentStudent);
-      toast.success("학생이 성공적으로 추가되었습니다.");
+      if (isEditMode && editingStudentId) {
+        // 수정 모드
+        await updateStudentMutation.mutateAsync({
+          id: editingStudentId,
+          ...currentStudent,
+        });
+        toast.success("학생 정보가 성공적으로 수정되었습니다.");
+      } else {
+        // 추가 모드
+        await createStudentMutation.mutateAsync(currentStudent);
+        toast.success("학생이 성공적으로 추가되었습니다.");
+      }
 
       // 폼 초기화
       setCurrentStudent({ name: "", email: "", phone: "" });
       setValidationErrors({});
       setIsFormOpen(false);
+      setIsEditMode(false);
+      setEditingStudentId(null);
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "오류가 발생했습니다.",
@@ -253,14 +265,6 @@ export default function StudentList() {
     });
     setEditingStudentId(student.id);
     setIsEditMode(true);
-    setValidationErrors({});
-    setIsFormOpen(true);
-  };
-
-  const handleAddClick = () => {
-    setCurrentStudent({ name: "", email: "", phone: "" });
-    setIsEditMode(false);
-    setEditingStudentId(null);
     setValidationErrors({});
     setIsFormOpen(true);
   };
@@ -464,11 +468,7 @@ export default function StudentList() {
 
           <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
             <DialogTrigger asChild>
-              <Button
-                size="sm"
-                className="bg-[#5046E4] hover:bg-[#4038c7]"
-                onClick={handleAddClick}
-              >
+              <Button size="sm" className="bg-[#5046E4] hover:bg-[#4038c7]">
                 <Plus className="w-4 h-4 mr-2" />
                 수강생 추가
               </Button>
@@ -534,9 +534,13 @@ export default function StudentList() {
                 <Button
                   className="w-full bg-[#5046E4] hover:bg-[#4038c7]"
                   onClick={handleAddStudent}
-                  disabled={createStudentMutation.isPending}
+                  disabled={
+                    createStudentMutation.isPending ||
+                    updateStudentMutation.isPending
+                  }
                 >
-                  {createStudentMutation.isPending && (
+                  {(createStudentMutation.isPending ||
+                    updateStudentMutation.isPending) && (
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   )}
                   {isEditMode ? "수정하기" : "추가하기"}
