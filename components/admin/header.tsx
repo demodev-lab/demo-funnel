@@ -23,6 +23,7 @@ import { Sheet, SheetTrigger } from "@/components/ui/sheet";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/hooks/admin/useAuth";
 
 // 기수와 날짜 정보를 담은 타입 정의
 type CohortInfo = {
@@ -59,6 +60,7 @@ export default function Header() {
     COHORT_DATA[0],
   );
   const [userName, setUserName] = useState<string>("");
+  const { logout } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -77,19 +79,17 @@ export default function Header() {
     getUser();
   }, []);
 
-  const handleLogout = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push("/admin/login");
-  };
-
   return (
     <header className="border-b border-gray-700/30 bg-[#1A1D29]/90 backdrop-blur-sm py-4 px-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden text-gray-300 hover:bg-[#252A3C] hover:text-white">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden text-gray-300 hover:bg-[#252A3C] hover:text-white"
+              >
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Toggle sidebar</span>
               </Button>
@@ -113,7 +113,11 @@ export default function Header() {
                 </SelectTrigger>
                 <SelectContent className="bg-[#252A3C] border border-gray-700/50 text-white">
                   {COHORT_DATA.map((cohort) => (
-                    <SelectItem key={cohort.id} value={cohort.id} className="hover:bg-[#1C1F2B] focus:bg-[#1C1F2B] text-gray-300 hover:text-white">
+                    <SelectItem
+                      key={cohort.id}
+                      value={cohort.id}
+                      className="hover:bg-[#1C1F2B] focus:bg-[#1C1F2B] text-gray-300 hover:text-white"
+                    >
                       {cohort.name}
                     </SelectItem>
                   ))}
@@ -150,7 +154,10 @@ export default function Header() {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="flex items-center gap-2 text-gray-300 hover:bg-[#252A3C] hover:text-white">
+              <Button
+                variant="ghost"
+                className="flex items-center gap-2 text-gray-300 hover:bg-[#252A3C] hover:text-white"
+              >
                 <Avatar className="h-8 w-8 border border-gray-700/50">
                   <AvatarImage src="/placeholder.svg" alt={userName} />
                   <AvatarFallback className="bg-[#5046E4]/10 text-[#8C7DFF]">
@@ -163,14 +170,19 @@ export default function Header() {
                 </div>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="bg-[#252A3C] border border-gray-700/50 text-white">
-              <DropdownMenuLabel className="text-gray-400">내 계정</DropdownMenuLabel>
+            <DropdownMenuContent
+              align="end"
+              className="bg-[#252A3C] border border-gray-700/50 text-white"
+            >
+              <DropdownMenuLabel className="text-gray-400">
+                내 계정
+              </DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-gray-700/30" />
               <DropdownMenuItem className="hover:bg-[#1C1F2B] focus:bg-[#1C1F2B] cursor-pointer">
                 프로필 설정
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={handleLogout}
+                onClick={logout}
                 className="hover:bg-[#1C1F2B] focus:bg-[#1C1F2B] text-red-400 cursor-pointer"
               >
                 로그아웃

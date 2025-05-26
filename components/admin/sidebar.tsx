@@ -16,8 +16,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useMediaQuery } from "@/hooks/admin/use-media-query";
+import { useAuth } from "@/hooks/admin/useAuth";
 
 export default function Sidebar() {
+  const { logout } = useAuth();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
@@ -65,10 +67,18 @@ export default function Sidebar() {
                 onClick={() => !isDesktop && setOpen(false)}
               >
                 <div className="flex items-center">
-                  <div className={`mr-3 p-1 rounded-md ${isActive ? "bg-[#5046E4]/10" : "bg-transparent group-hover:bg-[#1C1F2B]/50"}`}>
+                  <div
+                    className={`mr-3 p-1 rounded-md ${
+                      isActive
+                        ? "bg-[#5046E4]/10"
+                        : "bg-transparent group-hover:bg-[#1C1F2B]/50"
+                    }`}
+                  >
                     <item.icon
                       className={`h-5 w-5 ${
-                        isActive ? "text-[#8C7DFF]" : "text-gray-400 group-hover:text-gray-200"
+                        isActive
+                          ? "text-[#8C7DFF]"
+                          : "text-gray-400 group-hover:text-gray-200"
                       }`}
                     />
                   </div>
@@ -84,7 +94,10 @@ export default function Sidebar() {
       </div>
 
       <div className="p-4 border-t border-gray-700/30 mt-auto">
-        <button className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-gray-300 rounded-lg hover:bg-[#1C1F2B] hover:text-white transition-colors duration-200 group">
+        <button
+          onClick={logout}
+          className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-gray-300 rounded-lg hover:bg-[#1C1F2B] hover:text-white transition-colors duration-200 group"
+        >
           <div className="flex items-center">
             <div className="mr-3 p-1 rounded-md bg-transparent group-hover:bg-[#1C1F2B]/50">
               <LogOut className="h-5 w-5 text-gray-400 group-hover:text-gray-200" />
