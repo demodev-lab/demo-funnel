@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Lock } from "lucide-react";
+import { Lock, Calendar } from "lucide-react";
 
 interface Video {
   id: number;
@@ -23,8 +23,7 @@ export default function DailyLectureItem({
 }: DailyLectureItemProps) {
   return (
     <div
-      key={video.id}
-      className="relative rounded-lg overflow-hidden cursor-pointer"
+      className="relative rounded-xl overflow-hidden cursor-pointer transition-all duration-300 shadow-md hover:shadow-xl transform hover:-translate-y-1 border border-gray-700/30 hover:border-gray-600/50"
       onClick={() =>
         video.locked
           ? onLockedClick(video.title)
@@ -38,18 +37,27 @@ export default function DailyLectureItem({
           }/maxresdefault.jpg`}
           alt={video.title}
           fill
-          className={`object-cover ${
-            video.locked ? "opacity-50 blur-[2px]" : ""
+          className={`object-cover transition-all duration-500 ${
+            video.locked ? "opacity-40 blur-[1px]" : "hover:scale-105"
           }`}
         />
-        {video.locked && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-            <Lock className="h-8 w-8 text-[#5046E4]" />
+        {video.locked ? (
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40">
+            <Lock className="h-10 w-10 text-[#8C7DFF] drop-shadow-md mb-2" />
+            <span className="text-xs font-medium text-white/90 bg-[#5046E4]/30 px-2 py-1 rounded-full backdrop-blur-sm flex items-center">
+              <Calendar className="h-3 w-3 mr-1" />
+              Coming Soon
+            </span>
           </div>
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
         )}
       </div>
-      <div className="p-2 bg-[#1C1F2B]">
+      <div className="p-3 bg-[#1C1F2B]/80 backdrop-blur-sm">
         <p className="text-sm font-medium truncate">{video.title}</p>
+        <p className="text-xs text-gray-400 mt-1">
+          {video.locked ? "잠금 상태" : "재생 가능"}
+        </p>
       </div>
     </div>
   );
