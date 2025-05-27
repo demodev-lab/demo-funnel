@@ -17,7 +17,9 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="transform transition-all duration-500 hover:scale-[1.01] shadow-xl rounded-2xl overflow-hidden animate-slide-up">
+          {/* FIXME: 애니메이션 추가시, 깜빡임 발생 */}
+          {/* <div className="transform transition-all duration-500 hover:scale-[1.01] shadow-xl rounded-2xl overflow-hidden animate-slide-up"> */}
+          <div>
             <DemoUI />
           </div>
         </div>
