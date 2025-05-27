@@ -3,6 +3,7 @@ export interface Student {
   name: string;
   email: string;
   phone: string;
+  challenges?: string[];
 }
 
 // 메모리 내 학생 데이터 (실제로는 데이터베이스를 사용해야 함)
