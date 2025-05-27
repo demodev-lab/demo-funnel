@@ -2,7 +2,10 @@ import { supabase } from "./supabase";
 
 export async function getUsers() {
   try {
-    const { data, error } = await supabase.from("Users").select("*");
+    const { data, error } = await supabase
+      .from("Users")
+      .select("*")
+      .order("created_at", { ascending: true }); // 오름차순 정렬
 
     if (error) throw error;
     console.log("데이터 패칭 성공", data);
