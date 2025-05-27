@@ -43,7 +43,7 @@ export default function DailyLectureSection({
   const [selectedVideoIdx, setSelectedVideoIdx] = useState(0);
 
   const { data: videos = [] } = useQuery({
-    queryKey: ['lectures'],
+    queryKey: ['daily-lectures'],
     queryFn: fetchLectures,
   });
 
