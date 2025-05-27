@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import DailyLectureSection from "./daily-lecture-player/daily-lecture-section";
 import { AssignmentSubmissionSection } from "./daily-assignment/assignment-submission-section";
+import { AssignmentSubmissionSection } from "./daily-assignment/assignment-submission-section";
 
 export function DemoUI() {
   const [isLockedModalOpen, setIsLockedModalOpen] = useState(false);
