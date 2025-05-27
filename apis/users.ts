@@ -1,117 +1,98 @@
-import axios from "axios";
 import { supabase } from "./supabase";
 
-export interface Student {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-}
-
 export async function getUsers() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string;
-
   try {
-    const response = await axios.get(`${supabaseUrl}/rest/v1/Users`, {
-      headers: {
-        apikey: supabaseKey,
-      },
-    });
-    console.log("데이터 패칭 성공", response.data);
-    return response.data;
+    const { data, error } = await supabase.from("Users").select("*");
+
+    if (error) throw error;
+    console.log("데이터 패칭 성공", data);
+    return data;
   } catch (error) {
     console.error("데이터 패칭 실패", error);
     return [];
   }
 }
 
-export async function addUsers(data: any) {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  console.log(session);
-  const accessToken = session?.access_token;
-
-  if (!accessToken) {
-    throw new Error("사용자 인증이 필요합니다.");
-  }
-
+export async function createUser(data: any) {
   try {
-    const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/Users`,
-      data,
-      {
-        headers: {
-          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string,
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-          Prefer: "return=representation",
-        },
-      },
-    );
-    return response.data;
+    const { data: newUser, error } = await supabase
+      .from("Users")
+      .insert(data)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return newUser;
   } catch (error) {
     console.error("데이터 패칭 실패", error);
     return [];
   }
 }
 
-export async function updateUser(id: string, data: Omit<Student, "id">) {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  const accessToken = session?.access_token;
-
-  if (!accessToken) {
-    throw new Error("사용자 인증이 필요합니다.");
-  }
-
+export async function updateUser(data: { id: string; [key: string]: any }) {
   try {
-    const response = await axios.patch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/Users?id=eq.${id}`,
-      data,
-      {
-        headers: {
-          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string,
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-          Prefer: "return=representation",
-        },
-      },
-    );
-    return response.data[0]; // Supabase returns array with single item
+    // id 값 검증
+    if (!data.id) {
+      throw new Error("사용자 ID가 필요합니다.");
+    }
+
+    // id를 숫자로 변환
+    const userId = parseInt(data.id, 10);
+    if (isNaN(userId)) {
+      throw new Error("유효하지 않은 사용자 ID입니다.");
+    }
+
+    // 먼저 사용자가 존재하는지 확인
+    const { data: existingUser, error: checkError } = await supabase
+      .from("Users")
+      .select("*")
+      .eq("id", userId)
+      .single();
+
+    if (checkError) throw checkError;
+    if (!existingUser) {
+      throw new Error(`ID가 ${userId}인 사용자를 찾을 수 없습니다.`);
+    }
+
+    // 사용자가 존재하면 업데이트 실행
+    const { data: updatedUser, error: updateError } = await supabase
+      .from("Users")
+      .update({ ...data, id: userId })
+      .eq("id", userId)
+      .select()
+      .single();
+
+    if (updateError) throw updateError;
+    return updatedUser;
   } catch (error) {
-    console.error("수정 실패", error);
-    throw error; // 에러를 상위로 전파하여 적절한 처리 가능하도록 함
+    console.error("사용자 업데이트 실패", error);
+    throw error;
   }
 }
 
-export async function deleteUser(id: string) {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  const accessToken = session?.access_token;
-
-  if (!accessToken) {
-    throw new Error("사용자 인증이 필요합니다.");
-  }
-
+export async function deleteUser(userId: string) {
   try {
-    const response = await axios.delete(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/Users?id=eq.${id}`,
-      {
-        headers: {
-          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string,
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-          Prefer: "return=representation",
-        },
-      },
-    );
-    return response.data[0]; // Supabase returns array with single item
+    // 먼저 해당 ID의 사용자가 존재하는지 확인
+    const { data: existingUser, error: checkError } = await supabase
+      .from("Users")
+      .select("*")
+      .eq("id", userId)
+      .single();
+
+    if (checkError) throw checkError;
+    if (!existingUser) {
+      throw new Error(`ID가 ${userId}인 사용자를 찾을 수 없습니다.`);
+    }
+
+    const { error: deleteError } = await supabase
+      .from("Users")
+      .delete()
+      .eq("id", userId);
+
+    if (deleteError) throw deleteError;
+    return { success: true };
   } catch (error) {
-    console.error("삭제 실패", error);
+    console.error("사용자 삭제 실패", error);
     throw error;
   }
 }

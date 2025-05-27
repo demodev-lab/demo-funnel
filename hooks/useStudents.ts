@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getUsers, addUsers, updateUser, deleteUser } from "@/apis/users";
+import { getUsers, createUser, updateUser, deleteUser } from "@/apis/users";
 
 // 공통 데이터 모듈에서 타입 가져오기
 export type { Student } from "@/lib/data/students-data";
@@ -20,15 +20,12 @@ type StudentInput = Omit<Student, "id">;
 const studentsApi = {
   // 학생 목록 조회
   getStudents: async (): Promise<Student[]> => {
-    const response = await fetch("/api/students");
-
-    if (!response.ok) {
-      const error: ApiError = await response.json();
-      throw new Error(error.error || "학생 목록을 불러오는데 실패했습니다.");
+    try {
+      const data = await getUsers();
+      return data;
+    } catch (error) {
+      throw new Error("학생 목록을 불러오는데 실패했습니다.");
     }
-
-    const result: ApiResponse<Student[]> = await response.json();
-    return result.data;
   },
 
   // 학생 추가
@@ -73,21 +70,16 @@ const studentsApi = {
   deleteStudent: async (id: string): Promise<Student> => {
     console.log(`deleteStudent 호출됨: ID=${id}`); // 디버깅
 
-    const response = await fetch(`/api/students/${id}`, {
-      method: "DELETE",
-    });
-
-    console.log(`DELETE 응답 상태: ${response.status}`); // 디버깅
-
-    if (!response.ok) {
-      const error: ApiError = await response.json();
+    try {
+      await deleteUser(id);
+      // 삭제된 학생 정보를 반환 (실제로는 null이 반환될 수 있음)
+      return { id, name: "", email: "", phone: "" };
+    } catch (error) {
       console.error(`DELETE 실패:`, error); // 디버깅
-      throw new Error(error.error || "학생 삭제에 실패했습니다.");
+      throw new Error(
+        error instanceof Error ? error.message : "학생 삭제에 실패했습니다.",
+      );
     }
-
-    const result: ApiResponse<Student> = await response.json();
-    console.log(`DELETE 성공:`, result); // 디버깅
-    return result.data;
   },
 };
 
@@ -103,7 +95,7 @@ export const useCreateStudent = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: StudentInput) => addUsers(data),
+    mutationFn: (data: StudentInput) => createUser(data),
     onSuccess: () => {
       // 학생 목록 다시 불러오기
       queryClient.invalidateQueries({ queryKey: ["students"] });
@@ -115,7 +107,7 @@ export function useUpdateStudent() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, ...data }: Student) => updateUser(id, data),
+    mutationFn: (student: Student) => updateUser(student),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["students"] });
     },
