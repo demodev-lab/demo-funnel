@@ -1,14 +1,39 @@
 import { supabase } from "./supabase";
 
+// TODO 인터페이스 파일 분리 필요
+
+interface Challenge {
+  id: string;
+  name: string;
+}
+
+interface ChallengeResponse {
+  challenge_id: string;
+  Challenges: {
+    id: number;
+    name: string;
+  };
+}
+
+interface UserData {
+  id?: number;
+  name: string;
+  email: string;
+  [key: string]: any;
+}
+
+interface UserWithChallenges extends UserData {
+  challenges?: string[];
+}
+
 export async function getUsers() {
   try {
     const { data, error } = await supabase
       .from("Users")
       .select("*")
-      .order("created_at", { ascending: true }); // 오름차순 정렬
+      .order("created_at", { ascending: true });
 
     if (error) throw error;
-    console.log("데이터 패칭 성공", data);
     return data;
   } catch (error) {
     console.error("데이터 패칭 실패", error);
@@ -16,19 +41,36 @@ export async function getUsers() {
   }
 }
 
-export async function createUser(data: any) {
+export async function createUser(data: UserWithChallenges) {
   try {
-    const { data: newUser, error } = await supabase
+    const { challenges, ...userData } = data;
+
+    const { data: newUser, error: userError } = await supabase
       .from("Users")
-      .insert(data)
+      .insert(userData)
       .select()
       .single();
 
-    if (error) throw error;
+    if (userError) throw userError;
+
+    if (challenges && Array.isArray(challenges)) {
+      const challengeUsers = challenges.map((challengeId: string) => ({
+        user_id: newUser.id,
+        challenge_id: challengeId,
+        enrolled_at: new Date().toISOString(),
+      }));
+
+      const { error: challengeError } = await supabase
+        .from("ChallengeUsers")
+        .insert(challengeUsers);
+
+      if (challengeError) throw challengeError;
+    }
+
     return newUser;
   } catch (error) {
     console.error("데이터 패칭 실패", error);
-    return [];
+    throw error;
   }
 }
 
@@ -45,6 +87,9 @@ export async function updateUser(data: { id: string; [key: string]: any }) {
       throw new Error("유효하지 않은 사용자 ID입니다.");
     }
 
+    // challenges 필드를 분리
+    const { challenges, ...userData } = data;
+
     // 먼저 사용자가 존재하는지 확인
     const { data: existingUser, error: checkError } = await supabase
       .from("Users")
@@ -57,15 +102,40 @@ export async function updateUser(data: { id: string; [key: string]: any }) {
       throw new Error(`ID가 ${userId}인 사용자를 찾을 수 없습니다.`);
     }
 
-    // 사용자가 존재하면 업데이트 실행
+    // Users 테이블 업데이트 (challenges 필드 제외)
     const { data: updatedUser, error: updateError } = await supabase
       .from("Users")
-      .update({ ...data, id: userId })
+      .update({ ...userData, id: userId })
       .eq("id", userId)
       .select()
       .single();
 
     if (updateError) throw updateError;
+
+    // 챌린지 업데이트 처리
+    if (challenges && Array.isArray(challenges)) {
+      // 기존 챌린지 삭제
+      const { error: deleteError } = await supabase
+        .from("ChallengeUsers")
+        .delete()
+        .eq("user_id", userId);
+
+      if (deleteError) throw deleteError;
+
+      // 새로운 챌린지 추가
+      const challengeUsers = challenges.map((challengeId: string) => ({
+        user_id: userId,
+        challenge_id: challengeId,
+        enrolled_at: new Date().toISOString(),
+      }));
+
+      const { error: insertError } = await supabase
+        .from("ChallengeUsers")
+        .insert(challengeUsers);
+
+      if (insertError) throw insertError;
+    }
+
     return updatedUser;
   } catch (error) {
     console.error("사용자 업데이트 실패", error);
@@ -87,15 +157,52 @@ export async function deleteUser(userId: string) {
       throw new Error(`ID가 ${userId}인 사용자를 찾을 수 없습니다.`);
     }
 
-    const { error: deleteError } = await supabase
+    // ChallengeUsers 테이블에서 먼저 삭제
+    const { error: challengeDeleteError } = await supabase
+      .from("ChallengeUsers")
+      .delete()
+      .eq("user_id", userId);
+
+    if (challengeDeleteError) throw challengeDeleteError;
+
+    // Users 테이블에서 삭제
+    const { error: userDeleteError } = await supabase
       .from("Users")
       .delete()
       .eq("id", userId);
 
-    if (deleteError) throw deleteError;
+    if (userDeleteError) throw userDeleteError;
+
     return { success: true };
   } catch (error) {
     console.error("사용자 삭제 실패", error);
     throw error;
+  }
+}
+
+export async function getUserChallenges(userId: string): Promise<Challenge[]> {
+  try {
+    const { data, error } = await supabase
+      .from("ChallengeUsers")
+      .select(
+        `
+        challenge_id,
+        Challenges (
+          id,
+          name
+        )
+      `,
+      )
+      .eq("user_id", userId);
+
+    if (error) throw error;
+
+    return (data as unknown as ChallengeResponse[]).map((item) => ({
+      id: item.Challenges.id.toString(),
+      name: item.Challenges.name,
+    }));
+  } catch (error) {
+    console.error("챌린지 정보 조회 실패", error);
+    return [];
   }
 }
