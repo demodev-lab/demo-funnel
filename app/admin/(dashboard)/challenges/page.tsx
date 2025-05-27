@@ -23,7 +23,7 @@ import Header from "@/components/admin/header";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getChallenges,
-  addChallenge,
+  createChallenge,
   deleteChallenge,
   updateChallenge,
   ChallengeFormData,
@@ -71,23 +71,24 @@ export default function ChallengesPage() {
   });
 
   // 챌린지 추가
-  const { mutate: createChallenge, isPending: isCreating } = useMutation({
-    mutationFn: (data: ChallengeFormData) => addChallenge(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["challenges"] });
-      toast.success("챌린지가 성공적으로 추가되었습니다.");
-      setIsAddDialogOpen(false);
-      setNewChallenge({
-        name: "",
-        open_date: new Date().toISOString().split("T")[0],
-        close_date: new Date().toISOString().split("T")[0],
-        lecture_num: 0,
-      });
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || "챌린지 추가 중 오류가 발생했습니다.");
-    },
-  });
+  const { mutate: createChallengeMutation, isPending: isCreating } =
+    useMutation({
+      mutationFn: (data: ChallengeFormData) => createChallenge(data),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["challenges"] });
+        toast.success("챌린지가 성공적으로 추가되었습니다.");
+        setIsAddDialogOpen(false);
+        setNewChallenge({
+          name: "",
+          open_date: new Date().toISOString().split("T")[0],
+          close_date: new Date().toISOString().split("T")[0],
+          lecture_num: 0,
+        });
+      },
+      onError: (error: Error) => {
+        toast.error(error.message || "챌린지 추가 중 오류가 발생했습니다.");
+      },
+    });
 
   // 챌린지 삭제
   const { mutate: removeChallenge, isPending: isDeleting } = useMutation({
@@ -194,7 +195,7 @@ export default function ChallengesPage() {
       return;
     }
 
-    createChallenge(newChallenge);
+    createChallengeMutation(newChallenge);
   };
 
   const handleDeleteChallenge = (id: string) => {
