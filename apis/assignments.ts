@@ -48,7 +48,31 @@ export async function createSubmission({
   userId: number;
 }) {
   try {
-    // 기존 제출 데이터 확인 (single() 대신 maybeSingle() 사용)
+    // 먼저 강의 정보와 마감 기한을 조회
+    const { data: lectureInfo, error: lectureError } = await supabase
+      .from("ChallengeLectures")
+      .select("due_at")
+      .eq("id", challengeLectureId)
+      .single();
+
+    if (lectureError) throw lectureError;
+    if (!lectureInfo) throw new Error("강의 정보를 찾을 수 없습니다.");
+
+    // 서버 시간 기준으로 마감 기한 체크
+    const { data: serverTime, error: timeError } = await supabase.rpc(
+      "get_server_time",
+    );
+
+    if (timeError) throw timeError;
+
+    const deadline = new Date(lectureInfo.due_at);
+    const currentServerTime = new Date(serverTime);
+
+    if (currentServerTime > deadline) {
+      throw new Error("과제 제출 마감 기한이 지났습니다.");
+    }
+
+    // 기존 제출 데이터 확인
     const { data: existingSubmission, error: findError } = await supabase
       .from("Submissions")
       .select("id")
