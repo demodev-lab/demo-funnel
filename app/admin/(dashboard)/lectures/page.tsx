@@ -24,6 +24,8 @@ interface Lecture {
   created_at: string;
   updated_at: string;
   upload_type: number;
+  assignment_title?: string;
+  assignment?: string;
 }
 
 const getYouTubeVideoId = (url: string) => {
@@ -190,6 +192,8 @@ export default function LecturesPage() {
                     title: selectedLecture.name,
                     description: selectedLecture.description,
                     url: selectedLecture.url,
+                    assignmentTitle: selectedLecture.assignment_title,
+                    assignment: selectedLecture.assignment,
                   }}
                   lectureId={selectedLecture.id}
                   onSuccess={() => {

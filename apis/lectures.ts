@@ -22,6 +22,7 @@ export interface CreateLectureData {
   description: string;
   url: string;
   challenges: string[];
+  assignmentTitle?: string;
   assignment?: string;
 }
 
@@ -30,6 +31,8 @@ export interface UpdateLectureData {
   description: string;
   url: string;
   challenges: string[];
+  assignmentTitle?: string;
+  assignment?: string;
 }
 
 export async function getLectures() {
@@ -70,6 +73,8 @@ export async function createLecture(data: CreateLectureData) {
           description: data.description,
           url: data.url,
           upload_type: 0, // URL 방식
+          assignment_title: data.assignmentTitle,
+          assignment: data.assignment,
         },
       ])
       .select()
@@ -128,6 +133,8 @@ export async function updateLecture(
         name: data.name,
         description: data.description,
         url: data.url,
+        assignment_title: data.assignmentTitle,
+        assignment: data.assignment,
         updated_at: new Date().toISOString(),
       })
       .eq("id", lectureId)

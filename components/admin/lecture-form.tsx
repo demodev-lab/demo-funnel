@@ -48,6 +48,7 @@ interface LectureFormProps {
     title: string;
     description: string;
     url: string;
+    assignmentTitle?: string;
     assignment?: string;
   };
   lectureId?: number;
@@ -70,6 +71,9 @@ export default function LectureForm({
   );
   const [videoUrl, setVideoUrl] = useState(initialData?.url || "");
   const [selectedChallenges, setSelectedChallenges] = useState<string[]>([]);
+  const [assignmentTitle, setAssignmentTitle] = useState(
+    initialData?.assignmentTitle || "",
+  );
   const [assignment, setAssignment] = useState(initialData?.assignment || "");
   const [uploadType, setUploadType] = useState("url");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -144,6 +148,7 @@ export default function LectureForm({
           description: description.trim(),
           url: videoUrl.trim(),
           challenges: selectedChallenges,
+          assignmentTitle: assignmentTitle.trim(),
           assignment: assignment.trim(),
         };
 
@@ -159,6 +164,7 @@ export default function LectureForm({
         setDescription("");
         setVideoUrl("");
         setSelectedChallenges([]);
+        setAssignmentTitle("");
         setAssignment("");
 
         toast.success("강의가 추가되었습니다.");
@@ -319,16 +325,29 @@ export default function LectureForm({
         )}
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="assignment">과제 내용</Label>
-        <Textarea
-          id="assignment"
-          placeholder="과제 내용을 입력하세요"
-          rows={4}
-          value={assignment}
-          onChange={(e) => setAssignment(e.target.value)}
-          className="bg-[#1A1D29] border-gray-700/30 text-white placeholder:text-gray-500"
-        />
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="assignmentTitle">과제 제목</Label>
+          <Input
+            id="assignmentTitle"
+            placeholder="과제의 제목을 입력하세요"
+            value={assignmentTitle}
+            onChange={(e) => setAssignmentTitle(e.target.value)}
+            className="bg-[#1A1D29] border-gray-700/30 text-white placeholder:text-gray-500"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="assignment">과제 내용</Label>
+          <Textarea
+            id="assignment"
+            placeholder="과제 내용을 입력하세요"
+            rows={4}
+            value={assignment}
+            onChange={(e) => setAssignment(e.target.value)}
+            className="bg-[#1A1D29] border-gray-700/30 text-white placeholder:text-gray-500"
+          />
+        </div>
       </div>
 
       <div className="flex justify-end items-center pt-4">
