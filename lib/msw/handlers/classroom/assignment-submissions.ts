@@ -1,22 +1,7 @@
+import { Submission, SubmissionRequest } from '@/apis/assignment';
 import { http, HttpResponse } from "msw";
 
-interface AssignmentSubmission {
-  id: number;
-  user: string;
-  time: string;
-  text: string;
-  link: string;
-  linkType: string;
-}
-
-interface SubmissionRequest {
-  name: string;
-  email: string;
-  link: string;
-  text: string;
-}
-
-let submissions: AssignmentSubmission[] = [
+let submissions: Submission[] = [
   {
     id: 1,
     user: "김코딩",
@@ -45,12 +30,22 @@ let submissions: AssignmentSubmission[] = [
 
 export const assignmentSubmissionHandlers = [
   // 과제 제출 목록 조회
-  http.get("/api/classroom/assignment/submissions", () => {
+  http.get("/api/classroom/assignment", ({ request }) => {
+    const authHeader = request.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new HttpResponse(null, { status: 401 });
+    }
+
     return HttpResponse.json(submissions);
   }),
 
   // 과제 제출
-  http.post("/api/classroom/assignment/submissions", async ({ request }) => {
+  http.post("/api/classroom/assignment", async ({ request }) => {
+    const authHeader = request.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new HttpResponse(null, { status: 401 });
+    }
+
     const body = await request.json() as SubmissionRequest;
     const { name, email, link, text } = body;
 
@@ -62,7 +57,7 @@ export const assignmentSubmissionHandlers = [
     else if (link.includes("replit.com")) linkType = "Replit";
     else if (link.includes("stackblitz.com")) linkType = "StackBlitz";
 
-    const newSubmission: AssignmentSubmission = {
+    const newSubmission: Submission = {
       id: submissions.length + 1,
       user: name,
       time: "방금 전",
