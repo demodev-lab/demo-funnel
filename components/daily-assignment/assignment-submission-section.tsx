@@ -1,9 +1,10 @@
 "use client";
 
-import { FileText } from "lucide-react";
+import { FileText, Clock, CheckCircle } from "lucide-react";
 import { AssignmentSubmissionForm } from './assignment-submission-form';
 import { AssignmentSubmissionItem } from './assignment-submission-item';
 import { useState } from 'react';
+
 
 interface Submission {
   id: number;
@@ -77,24 +78,30 @@ export function AssignmentSubmissionSection() {
 
     setSubmissions([newSubmissionObj, ...submissions]);
   };
+  
 
   return (
-    <div className="border-t border-gray-700 mt-4">
-      <div>
-        <div className="w-full pt-6 bg-[#1C1F2B] border-b border-gray-700 p-2 flex items-center justify-between">
-          <div className="flex items-center">
-            <FileText className="h-4 w-4 mr-2" />
-            <span className="font-medium text-xl">과제 제출</span>
+    <div className="border-t border-gray-700/50 mt-6">
+        <div>
+          <div className="w-full pt-6 bg-[#1C1F2B]/70 backdrop-blur-sm border-b border-gray-700/50 p-4 flex items-center justify-between">
+            <div className="flex items-center">
+              <FileText className="h-5 w-5 mr-3 text-[#8C7DFF]" />
+              <span className="font-semibold text-xl">과제 제출</span>
+            </div>
+            <div className="text-sm px-3 py-1 rounded-full bg-[#5046E4]/10 text-[#8C7DFF] font-medium flex items-center">
+              <Clock className="h-3.5 w-3.5 mr-1.5" />
+              {/* TODO: 서버에서 fetch한 데이터로 변경 */}
+              <span>과제: React 컴포넌트 최적화 구현하기</span>
+            </div>
           </div>
-          <div className="text-xs text-gray-400">
-            {/* TODO: 서버에서 fetch한 데이터로 변경 */}
-            과제: React 컴포넌트 최적화 구현하기
-          </div>
-        </div>
 
         <AssignmentSubmissionForm onSubmit={handleAddSubmission} />
         
-        <div className="p-4">
+        <div className="p-6 bg-[#1A1D29]/30">
+          <h3 className="text-lg font-semibold mb-4 flex items-center">
+            <CheckCircle className="h-5 w-5 mr-2 text-[#8C7DFF]" />
+            제출된 과제
+          </h3>
           <div className="space-y-4">
             {submissions.map((submission) => (
               <AssignmentSubmissionItem
