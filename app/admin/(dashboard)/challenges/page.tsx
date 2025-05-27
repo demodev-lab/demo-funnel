@@ -122,6 +122,54 @@ export default function ChallengesPage() {
     },
   });
 
+  // 날짜 차이를 계산하는 함수 추가
+  const calculateLectureCount = (startDate: Date, endDate: Date): number => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    // 시작일과 종료일을 포함하므로 +1
+    const diffTime = Math.abs(end.getTime() - start.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+    return diffDays;
+  };
+
+  // 새 챌린지 추가 시 날짜 변경 핸들러 수정
+  const handleNewChallengeDateChange = (
+    field: "open_date" | "close_date",
+    value: string,
+  ) => {
+    const updatedChallenge = { ...newChallenge, [field]: value };
+    const startDate = new Date(updatedChallenge.open_date);
+    const endDate = new Date(updatedChallenge.close_date);
+
+    if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
+      updatedChallenge.lecture_num = calculateLectureCount(startDate, endDate);
+    }
+
+    setNewChallenge(updatedChallenge);
+  };
+
+  // 챌린지 수정 시 날짜 변경 핸들러 수정
+  const handleEditChallengeDateChange = (
+    field: "startDate" | "endDate",
+    value: string,
+  ) => {
+    if (!editingChallenge) return;
+
+    const updatedChallenge = { ...editingChallenge };
+    updatedChallenge[field] = new Date(value);
+
+    if (updatedChallenge.startDate && updatedChallenge.endDate) {
+      updatedChallenge.lectureCount = calculateLectureCount(
+        updatedChallenge.startDate,
+        updatedChallenge.endDate,
+      );
+    }
+
+    setEditingChallenge(updatedChallenge);
+  };
+
   const handleAddChallenge = () => {
     if (
       !newChallenge.name ||
@@ -278,10 +326,7 @@ export default function ChallengesPage() {
                     className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20"
                     value={newChallenge.open_date}
                     onChange={(e) =>
-                      setNewChallenge({
-                        ...newChallenge,
-                        open_date: e.target.value,
-                      })
+                      handleNewChallengeDateChange("open_date", e.target.value)
                     }
                     disabled={isCreating}
                   />
@@ -296,10 +341,7 @@ export default function ChallengesPage() {
                     className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20"
                     value={newChallenge.close_date}
                     onChange={(e) =>
-                      setNewChallenge({
-                        ...newChallenge,
-                        close_date: e.target.value,
-                      })
+                      handleNewChallengeDateChange("close_date", e.target.value)
                     }
                     disabled={isCreating}
                   />
@@ -312,17 +354,13 @@ export default function ChallengesPage() {
                     id="lecture_num"
                     type="number"
                     className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20"
-                    min="1"
                     value={newChallenge.lecture_num}
-                    onChange={(e) =>
-                      setNewChallenge({
-                        ...newChallenge,
-                        lecture_num: parseInt(e.target.value) || 0,
-                      })
-                    }
-                    disabled={isCreating}
-                    placeholder="예: 12"
+                    disabled={true}
+                    readOnly
                   />
+                  <p className="text-sm text-gray-400">
+                    강의 개수는 시작일과 종료일을 기준으로 자동 계산됩니다.
+                  </p>
                 </div>
                 <Button
                   onClick={handleAddChallenge}
@@ -378,10 +416,7 @@ export default function ChallengesPage() {
                       editingChallenge.startDate?.toISOString().split("T")[0]
                     }
                     onChange={(e) =>
-                      setEditingChallenge({
-                        ...editingChallenge,
-                        startDate: new Date(e.target.value),
-                      })
+                      handleEditChallengeDateChange("startDate", e.target.value)
                     }
                   />
                 </div>
@@ -397,10 +432,7 @@ export default function ChallengesPage() {
                       editingChallenge.endDate?.toISOString().split("T")[0]
                     }
                     onChange={(e) =>
-                      setEditingChallenge({
-                        ...editingChallenge,
-                        endDate: new Date(e.target.value),
-                      })
+                      handleEditChallengeDateChange("endDate", e.target.value)
                     }
                   />
                 </div>
@@ -413,13 +445,12 @@ export default function ChallengesPage() {
                     type="number"
                     className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20"
                     value={editingChallenge.lectureCount || 0}
-                    onChange={(e) =>
-                      setEditingChallenge({
-                        ...editingChallenge,
-                        lectureCount: parseInt(e.target.value) || 0,
-                      })
-                    }
+                    disabled={true}
+                    readOnly
                   />
+                  <p className="text-sm text-gray-400">
+                    강의 개수는 시작일과 종료일을 기준으로 자동 계산됩니다.
+                  </p>
                 </div>
                 <Button
                   onClick={handleUpdateChallenge}
@@ -444,69 +475,87 @@ export default function ChallengesPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {challenges.map((challenge) => (
-                <TableRow key={challenge.id} className="hover:bg-[#1C1F2B]/50">
-                  <TableCell className="font-medium text-gray-300">
-                    {challenge.name}
-                  </TableCell>
-                  <TableCell className="text-gray-400">
-                    {new Date(challenge.open_date).toLocaleDateString("ko-KR")}
-                  </TableCell>
-                  <TableCell className="text-gray-400">
-                    {new Date(challenge.close_date).toLocaleDateString("ko-KR")}
-                  </TableCell>
-                  <TableCell className="text-gray-300">
-                    {challenge.lecture_num}개
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      onClick={() => handleEditChallenge(challenge)}
-                      variant="ghost"
-                      className="h-8 w-8 p-0 mr-1 text-gray-400 hover:text-[#8C7DFF] hover:bg-[#1A1D29]/60"
-                    >
-                      <span className="sr-only">Edit</span>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="h-4 w-4"
-                      >
-                        <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34" />
-                        <polygon points="18 2 22 6 12 16 8 16 8 12 18 2" />
-                      </svg>
-                    </Button>
-                    <Button
-                      onClick={() =>
-                        handleDeleteChallenge(challenge.id.toString())
-                      }
-                      variant="ghost"
-                      className="h-8 w-8 p-0 text-gray-400 hover:text-red-400 hover:bg-[#1A1D29]/60"
-                    >
-                      <span className="sr-only">Delete</span>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="h-4 w-4"
-                      >
-                        <path d="M3 6h18" />
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
-                        <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                        <line x1="10" y1="11" x2="10" y2="17" />
-                        <line x1="14" y1="11" x2="14" y2="17" />
-                      </svg>
-                    </Button>
+              {challenges.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={5}
+                    className="text-center text-gray-400 py-8"
+                  >
+                    등록된 챌린지가 없습니다.
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                challenges.map((challenge) => (
+                  <TableRow
+                    key={challenge.id}
+                    className="hover:bg-[#1C1F2B]/50"
+                  >
+                    <TableCell className="font-medium text-gray-300">
+                      {challenge.name}
+                    </TableCell>
+                    <TableCell className="text-gray-400">
+                      {new Date(challenge.open_date).toLocaleDateString(
+                        "ko-KR",
+                      )}
+                    </TableCell>
+                    <TableCell className="text-gray-400">
+                      {new Date(challenge.close_date).toLocaleDateString(
+                        "ko-KR",
+                      )}
+                    </TableCell>
+                    <TableCell className="text-gray-300">
+                      {challenge.lecture_num}개
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        onClick={() => handleEditChallenge(challenge)}
+                        variant="ghost"
+                        className="h-8 w-8 p-0 mr-1 text-gray-400 hover:text-[#8C7DFF] hover:bg-[#1A1D29]/60"
+                      >
+                        <span className="sr-only">Edit</span>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="h-4 w-4"
+                        >
+                          <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34" />
+                          <polygon points="18 2 22 6 12 16 8 16 8 12 18 2" />
+                        </svg>
+                      </Button>
+                      <Button
+                        onClick={() =>
+                          handleDeleteChallenge(challenge.id.toString())
+                        }
+                        variant="ghost"
+                        className="h-8 w-8 p-0 text-gray-400 hover:text-red-400 hover:bg-[#1A1D29]/60"
+                      >
+                        <span className="sr-only">Delete</span>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="h-4 w-4"
+                        >
+                          <path d="M3 6h18" />
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                          <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                          <line x1="10" y1="11" x2="10" y2="17" />
+                          <line x1="14" y1="11" x2="14" y2="17" />
+                        </svg>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </div>
