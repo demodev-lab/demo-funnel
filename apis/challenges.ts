@@ -71,6 +71,19 @@ export async function deleteChallenge(id: string) {
   }
 
   try {
+    // 먼저 ChallengeLectures 테이블에서 관련 데이터 삭제
+    await axios.delete(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/ChallengeLectures?challenge_id=eq.${id}`,
+      {
+        headers: {
+          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string,
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+
+    // 그 다음 Challenge 삭제
     const response = await axios.delete(
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/Challenges?id=eq.${id}`,
       {
