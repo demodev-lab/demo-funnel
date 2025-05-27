@@ -39,6 +39,12 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 interface Challenge {
   id: string;
   name: string;
+  lecture_num?: number;
+}
+
+interface ChallengeOrder {
+  challengeId: string;
+  order: number;
 }
 
 interface LectureFormProps {
@@ -71,6 +77,7 @@ export default function LectureForm({
   );
   const [videoUrl, setVideoUrl] = useState(initialData?.url || "");
   const [selectedChallenges, setSelectedChallenges] = useState<string[]>([]);
+  const [challengeOrders, setChallengeOrders] = useState<ChallengeOrder[]>([]);
   const [assignmentTitle, setAssignmentTitle] = useState(
     initialData?.assignmentTitle || "",
   );
@@ -104,6 +111,28 @@ export default function LectureForm({
       );
     }
   }, [lectureChallenges]);
+
+  // 챌린지별 강의 순서 설정
+  const handleOrderChange = (challengeId: string, order: number) => {
+    setChallengeOrders((prev) => {
+      const filtered = prev.filter((co) => co.challengeId !== challengeId);
+      return [...filtered, { challengeId, order }];
+    });
+  };
+
+  // 챌린지별 현재 선택된 순서 가져오기
+  const getSelectedOrder = (challengeId: string) => {
+    return (
+      challengeOrders.find((co) => co.challengeId === challengeId)?.order ||
+      null
+    );
+  };
+
+  // 챌린지별 최대 강의 수 가져오기
+  const getMaxLectureNum = (challengeId: string) => {
+    const challenge = challenges.find((c) => String(c.id) === challengeId);
+    return challenge?.lecture_num || 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -266,7 +295,7 @@ export default function LectureForm({
       </div>
 
       <div className="space-y-2">
-        <Label>챌린지</Label>
+        <Label>챌린지 및 강의 순서</Label>
         <Select
           onValueChange={(value) => {
             if (!selectedChallenges.includes(value)) {
@@ -294,23 +323,28 @@ export default function LectureForm({
         </Select>
 
         {selectedChallenges.length > 0 && (
-          <div className="mt-2 space-y-2">
-            <div className="flex flex-wrap gap-2">
-              {selectedChallenges.map((challengeId) => {
-                const challenge = challenges.find(
-                  (c) => String(c.id) === challengeId,
-                );
-                return (
-                  <div
-                    key={String(challengeId)}
-                    className="flex items-center gap-2 bg-[#5046E4] text-white px-3 py-1 rounded-full text-sm"
-                  >
-                    <span>{challenge?.name}</span>
+          <div className="mt-4 space-y-4">
+            {selectedChallenges.map((challengeId) => {
+              const challenge = challenges.find(
+                (c) => String(c.id) === challengeId,
+              );
+              return (
+                <div
+                  key={challengeId}
+                  className="p-4 bg-[#1A1D29] border border-gray-700/30 rounded-lg space-y-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-white font-medium">
+                      {challenge?.name}
+                    </span>
                     <button
                       type="button"
                       onClick={() => {
                         setSelectedChallenges(
                           selectedChallenges.filter((id) => id !== challengeId),
+                        );
+                        setChallengeOrders((prev) =>
+                          prev.filter((co) => co.challengeId !== challengeId),
                         );
                       }}
                       className="text-white/80 hover:text-white"
@@ -318,9 +352,40 @@ export default function LectureForm({
                       ×
                     </button>
                   </div>
-                );
-              })}
-            </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-sm text-gray-400">강의 순서</Label>
+                    <Select
+                      value={getSelectedOrder(challengeId)?.toString()}
+                      onValueChange={(value) =>
+                        handleOrderChange(challengeId, Number(value))
+                      }
+                    >
+                      <SelectTrigger className="bg-[#252A3C] border-gray-700/30 text-white">
+                        <SelectValue
+                          placeholder="강의 순서를 선택하세요"
+                          className="text-gray-400"
+                        />
+                      </SelectTrigger>
+                      <SelectContent className="bg-[#1A1D29] border-gray-700/30">
+                        {Array.from(
+                          { length: getMaxLectureNum(challengeId) },
+                          (_, i) => i + 1,
+                        ).map((num) => (
+                          <SelectItem
+                            key={num}
+                            value={num.toString()}
+                            className="text-white hover:bg-[#252A3C] focus:bg-[#252A3C] focus:text-white"
+                          >
+                            {num}번째
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
