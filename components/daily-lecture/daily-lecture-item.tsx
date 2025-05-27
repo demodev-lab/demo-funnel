@@ -23,31 +23,31 @@ export default function DailyLectureItem({
 }: DailyLectureItemProps) {
   return (
     <div
-      className="relative rounded-xl overflow-hidden cursor-pointer transition-all duration-300 shadow-md hover:shadow-xl transform hover:-translate-y-1 border border-gray-700/30 hover:border-gray-600/50"
+      className="relative rounded-xl overflow-hidden cursor-pointer transition-all duration-300 shadow-md hover:shadow-xl border border-gray-700/30 hover:border-gray-600/50 group"
       onClick={() =>
         video.locked
           ? onLockedClick(video.title)
           : onVideoSelect(videoIndex)
       }
     >
-      <div className="aspect-video bg-gray-800 relative">
+      <div className="aspect-video bg-gray-800 relative transform group-hover:-translate-y-1 transition-transform duration-300">
         <Image
           src={`https://img.youtube.com/vi/${
             video.videoUrl.split("v=")[1]
           }/maxresdefault.jpg`}
           alt={video.title}
           fill
-          className={`object-cover transition-all duration-500 ${
-            video.locked ? "opacity-40 blur-[1px]" : "hover:scale-105"
-          }`}
+          className={`object-cover transition-all duration-500 ${video.locked ? "opacity-40 blur-[1px]" : "hover:scale-105"}`}
         />
         {video.locked ? (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40">
-            <Lock className="h-10 w-10 text-[#8C7DFF] drop-shadow-md mb-2" />
-            <span className="text-xs font-medium text-white/90 bg-[#5046E4]/30 px-2 py-1 rounded-full backdrop-blur-sm flex items-center">
-              <Calendar className="h-3 w-3 mr-1" />
-              Coming Soon
-            </span>
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 perspective-0">
+            <div className="transform-none will-change-transform flex flex-col items-center justify-center">
+              <Lock className="h-10 w-10 text-[#8C7DFF] drop-shadow-md mb-2" />
+              <span className="text-xs font-medium text-white/90 bg-[#5046E4]/30 px-2 py-1 rounded-full backdrop-blur-sm flex items-center">
+                <Calendar className="h-3 w-3 mr-1" />
+                Coming Soon
+              </span>
+            </div>
           </div>
         ) : (
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
