@@ -28,9 +28,9 @@ interface DailyLectureSectionProps {
 }
 
 // TODO: api 경로 수정 및 분리
-const fetchLectures = async () => {
-  const { data } = await axios.get('/api/test');
-  return data.lectures;
+const fetchLectures = async (): Promise<Video[]> => {
+  const { data } = await axios.get<Video[]>('/api/classroom/lectures');
+  return data;
 };
 
 export default function DailyLectureSection({
@@ -43,7 +43,7 @@ export default function DailyLectureSection({
   const [selectedVideoIdx, setSelectedVideoIdx] = useState(0);
 
   const { data: videos = [] } = useQuery({
-    queryKey: ['lectures'],
+    queryKey: ['daily-lectures'],
     queryFn: fetchLectures,
   });
 
