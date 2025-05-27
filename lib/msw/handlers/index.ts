@@ -1,5 +1,5 @@
-import { lectureHandlers } from './lecture'
+import { classroomHandlers } from './classroom'
 
 export const handlers = [
-  ...lectureHandlers,
+  ...classroomHandlers,
 ] 
