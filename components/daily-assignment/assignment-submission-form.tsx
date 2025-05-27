@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { postAssignment } from "@/apis/assignment";
+import { toast } from "sonner";
 
 export function AssignmentSubmissionForm() {
   const queryClient = useQueryClient();
@@ -23,6 +24,11 @@ export function AssignmentSubmissionForm() {
       setSubmissionLink("");
       setSubmitterName("");
       setSubmitterEmail("");
+      toast.success("과제가 성공적으로 제출되었습니다.");
+    },
+    onError: (error) => {
+      console.error("과제 제출 실패:", error);
+      toast.error("과제 제출에 실패했습니다.");
     },
   });
 
