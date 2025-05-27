@@ -196,6 +196,17 @@ export async function deleteLecture(lectureId: string) {
       throw new Error(`ID가 ${lectureId}인 강의를 찾을 수 없습니다.`);
     }
 
+    // 먼저 ChallengeLectures 테이블에서 관련 레코드 삭제
+    const { error: challengeDeleteError } = await supabase
+      .from("ChallengeLectures")
+      .delete()
+      .eq("lecture_id", lectureId);
+
+    if (challengeDeleteError) {
+      console.error("챌린지 연결 삭제 실패:", challengeDeleteError);
+      throw challengeDeleteError;
+    }
+
     // 강의 삭제
     const { error: deleteError } = await supabase
       .from("Lectures")
