@@ -5,23 +5,28 @@ import { Button } from "@/components/ui/button";
 import { Send, LinkIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { postAssignment } from "@/apis/assignment";
 
-interface AssignmentSubmissionFormProps {
-  onSubmit: (submission: {
-    name: string;
-    email: string;
-    link: string;
-    text: string;
-  }) => void;
-}
-
-export function AssignmentSubmissionForm({ onSubmit }: AssignmentSubmissionFormProps) {
+export function AssignmentSubmissionForm() {
+  const queryClient = useQueryClient();
   const [submitterName, setSubmitterName] = useState("");
   const [submitterEmail, setSubmitterEmail] = useState("");
   const [submissionLink, setSubmissionLink] = useState("");
   const [newSubmission, setNewSubmission] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const { mutate: handleSubmit } = useMutation({
+    mutationFn: postAssignment,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['assignment-submissions'] });
+      setNewSubmission("");
+      setSubmissionLink("");
+      setSubmitterName("");
+      setSubmitterEmail("");
+    },
+  });
+
+  const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (
       !newSubmission.trim() ||
@@ -31,21 +36,16 @@ export function AssignmentSubmissionForm({ onSubmit }: AssignmentSubmissionFormP
     )
       return;
 
-    onSubmit({
+    handleSubmit({
       name: submitterName,
       email: submitterEmail,
       link: submissionLink,
       text: newSubmission,
     });
-
-    setNewSubmission("");
-    setSubmissionLink("");
-    setSubmitterName("");
-    setSubmitterEmail("");
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-4 border-b border-gray-700">
+    <form onSubmit={onSubmit} className="p-4 border-b border-gray-700">
       <div className="space-y-3">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <Input

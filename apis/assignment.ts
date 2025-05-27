@@ -16,8 +16,13 @@ export interface SubmissionRequest {
   text: string;
 }
 
+export interface AssignmentResponse {
+  title: string;
+  submissions: Submission[];
+}
+
 export const getAssignment = async () => {
-  const { data } = await axios.get<Submission[]>('/api/classroom/assignment', {
+  const { data } = await axios.get<AssignmentResponse>('/api/classroom/assignment', {
     headers: {
       Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
     },
