@@ -20,8 +20,17 @@ import {
   useDeleteStudent,
   type Student,
 } from "@/hooks/useStudents";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { read, utils } from "xlsx";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { getChallenges } from "@/apis/challenges";
+import { getUserChallenges } from "@/apis/users";
 
 interface ValidationErrors {
   name?: string;
@@ -65,6 +74,15 @@ export default function StudentList() {
   const [isExcelPreviewOpen, setIsExcelPreviewOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedFileName, setSelectedFileName] = useState<string>("");
+
+  // 챌린지 관련 상태 추가
+  const [selectedChallenges, setSelectedChallenges] = useState<string[]>([]);
+
+  // 챌린지 목록 조회
+  const { data: challenges = [] } = useQuery({
+    queryKey: ["challenges"],
+    queryFn: getChallenges,
+  });
 
   // 입력 검증 함수들
   const validateEmail = (email: string): string | undefined => {
@@ -177,17 +195,22 @@ export default function StudentList() {
         await updateStudentMutation.mutateAsync({
           id: editingStudentId,
           ...currentStudent,
+          challenges: selectedChallenges,
         });
         toast.success("학생 정보가 성공적으로 수정되었습니다.");
       } else {
         // 추가 모드
-        await createStudentMutation.mutateAsync(currentStudent);
+        await createStudentMutation.mutateAsync({
+          ...currentStudent,
+          challenges: selectedChallenges,
+        });
         toast.success("학생이 성공적으로 추가되었습니다.");
       }
 
       // 폼 초기화
       setCurrentStudent({ name: "", email: "", phone: "" });
       setValidationErrors({});
+      setSelectedChallenges([]);
       setIsFormOpen(false);
       setIsEditMode(false);
       setEditingStudentId(null);
@@ -198,12 +221,17 @@ export default function StudentList() {
     }
   };
 
-  const handleEditClick = (student: Student) => {
+  const handleEditClick = async (student: Student) => {
     setCurrentStudent({
       name: student.name,
       email: student.email,
       phone: student.phone,
     });
+
+    // 챌린지 정보 가져오기
+    const userChallenges = await getUserChallenges(student.id);
+    setSelectedChallenges(userChallenges.map((challenge) => challenge.id));
+
     setEditingStudentId(student.id);
     setIsEditMode(true);
     setValidationErrors({});
@@ -249,6 +277,7 @@ export default function StudentList() {
   const resetFormState = () => {
     setCurrentStudent({ name: "", email: "", phone: "" });
     setValidationErrors({});
+    setSelectedChallenges([]);
     setIsEditMode(false);
     setEditingStudentId(null);
   };
@@ -683,6 +712,65 @@ export default function StudentList() {
                     </p>
                   )}
                 </div>
+
+                <div className="space-y-2">
+                  <Label className="text-gray-300">챌린지</Label>
+                  <Select
+                    onValueChange={(value) => {
+                      if (!selectedChallenges.includes(value)) {
+                        setSelectedChallenges([...selectedChallenges, value]);
+                      }
+                    }}
+                  >
+                    <SelectTrigger className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20">
+                      <SelectValue placeholder="기수를 선택하세요" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {challenges.map((challenge) => (
+                        <SelectItem
+                          key={challenge.id}
+                          value={challenge.id.toString()}
+                        >
+                          {challenge.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {selectedChallenges.length > 0 && (
+                    <div className="mt-2 space-y-2">
+                      <div className="flex flex-wrap gap-2">
+                        {selectedChallenges.map((challengeId) => {
+                          const challenge = challenges.find(
+                            (c) => c.id.toString() === challengeId,
+                          );
+                          return (
+                            <div
+                              key={challengeId}
+                              className="flex items-center gap-2 bg-[#DCD9FF] px-3 py-1 rounded-full text-sm"
+                            >
+                              <span>{challenge?.name}</span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSelectedChallenges(
+                                    selectedChallenges.filter(
+                                      (id) => id !== challengeId,
+                                    ),
+                                  );
+                                }}
+                                className="text-gray-500 hover:text-gray-700"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 <Button
                   className="w-full bg-gradient-to-r from-[#5046E4] to-[#6A5AFF] hover:brightness-110 text-white shadow-md hover:shadow-xl transition-all duration-300"
                   onClick={handleAddStudent}
