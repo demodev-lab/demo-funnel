@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import DailyLectureSection from "./daily-lecture-player/daily-lecture-section";
+import DailyLectureSection from "./daily-lecture/daily-lecture-section";
 import { AssignmentSubmissionSection } from "./daily-assignment/assignment-submission-section";
 
 export function DemoUI() {
