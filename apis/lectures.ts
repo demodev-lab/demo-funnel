@@ -1,8 +1,43 @@
 import { supabase } from "./supabase";
 
+interface Challenge {
+  id: string;
+  name: string;
+}
+
+interface ChallengeLectureResponse {
+  challenge_id: string;
+  Challenges: Challenge;
+}
+
+interface LectureChallenge {
+  Challenges: {
+    id: string;
+    name: string;
+  };
+}
+
+export interface CreateLectureData {
+  title: string;
+  description: string;
+  url: string;
+  challenges: string[];
+  assignment?: string;
+}
+
+export interface UpdateLectureData {
+  name: string;
+  description: string;
+  url: string;
+  challenges: string[];
+}
+
 export async function getLectures() {
   try {
-    const { data, error } = await supabase.from("Lectures").select("*");
+    const { data, error } = await supabase
+      .from("Lectures")
+      .select("*")
+      .order("created_at", { ascending: true });
 
     if (error) throw error;
 
@@ -14,7 +49,7 @@ export async function getLectures() {
   }
 }
 
-export async function createLecture(data: any) {
+export async function createLecture(data: CreateLectureData) {
   const {
     data: { session },
   } = await supabase.auth.getSession();
@@ -24,23 +59,32 @@ export async function createLecture(data: any) {
   }
 
   try {
-    // 1. Lectures 테이블에 강의 추가
+    console.log("강의 생성 시도:", data);
+
+    // Lectures 테이블에 강의 추가
     const { data: lecture, error: lectureError } = await supabase
       .from("Lectures")
-      .insert({
-        name: data.title,
-        description: data.description,
-        upload_type: 0,
-        url: data.videoUrl,
-      })
+      .insert([
+        {
+          name: data.title,
+          description: data.description,
+          url: data.url,
+          upload_type: 0, // URL 방식
+        },
+      ])
       .select()
       .single();
 
-    if (lectureError) throw lectureError;
+    if (lectureError) {
+      console.error("강의 추가 에러:", lectureError);
+      throw lectureError;
+    }
 
-    // 2. 선택된 챌린지들을 ChallengeLectures 테이블에 추가
+    console.log("생성된 강의:", lecture);
+
+    // 선택된 챌린지들을 ChallengeLectures 테이블에 추가
     if (data.challenges && data.challenges.length > 0) {
-      const challengeLectures = data.challenges.map((challengeId: string) => ({
+      const challengeLectures = data.challenges.map((challengeId) => ({
         lecture_id: lecture.id,
         challenge_id: challengeId,
       }));
@@ -49,20 +93,10 @@ export async function createLecture(data: any) {
         .from("ChallengeLectures")
         .insert(challengeLectures);
 
-      if (challengeError) throw challengeError;
-    }
-
-    // 3. 과제가 있다면 Assignments 테이블에 추가
-    if (data.assignment) {
-      const { error: assignmentError } = await supabase
-        .from("Assignments")
-        .insert({
-          lecture_id: lecture.id,
-          title: data.assignment,
-          due_date: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // TODO: 과제 마감일 처리
-        });
-
-      if (assignmentError) throw assignmentError;
+      if (challengeError) {
+        console.error("챌린지 연결 에러:", challengeError);
+        throw challengeError;
+      }
     }
 
     return lecture;
@@ -72,7 +106,10 @@ export async function createLecture(data: any) {
   }
 }
 
-export async function updateLecture(lectureId: string, data: any) {
+export async function updateLecture(
+  lectureId: string,
+  data: UpdateLectureData,
+) {
   const {
     data: { session },
   } = await supabase.auth.getSession();
@@ -82,14 +119,55 @@ export async function updateLecture(lectureId: string, data: any) {
   }
 
   try {
-    const { data: updatedLecture, error } = await supabase
+    console.log("수정 요청 데이터:", data);
+
+    // 강의 정보 업데이트
+    const { data: updatedLecture, error: lectureError } = await supabase
       .from("Lectures")
-      .update(data)
+      .update({
+        name: data.name,
+        description: data.description,
+        url: data.url,
+        updated_at: new Date().toISOString(),
+      })
       .eq("id", lectureId)
       .select()
       .single();
 
-    if (error) throw error;
+    if (lectureError) {
+      console.error("강의 수정 에러:", lectureError);
+      throw lectureError;
+    }
+
+    // 기존 챌린지 연결 정보 삭제
+    const { error: deleteError } = await supabase
+      .from("ChallengeLectures")
+      .delete()
+      .eq("lecture_id", lectureId);
+
+    if (deleteError) {
+      console.error("기존 챌린지 연결 삭제 에러:", deleteError);
+      throw deleteError;
+    }
+
+    // 새로운 챌린지 연결 정보 추가
+    if (data.challenges && data.challenges.length > 0) {
+      const challengeLectures = data.challenges.map((challengeId: string) => ({
+        lecture_id: lectureId,
+        challenge_id: challengeId,
+      }));
+
+      const { error: insertError } = await supabase
+        .from("ChallengeLectures")
+        .insert(challengeLectures);
+
+      if (insertError) {
+        console.error("새로운 챌린지 연결 추가 에러:", insertError);
+        throw insertError;
+      }
+    }
+
+    console.log("수정된 강의:", updatedLecture);
     return updatedLecture;
   } catch (error) {
     console.error("강의 업데이트 실패", error);
@@ -130,5 +208,36 @@ export async function deleteLecture(lectureId: string) {
   } catch (error) {
     console.error("강의 삭제 실패", error);
     throw error;
+  }
+}
+
+export async function getLectureChallenges(
+  lectureId: string,
+): Promise<Challenge[]> {
+  try {
+    const { data, error } = await supabase
+      .from("ChallengeLectures")
+      .select(
+        `
+        challenge_id,
+        Challenges (
+          id,
+          name
+        )
+      `,
+      )
+      .eq("lecture_id", lectureId)
+      .returns<{ challenge_id: string; Challenges: Challenge }[]>();
+
+    if (error) throw error;
+
+    // Challenges 테이블의 데이터만 추출
+    const challenges = data?.map((item) => item.Challenges) || [];
+    console.log("강의 챌린지 목록:", challenges);
+
+    return challenges;
+  } catch (error) {
+    console.error("챌린지 데이터 조회 실패:", error);
+    return [];
   }
 }
