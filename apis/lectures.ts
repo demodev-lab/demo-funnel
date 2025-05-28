@@ -428,3 +428,89 @@ export async function getLectureDetail(
     return null;
   }
 }
+
+export async function getUserLectures(userId: string) {
+  try {
+    // 1. 먼저 사용자가 속한 모든 챌린지 ID를 조회
+    const { data: challengeData, error: challengeError } = await supabase
+      .from("ChallengeUsers")
+      .select(
+        `
+        challenge_id,
+        Challenges!inner (
+          id,
+          close_date,
+          open_date
+        )
+      `,
+      )
+      .eq("user_id", userId);
+
+    if (challengeError) throw challengeError;
+    if (!challengeData || challengeData.length === 0) {
+      throw new Error("사용자가 속한 챌린지를 찾을 수 없습니다.");
+    }
+
+    console.log("챌린지 데이터:", JSON.stringify(challengeData, null, 2));
+
+    // 현재 날짜
+    const currentDate = new Date();
+
+    // 2. 현재 진행 중인 챌린지 ID만 필터링
+    const activeChallengeIds = (challengeData as unknown as ChallengeUser[])
+      .filter((challenge) => {
+        if (!challenge.Challenges) {
+          console.log("챌린지 데이터가 없습니다:", challenge);
+          return false;
+        }
+        const openDate = new Date(challenge.Challenges.open_date);
+        const closeDate = new Date(challenge.Challenges.close_date);
+        return currentDate >= openDate && currentDate < closeDate;
+      })
+      .map((challenge) => challenge.challenge_id);
+
+    if (activeChallengeIds.length === 0) {
+      return [];
+    }
+
+    // 3. 활성화된 챌린지의 강의 목록을 조회
+    const { data: lectureData, error: lectureError } = await supabase
+      .from("ChallengeLectures")
+      .select(
+        `
+        lecture_id,
+        open_at,
+        challenge_id,
+        Lectures (
+          id,
+          name,
+          description,
+          url,
+          created_at
+        )
+      `,
+      )
+      .in("challenge_id", activeChallengeIds)
+      .order("created_at", { ascending: true });
+
+    if (lectureError) throw lectureError;
+
+    const lectures =
+      lectureData?.map((item) => ({
+        ...item.Lectures,
+        open_at: item.open_at,
+        challenge_id: item.challenge_id,
+      })) || [];
+
+    console.log("사용자의 챌린지 강의 목록:", lectures);
+
+    return lectures;
+  } catch (error) {
+    console.error("강의 데이터 조회 실패:", error);
+    throw new Error(
+      error instanceof Error
+        ? error.message
+        : "사용자의 챌린지 강의 목록 조회 중 오류가 발생했습니다.",
+    );
+  }
+}
