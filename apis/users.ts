@@ -15,10 +15,11 @@ interface ChallengeResponse {
   };
 }
 
-interface UserData {
-  id?: number;
+export interface UserData {
+  id?: string;
   name: string;
   email: string;
+  phone: string;
   [key: string]: any;
 }
 
@@ -211,6 +212,11 @@ export async function getChallengeUsers(
   challengeId: string,
 ): Promise<UserData[]> {
   try {
+    // challengeId가 빈 문자열이면 빈 배열 반환
+    if (!challengeId) {
+      return [];
+    }
+
     const { data, error } = await supabase
       .from("ChallengeUsers")
       .select(
@@ -219,11 +225,14 @@ export async function getChallengeUsers(
         Users (
           id,
           name,
-          email
+          email,
+          phone,
+          created_at
         )
       `,
       )
-      .eq("challenge_id", challengeId);
+      .eq("challenge_id", parseInt(challengeId, 10))
+      .order("Users(created_at)", { ascending: true });
 
     if (error) throw error;
 
@@ -231,6 +240,7 @@ export async function getChallengeUsers(
       id: item.Users.id,
       name: item.Users.name,
       email: item.Users.email,
+      phone: item.Users.phone || "",
     }));
   } catch (error) {
     console.error("챌린지 수강생 정보 조회 실패", error);

@@ -19,6 +19,7 @@ import {
   useUpdateStudent,
   useDeleteStudent,
   type Student,
+  useStudentsByChallenge,
 } from "@/hooks/useStudents";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { read, utils } from "xlsx";
@@ -31,6 +32,7 @@ import {
 } from "@/components/ui/select";
 import { getChallenges } from "@/apis/challenges";
 import { getUserChallenges } from "@/apis/users";
+import { useChallengeStore } from "@/lib/store/useChallengeStore";
 
 interface ValidationErrors {
   name?: string;
@@ -44,8 +46,15 @@ interface ExcelStudent extends Omit<Student, "id"> {
 }
 
 export default function StudentList() {
+  const { selectedChallengeId } = useChallengeStore();
+
   // React Query 훅들
-  const { data: students = [], isLoading, error, isError } = useStudents();
+  const {
+    data: students = [],
+    isLoading,
+    error,
+    isError,
+  } = useStudentsByChallenge(selectedChallengeId);
   const createStudentMutation = useCreateStudent();
   const updateStudentMutation = useUpdateStudent();
   const deleteStudentMutation = useDeleteStudent();
@@ -861,7 +870,7 @@ export default function StudentList() {
                         variant="outline"
                         size="sm"
                         className="border-gray-700/30 bg-[#1A1D29]/50 text-gray-300 hover:bg-[#1A1D29]/70 hover:text-white"
-                        onClick={() => handleEditClick(student)}
+                        onClick={() => handleEditClick(student as Student)}
                         disabled={updateStudentMutation.isPending}
                       >
                         수정
