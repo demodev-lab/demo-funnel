@@ -41,9 +41,15 @@ export default function EnrollmentRateDashboard({ type }: EnrollmentRateDashboar
         <Table>
           <TableHeader className="bg-[#1A1D29]/60">
             <TableRow className="border-b-gray-700/30 hover:bg-transparent">
-              <TableHead className="text-gray-400">강의명</TableHead>
-              <TableHead className="text-right text-gray-400">{type === "submission" ? "제출률" : "수강률"}</TableHead>
-              <TableHead className="text-right text-gray-400">{type === "submission" ? "제출 인원" : "수강 인원"}</TableHead>
+              <TableHead className="text-gray-400">
+                {type === "submission" ? "과제명" : "강의명"}
+              </TableHead>
+              <TableHead className="text-right text-gray-400">
+                {type === "submission" ? "제출률" : "수강률"}
+              </TableHead>
+              <TableHead className="text-right text-gray-400">
+                {type === "submission" ? "제출 인원" : "수강 인원"}
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
