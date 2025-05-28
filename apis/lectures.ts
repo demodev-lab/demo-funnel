@@ -17,6 +17,15 @@ interface LectureChallenge {
   };
 }
 
+interface ChallengeUser {
+  challenge_id: string;
+  Challenges: {
+    id: string;
+    open_date: string;
+    close_date: string;
+  };
+}
+
 export interface CreateLectureData {
   title: string;
   description: string;
@@ -478,6 +487,7 @@ export async function getUserLectures(userId: string) {
       .from("ChallengeLectures")
       .select(
         `
+        id,
         lecture_id,
         open_at,
         challenge_id,
@@ -498,6 +508,7 @@ export async function getUserLectures(userId: string) {
     const lectures =
       lectureData?.map((item) => ({
         ...item.Lectures,
+        challenge_lecture_id: item.id,
         open_at: item.open_at,
         challenge_id: item.challenge_id,
       })) || [];
