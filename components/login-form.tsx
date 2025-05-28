@@ -13,32 +13,31 @@ import {
 } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export function LoginForm() {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async (formData: FormData) => {
-    try {
-      const response = await login(formData);
-      
-      if (!response.success) {
-        toast.error("로그인 실패", {
-          description: response.error,
-        });
-        return;
-      }
-
-      toast.success("로그인 성공", {
-        description: "강의실로 이동합니다.",
-      });
-      
-      router.push("/class");
-    } catch (error) {
-      // console.error("로그인 처리 중 오류:", error);
+    setIsLoading(true);
+    const response = await login(formData);
+    
+    if (!response.success) {
       toast.error("로그인 실패", {
-        description: "로그인 처리 중 오류가 발생했습니다.",
+        description: response.error,
       });
+      setIsLoading(false);
+      return;
     }
+
+    toast.success("로그인 성공", {
+      description: "강의실로 이동합니다.",
+    });
+    
+    setTimeout(() => {
+      router.push("/class");
+    }, 1500);
   }
 
   return (
@@ -62,6 +61,7 @@ export function LoginForm() {
                 type="email"
                 placeholder="name@example.com"
                 required
+                disabled={isLoading}
                 className="bg-[#1A1D29]/70 border-gray-700/50 text-white placeholder:text-gray-500 focus:border-[#5046E4] focus:ring-[#5046E4]/20 transition-all rounded-lg pl-10"
               />
               <svg
@@ -79,9 +79,20 @@ export function LoginForm() {
         <CardFooter className="flex flex-col space-y-4 bg-[#1A1D29]/30 border-t border-gray-700/50 p-6">
           <Button
             type="submit"
-            className="w-full bg-gradient-to-r from-[#5046E4] to-[#6A5AFF] hover:brightness-110 text-white shadow-md hover:shadow-xl transition-all duration-300"
+            disabled={isLoading}
+            className="w-full bg-gradient-to-r from-[#5046E4] to-[#6A5AFF] hover:brightness-110 text-white shadow-md hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            로그인
+            {isLoading ? (
+              <div className="flex items-center gap-2">
+                <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                로그인 중...
+              </div>
+            ) : (
+              "로그인"
+            )}
           </Button>
           <div className="text-center text-sm text-gray-500">
             <span>등록된 수강생만 이용 가능한 서비스입니다</span>
