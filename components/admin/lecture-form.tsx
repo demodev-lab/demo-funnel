@@ -58,7 +58,7 @@ interface LectureFormProps {
     assignmentTitle?: string;
     assignment?: string;
   };
-  lectureId?: number;
+  lectureId?: string;
   onDelete?: () => void;
   isDeleting?: boolean;
 }
@@ -66,23 +66,27 @@ interface LectureFormProps {
 export default function LectureForm({
   onSuccess,
   isEdit = false,
-  initialData,
+  initialData = {
+    title: "",
+    description: "",
+    url: "",
+    assignmentTitle: "",
+    assignment: "",
+  },
   lectureId,
   onDelete,
   isDeleting = false,
 }: LectureFormProps) {
   const queryClient = useQueryClient();
-  const [title, setTitle] = useState(initialData?.title || "");
-  const [description, setDescription] = useState(
-    initialData?.description || "",
-  );
-  const [videoUrl, setVideoUrl] = useState(initialData?.url || "");
+  const [title, setTitle] = useState(initialData.title || "");
+  const [description, setDescription] = useState(initialData.description || "");
+  const [videoUrl, setVideoUrl] = useState(initialData.url || "");
   const [selectedChallenges, setSelectedChallenges] = useState<string[]>([]);
   const [challengeOrders, setChallengeOrders] = useState<ChallengeOrder[]>([]);
   const [assignmentTitle, setAssignmentTitle] = useState(
-    initialData?.assignmentTitle || "",
+    initialData.assignmentTitle || "",
   );
-  const [assignment, setAssignment] = useState(initialData?.assignment || "");
+  const [assignment, setAssignment] = useState(initialData.assignment || "");
   const [uploadType, setUploadType] = useState("url");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -172,7 +176,7 @@ export default function LectureForm({
 
         console.log("수정 전송 데이터:", updateData);
 
-        await updateLecture(String(lectureId), updateData);
+        await updateLecture(lectureId, updateData);
 
         // 관련된 쿼리들 무효화
         await queryClient.invalidateQueries({ queryKey: ["lectures"] });

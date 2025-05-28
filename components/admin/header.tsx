@@ -26,6 +26,7 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/admin/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { getChallenges } from "@/apis/challenges";
+import { useChallengeStore } from "@/lib/store/useChallengeStore";
 
 // 기수와 날짜 정보를 담은 타입 정의
 type CohortInfo = {
@@ -45,13 +46,16 @@ export default function Header() {
   });
 
   const [selectedCohort, setSelectedCohort] = useState<CohortInfo | null>(null);
+  console.log(selectedCohort);
+  const { selectedChallengeId, setSelectedChallengeId } = useChallengeStore();
   const [userName, setUserName] = useState<string>("");
   const { logout } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (challenges.length > 0 && !selectedCohort) {
+    if (challenges.length > 0 && !selectedChallengeId) {
       const firstChallenge = challenges[0];
+      setSelectedChallengeId(String(firstChallenge.id));
       setSelectedCohort({
         id: String(firstChallenge.id),
         name: firstChallenge.name,
@@ -59,7 +63,24 @@ export default function Header() {
         endDate: new Date(firstChallenge.end_date || Date.now()),
       });
     }
-  }, [challenges, selectedCohort]);
+  }, [challenges, selectedChallengeId, setSelectedChallengeId]);
+
+  useEffect(() => {
+    if (selectedChallengeId && challenges.length > 0) {
+      const challenge = challenges.find(
+        (c) => String(c.id) === selectedChallengeId,
+      );
+      console.log(challenge, "여기여");
+      if (challenge) {
+        setSelectedCohort({
+          id: String(challenge.id),
+          name: challenge.name,
+          startDate: new Date(challenge.open_date || Date.now()),
+          endDate: new Date(challenge.close_date || Date.now()),
+        });
+      }
+    }
+  }, [selectedChallengeId, challenges]);
 
   useEffect(() => {
     const supabase = createClient();
@@ -106,13 +127,14 @@ export default function Header() {
 
           {showCohortSelector && selectedCohort && (
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 bg-[#252A3C] p-1.5 pr-3 rounded-lg border border-gray-700/30">
-                <Badge className="bg-[#5046E4] text-white font-semibold hover:bg-[#6A5AFF]">
+              <div className="flex items-center gap-2 bg-[#252A3C]  px-3 rounded-lg border border-gray-700/30">
+                <div className="text-white font-semibold text-sm">
                   현재 기수
-                </Badge>
+                </div>
                 <Select
-                  value={selectedCohort.id}
+                  value={selectedChallengeId}
                   onValueChange={(value) => {
+                    setSelectedChallengeId(value);
                     const challenge = challenges.find(
                       (c) => String(c.id) === value,
                     );
@@ -143,18 +165,13 @@ export default function Header() {
                 </Select>
               </div>
 
-              <div className="hidden md:flex items-center text-sm text-gray-400 bg-[#252A3C] px-3 py-1.5 rounded-lg border border-gray-700/30">
+              <div className="hidden md:flex items-center text-sm text-gray-400 px-3 py-1.5 ">
                 <Calendar className="h-4 w-4 mr-2 text-[#8C7DFF]" />
                 <span>
-                  {selectedCohort.startDate.toLocaleDateString("ko-KR", {
-                    month: "long",
-                    day: "numeric",
-                  })}{" "}
-                  ~{" "}
-                  {selectedCohort.endDate.toLocaleDateString("ko-KR", {
-                    month: "long",
-                    day: "numeric",
-                  })}
+                  {selectedCohort.startDate.getMonth() + 1}월{" "}
+                  {selectedCohort.startDate.getDate()}일 ~{" "}
+                  {selectedCohort.endDate.getMonth() + 1}월{" "}
+                  {selectedCohort.endDate.getDate()}일
                 </span>
               </div>
             </div>
