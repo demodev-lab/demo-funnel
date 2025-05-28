@@ -206,3 +206,34 @@ export async function getUserChallenges(userId: string): Promise<Challenge[]> {
     return [];
   }
 }
+
+export async function getChallengeUsers(
+  challengeId: string,
+): Promise<UserData[]> {
+  try {
+    const { data, error } = await supabase
+      .from("ChallengeUsers")
+      .select(
+        `
+        user_id,
+        Users (
+          id,
+          name,
+          email
+        )
+      `,
+      )
+      .eq("challenge_id", challengeId);
+
+    if (error) throw error;
+
+    return data.map((item: any) => ({
+      id: item.Users.id,
+      name: item.Users.name,
+      email: item.Users.email,
+    }));
+  } catch (error) {
+    console.error("챌린지 수강생 정보 조회 실패", error);
+    return [];
+  }
+}
