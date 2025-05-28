@@ -24,6 +24,7 @@ export interface CreateLectureData {
   challenges: string[];
   assignmentTitle?: string;
   assignment?: string;
+  challengeOrders?: { challengeId: string; order: number }[];
 }
 
 export interface UpdateLectureData {
@@ -33,6 +34,30 @@ export interface UpdateLectureData {
   challenges: string[];
   assignmentTitle?: string;
   assignment?: string;
+  challengeOrders?: { challengeId: string; order: number }[];
+}
+
+export interface LectureDetail {
+  id: number;
+  name: string;
+  description: string;
+  url: string;
+  upload_type: number;
+  created_at: string;
+  updated_at: string;
+  Assignments: {
+    id: number;
+    title: string;
+    contents: string;
+  }[];
+  ChallengeLectures: {
+    challenge_id: string;
+    sequence: number;
+    Challenges: {
+      id: string;
+      name: string;
+    };
+  }[];
 }
 
 export async function getLectures() {
@@ -73,8 +98,6 @@ export async function createLecture(data: CreateLectureData) {
           description: data.description,
           url: data.url,
           upload_type: 0, // URL 방식
-          assignment_title: data.assignmentTitle,
-          assignment: data.assignment,
         },
       ])
       .select()
@@ -89,10 +112,43 @@ export async function createLecture(data: CreateLectureData) {
 
     // 선택된 챌린지들을 ChallengeLectures 테이블에 추가
     if (data.challenges && data.challenges.length > 0) {
-      const challengeLectures = data.challenges.map((challengeId) => ({
-        lecture_id: lecture.id,
-        challenge_id: challengeId,
-      }));
+      // 각 챌린지의 open_date 가져오기
+      const { data: challengesData, error: challengesError } = await supabase
+        .from("Challenges")
+        .select("id, open_date")
+        .in("id", data.challenges);
+
+      if (challengesError) {
+        console.error("챌린지 정보 조회 에러:", challengesError);
+        throw challengesError;
+      }
+
+      // ChallengeLectures 테이블에 데이터 추가
+      const challengeLectures = data.challenges.map((challengeId) => {
+        const challenge = challengesData.find(
+          (c) => c.id.toString() === challengeId,
+        );
+        const openDate = new Date(challenge?.open_date || "");
+        const sequence =
+          data.challengeOrders?.find((co) => co.challengeId === challengeId)
+            ?.order || 1;
+
+        // open_at 계산 (sequence에 따라 날짜 추가)
+        const openAt = new Date(openDate);
+        openAt.setDate(openAt.getDate() + (sequence - 1));
+
+        // due_at 계산 (open_at에서 하루 더하기)
+        const dueAt = new Date(openAt);
+        dueAt.setDate(dueAt.getDate() + 1);
+
+        return {
+          lecture_id: lecture.id,
+          challenge_id: challengeId,
+          sequence: sequence,
+          open_at: openAt.toISOString(),
+          due_at: dueAt.toISOString(),
+        };
+      });
 
       const { error: challengeError } = await supabase
         .from("ChallengeLectures")
@@ -101,6 +157,24 @@ export async function createLecture(data: CreateLectureData) {
       if (challengeError) {
         console.error("챌린지 연결 에러:", challengeError);
         throw challengeError;
+      }
+    }
+
+    // 과제가 있는 경우 Assignments 테이블에 추가
+    if (data.assignmentTitle && data.assignment) {
+      const { error: assignmentError } = await supabase
+        .from("Assignments")
+        .insert([
+          {
+            lecture_id: lecture.id,
+            title: data.assignmentTitle,
+            contents: data.assignment,
+          },
+        ]);
+
+      if (assignmentError) {
+        console.error("과제 추가 에러:", assignmentError);
+        throw assignmentError;
       }
     }
 
@@ -133,8 +207,6 @@ export async function updateLecture(
         name: data.name,
         description: data.description,
         url: data.url,
-        assignment_title: data.assignmentTitle,
-        assignment: data.assignment,
         updated_at: new Date().toISOString(),
       })
       .eq("id", lectureId)
@@ -159,10 +231,43 @@ export async function updateLecture(
 
     // 새로운 챌린지 연결 정보 추가
     if (data.challenges && data.challenges.length > 0) {
-      const challengeLectures = data.challenges.map((challengeId: string) => ({
-        lecture_id: lectureId,
-        challenge_id: challengeId,
-      }));
+      // 각 챌린지의 open_date 가져오기
+      const { data: challengesData, error: challengesError } = await supabase
+        .from("Challenges")
+        .select("id, open_date")
+        .in("id", data.challenges);
+
+      if (challengesError) {
+        console.error("챌린지 정보 조회 에러:", challengesError);
+        throw challengesError;
+      }
+
+      // ChallengeLectures 테이블에 데이터 추가
+      const challengeLectures = data.challenges.map((challengeId) => {
+        const challenge = challengesData.find(
+          (c) => c.id.toString() === challengeId,
+        );
+        const openDate = new Date(challenge?.open_date || "");
+        const sequence =
+          data.challengeOrders?.find((co) => co.challengeId === challengeId)
+            ?.order || 1;
+
+        // open_at 계산 (sequence에 따라 날짜 추가)
+        const openAt = new Date(openDate);
+        openAt.setDate(openAt.getDate() + (sequence - 1));
+
+        // due_at 계산 (open_at에서 하루 더하기)
+        const dueAt = new Date(openAt);
+        dueAt.setDate(dueAt.getDate() + 1);
+
+        return {
+          lecture_id: lectureId,
+          challenge_id: challengeId,
+          sequence: sequence,
+          open_at: openAt.toISOString(),
+          due_at: dueAt.toISOString(),
+        };
+      });
 
       const { error: insertError } = await supabase
         .from("ChallengeLectures")
@@ -172,6 +277,20 @@ export async function updateLecture(
         console.error("새로운 챌린지 연결 추가 에러:", insertError);
         throw insertError;
       }
+    }
+
+    // 과제 정보 업데이트
+    const { error: assignmentError } = await supabase
+      .from("Assignments")
+      .update({
+        title: data.assignmentTitle,
+        contents: data.assignment,
+      })
+      .eq("lecture_id", lectureId);
+
+    if (assignmentError) {
+      console.error("과제 업데이트 에러:", assignmentError);
+      throw assignmentError;
     }
 
     console.log("수정된 강의:", updatedLecture);
@@ -214,7 +333,18 @@ export async function deleteLecture(lectureId: string) {
       throw challengeDeleteError;
     }
 
-    // 강의 삭제
+    // Assignments 테이블에서 관련 레코드 삭제
+    const { error: assignmentDeleteError } = await supabase
+      .from("Assignments")
+      .delete()
+      .eq("lecture_id", lectureId);
+
+    if (assignmentDeleteError) {
+      console.error("과제 삭제 실패:", assignmentDeleteError);
+      throw assignmentDeleteError;
+    }
+
+    // 마지막으로 강의 삭제
     const { error: deleteError } = await supabase
       .from("Lectures")
       .delete()
@@ -257,5 +387,44 @@ export async function getLectureChallenges(
   } catch (error) {
     console.error("챌린지 데이터 조회 실패:", error);
     return [];
+  }
+}
+
+export async function getLectureDetail(
+  lectureId: string,
+): Promise<LectureDetail | null> {
+  try {
+    const { data, error } = await supabase
+      .from("Lectures")
+      .select(
+        `
+        *,
+        Assignments (
+          id,
+          title,
+          contents
+        ),
+        ChallengeLectures (
+          challenge_id,
+          sequence,
+          Challenges (
+            id,
+            name
+          )
+        )
+      `,
+      )
+      .eq("id", lectureId)
+      .single();
+
+    if (error) {
+      console.error("강의 상세 정보 조회 실패:", error);
+      throw error;
+    }
+
+    return data;
+  } catch (error) {
+    console.error("강의 상세 정보 조회 실패:", error);
+    return null;
   }
 }

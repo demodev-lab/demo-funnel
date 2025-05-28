@@ -31,7 +31,8 @@ import { toast } from "sonner";
 import {
   createLecture,
   updateLecture,
-  getLectureChallenges,
+  getLectureDetail,
+  type LectureDetail,
 } from "@/apis/lectures";
 import { getChallenges } from "@/apis/challenges";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -97,24 +98,42 @@ export default function LectureForm({
     queryFn: getChallenges,
   });
 
-  // 현재 강의의 챌린지 정보 가져오기
-  const {
-    data: lectureChallenges = [],
-    isLoading: isLoadingLectureChallenges,
-  } = useQuery<Challenge[]>({
-    queryKey: ["lecture-challenges", lectureId],
-    queryFn: () => getLectureChallenges(lectureId || ""),
-    enabled: isEdit && !!lectureId,
-  });
+  // 강의 상세 정보 가져오기
+  const { data: lectureDetail, isLoading: isLoadingDetail } =
+    useQuery<LectureDetail | null>({
+      queryKey: ["lecture-detail", lectureId],
+      queryFn: () => getLectureDetail(String(lectureId)),
+      enabled: isEdit && !!lectureId,
+    });
 
-  // 초기 챌린지 데이터 설정
+  // 상세 정보가 로드되면 폼 데이터 설정
   useEffect(() => {
-    if (lectureChallenges.length > 0) {
-      setSelectedChallenges(
-        lectureChallenges.map((challenge) => String(challenge.id)),
-      );
+    if (lectureDetail) {
+      setTitle(lectureDetail.name);
+      setDescription(lectureDetail.description);
+      setVideoUrl(lectureDetail.url);
+
+      // 과제 정보 설정
+      if (lectureDetail.Assignments?.[0]) {
+        setAssignmentTitle(lectureDetail.Assignments[0].title);
+        setAssignment(lectureDetail.Assignments[0].contents);
+      }
+
+      // 챌린지 정보 설정
+      if (lectureDetail.ChallengeLectures?.length > 0) {
+        const challenges = lectureDetail.ChallengeLectures.map((cl) =>
+          cl.challenge_id.toString(),
+        );
+        setSelectedChallenges(challenges);
+
+        const orders = lectureDetail.ChallengeLectures.map((cl) => ({
+          challengeId: cl.challenge_id.toString(),
+          order: cl.sequence,
+        }));
+        setChallengeOrders(orders);
+      }
     }
-  }, [lectureChallenges]);
+  }, [lectureDetail]);
 
   // 챌린지별 강의 순서 설정
   const handleOrderChange = (challengeId: string, order: number) => {
@@ -150,6 +169,9 @@ export default function LectureForm({
           description,
           url: videoUrl,
           challenges: selectedChallenges,
+          assignmentTitle: assignmentTitle.trim(),
+          assignment: assignment.trim(),
+          challengeOrders: challengeOrders,
         };
 
         console.log("수정 전송 데이터:", updateData);
@@ -183,6 +205,7 @@ export default function LectureForm({
           challenges: selectedChallenges,
           assignmentTitle: assignmentTitle.trim(),
           assignment: assignment.trim(),
+          challengeOrders: challengeOrders,
         };
 
         console.log("강의 추가 시도:", lectureData);
@@ -216,7 +239,7 @@ export default function LectureForm({
     }
   };
 
-  if (isLoadingChallenges || (isEdit && isLoadingLectureChallenges)) {
+  if (isLoadingChallenges || (isEdit && isLoadingDetail)) {
     return (
       <div className="flex items-center justify-center py-4">
         <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
