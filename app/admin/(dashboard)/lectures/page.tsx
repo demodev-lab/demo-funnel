@@ -190,12 +190,12 @@ export default function LecturesPage() {
                   isEdit
                   initialData={{
                     title: selectedLecture.name,
-                    description: selectedLecture.description,
-                    url: selectedLecture.url,
-                    assignmentTitle: selectedLecture.assignment_title,
-                    assignment: selectedLecture.assignment,
+                    description: selectedLecture.description || "",
+                    url: selectedLecture.url || "",
+                    assignmentTitle: selectedLecture.assignment_title || "",
+                    assignment: selectedLecture.assignment || "",
                   }}
-                  lectureId={selectedLecture.id}
+                  lectureId={String(selectedLecture.id)}
                   onSuccess={() => {
                     handleCloseModal();
                     queryClient.invalidateQueries({ queryKey: ["lectures"] });

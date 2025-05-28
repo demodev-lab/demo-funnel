@@ -78,15 +78,15 @@ export default function LectureForm({
   isDeleting = false,
 }: LectureFormProps) {
   const queryClient = useQueryClient();
-  const [title, setTitle] = useState(initialData.title);
-  const [description, setDescription] = useState(initialData.description);
-  const [videoUrl, setVideoUrl] = useState(initialData.url);
+  const [title, setTitle] = useState(initialData.title || "");
+  const [description, setDescription] = useState(initialData.description || "");
+  const [videoUrl, setVideoUrl] = useState(initialData.url || "");
   const [selectedChallenges, setSelectedChallenges] = useState<string[]>([]);
   const [challengeOrders, setChallengeOrders] = useState<ChallengeOrder[]>([]);
   const [assignmentTitle, setAssignmentTitle] = useState(
-    initialData.assignmentTitle,
+    initialData.assignmentTitle || "",
   );
-  const [assignment, setAssignment] = useState(initialData.assignment);
+  const [assignment, setAssignment] = useState(initialData.assignment || "");
   const [uploadType, setUploadType] = useState("url");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
