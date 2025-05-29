@@ -6,8 +6,21 @@ interface Challenge {
 }
 
 interface ChallengeLectureResponse {
-  challenge_id: string;
-  Challenges: Challenge;
+  lecture_id: number;
+  sequence: number;
+  Lectures: {
+    id: number;
+    name: string;
+    description: string;
+    url: string;
+    upload_type: number;
+    created_at: string;
+    updated_at: string;
+    Assignments: Array<{
+      title: string;
+      contents: string;
+    }>;
+  };
 }
 
 interface LectureChallenge {
@@ -67,6 +80,19 @@ export interface LectureDetail {
       name: string;
     };
   }[];
+}
+
+export interface LectureWithSequence {
+  id: number;
+  name: string;
+  description: string;
+  url: string;
+  upload_type: number;
+  created_at: string;
+  updated_at: string;
+  sequence: number;
+  assignment_title: string;
+  assignment: string;
 }
 
 export async function getLectures() {
@@ -227,18 +253,76 @@ export async function updateLecture(
       throw lectureError;
     }
 
-    // 기존 챌린지 연결 정보 삭제
-    const { error: deleteError } = await supabase
+    // 기존 챌린지 연결 정보 조회
+    const { data: existingLinks, error: existingError } = await supabase
       .from("ChallengeLectures")
-      .delete()
+      .select("challenge_id")
       .eq("lecture_id", lectureId);
 
-    if (deleteError) {
-      console.error("기존 챌린지 연결 삭제 에러:", deleteError);
-      throw deleteError;
+    if (existingError) {
+      console.error("기존 챌린지 연결 조회 에러:", existingError);
+      throw existingError;
     }
 
-    // 새로운 챌린지 연결 정보 추가
+    const existingChallengeIds = existingLinks.map((link) => link.challenge_id);
+    const newChallengeIds = data.challenges;
+
+    // 삭제할 챌린지 연결 (제출이 없는 경우에만 삭제 가능)
+    const challengesToRemove = existingChallengeIds.filter(
+      (id) => !newChallengeIds.includes(id),
+    );
+
+    if (challengesToRemove.length > 0) {
+      // 먼저 삭제 가능한 ChallengeLectures 조회
+      const { data: challengeLectures, error: fetchError } = await supabase
+        .from("ChallengeLectures")
+        .select("id")
+        .eq("lecture_id", lectureId)
+        .in("challenge_id", challengesToRemove);
+
+      if (fetchError) {
+        console.error("챌린지 연결 조회 에러:", fetchError);
+        throw fetchError;
+      }
+
+      // 제출이 있는 ChallengeLectures 조회
+      const { data: submittedCLs, error: submissionError } = await supabase
+        .from("Submissions")
+        .select("challenge_lecture_id")
+        .in(
+          "challenge_lecture_id",
+          challengeLectures?.map((cl) => cl.id) || [],
+        );
+
+      if (submissionError) {
+        console.error("제출 정보 조회 에러:", submissionError);
+        throw submissionError;
+      }
+
+      // 제출이 없는 ChallengeLectures ID만 필터링
+      const submittedIds = new Set(
+        submittedCLs?.map((s) => s.challenge_lecture_id) || [],
+      );
+      const deletableIds =
+        challengeLectures
+          ?.filter((cl) => !submittedIds.has(cl.id))
+          .map((cl) => cl.id) || [];
+
+      if (deletableIds.length > 0) {
+        // 제출이 없는 챌린지 연결만 삭제
+        const { error: deleteError } = await supabase
+          .from("ChallengeLectures")
+          .delete()
+          .in("id", deletableIds);
+
+        if (deleteError) {
+          console.error("챌린지 연결 삭제 에러:", deleteError);
+          throw deleteError;
+        }
+      }
+    }
+
+    // 새로운 챌린지 연결 정보 추가 및 업데이트
     if (data.challenges && data.challenges.length > 0) {
       // 각 챌린지의 open_date 가져오기
       const { data: challengesData, error: challengesError } = await supabase
@@ -251,8 +335,7 @@ export async function updateLecture(
         throw challengesError;
       }
 
-      // ChallengeLectures 테이블에 데이터 추가
-      const challengeLectures = data.challenges.map((challengeId) => {
+      for (const challengeId of data.challenges) {
         const challenge = challengesData.find(
           (c) => c.id.toString() === challengeId,
         );
@@ -261,30 +344,61 @@ export async function updateLecture(
           data.challengeOrders?.find((co) => co.challengeId === challengeId)
             ?.order || 1;
 
-        // open_at 계산 (sequence에 따라 날짜 추가)
+        // open_at 계산
         const openAt = new Date(openDate);
         openAt.setDate(openAt.getDate() + (sequence - 1));
 
-        // due_at 계산 (open_at에서 하루 더하기)
+        // due_at 계산
         const dueAt = new Date(openAt);
         dueAt.setDate(dueAt.getDate() + 1);
 
-        return {
-          lecture_id: lectureId,
-          challenge_id: challengeId,
-          sequence: sequence,
-          open_at: openAt.toISOString(),
-          due_at: dueAt.toISOString(),
-        };
-      });
+        // 기존 연결이 있는지 확인
+        const { data: existingLink, error: checkError } = await supabase
+          .from("ChallengeLectures")
+          .select("id")
+          .eq("lecture_id", lectureId)
+          .eq("challenge_id", challengeId)
+          .single();
 
-      const { error: insertError } = await supabase
-        .from("ChallengeLectures")
-        .insert(challengeLectures);
+        if (checkError && checkError.code !== "PGRST116") {
+          // PGRST116는 결과가 없을 때의 에러 코드
+          console.error("기존 연결 확인 에러:", checkError);
+          throw checkError;
+        }
 
-      if (insertError) {
-        console.error("새로운 챌린지 연결 추가 에러:", insertError);
-        throw insertError;
+        if (existingLink) {
+          // 기존 연결이 있으면 업데이트
+          const { error: updateError } = await supabase
+            .from("ChallengeLectures")
+            .update({
+              sequence: sequence,
+              open_at: openAt.toISOString(),
+              due_at: dueAt.toISOString(),
+            })
+            .eq("lecture_id", lectureId)
+            .eq("challenge_id", challengeId);
+
+          if (updateError) {
+            console.error("챌린지 연결 업데이트 에러:", updateError);
+            throw updateError;
+          }
+        } else {
+          // 기존 연결이 없으면 새로 추가
+          const { error: insertError } = await supabase
+            .from("ChallengeLectures")
+            .insert({
+              lecture_id: lectureId,
+              challenge_id: challengeId,
+              sequence: sequence,
+              open_at: openAt.toISOString(),
+              due_at: dueAt.toISOString(),
+            });
+
+          if (insertError) {
+            console.error("챌린지 연결 추가 에러:", insertError);
+            throw insertError;
+          }
+        }
       }
     }
 
@@ -424,9 +538,13 @@ export async function getLectureDetail(
       `,
       )
       .eq("id", lectureId)
-      .single();
+      .maybeSingle();
 
     if (error) {
+      if (error.code === "PGRST116") {
+        console.log("강의를 찾을 수 없습니다:", lectureId);
+        return null;
+      }
       console.error("강의 상세 정보 조회 실패:", error);
       throw error;
     }
@@ -523,5 +641,59 @@ export async function getUserLectures(userId: string) {
         ? error.message
         : "사용자의 챌린지 강의 목록 조회 중 오류가 발생했습니다.",
     );
+  }
+}
+
+export async function getLecturesByChallenge(
+  challengeId: string,
+): Promise<LectureWithSequence[]> {
+  try {
+    const { data, error } = await supabase
+      .from("ChallengeLectures")
+      .select(
+        `
+        lecture_id,
+        sequence,
+        Lectures (
+          id,
+          name,
+          description,
+          url,
+          upload_type,
+          created_at,
+          updated_at,
+          Assignments (
+            title,
+            contents
+          )
+        )
+      `,
+      )
+      .eq("challenge_id", challengeId)
+      .order("sequence", { ascending: true })
+      .returns<ChallengeLectureResponse[]>();
+
+    if (error) throw error;
+
+    // Lectures 데이터 추출 및 과제 정보 포함
+    const lectures =
+      data?.map((item) => ({
+        id: item.Lectures.id,
+        name: item.Lectures.name,
+        description: item.Lectures.description,
+        url: item.Lectures.url,
+        upload_type: item.Lectures.upload_type,
+        created_at: item.Lectures.created_at,
+        updated_at: item.Lectures.updated_at,
+        sequence: item.sequence,
+        assignment_title: item.Lectures.Assignments?.[0]?.title || "",
+        assignment: item.Lectures.Assignments?.[0]?.contents || "",
+      })) || [];
+
+    console.log("챌린지별 강의 목록:", lectures);
+    return lectures;
+  } catch (error) {
+    console.error("챌린지별 강의 데이터 조회 실패:", error);
+    return [];
   }
 }
