@@ -1,15 +1,15 @@
 import { supabase } from "./supabase";
 
 interface ChallengeLecture {
-  id: string;
-  lecture_id: string;
+  id: number;
+  lecture_id: number;
   Lectures: {
-    id: string;
+    id: number;
     name: string;
   };
 }
 
-export async function getAssignment(lectureId: string) {
+export async function getAssignment(lectureId: number) {
   try {
     const { data: assignment, error } = await supabase
       .from("Assignments")
@@ -42,8 +42,8 @@ export async function createSubmission({
   email: string;
   link: string;
   text: string;
-  challengeLectureId: string;
-  userId: string;
+  challengeLectureId: number;
+  userId: number;
 }) {
   try {
     const { data, error } = await supabase.from("Submissions").insert([
@@ -70,7 +70,7 @@ export async function createSubmission({
 }
 
 // 챌린지 별 각 강의 과제 통계를 계산하는 함수
-export async function getAssignmentStats(challengeId: string) {
+export async function getAssignmentStats(challengeId: number) {
   try {
     // 1. ChallengeLectures 테이블에서 challenge_id로 데이터 조회
     const { data: challengeLectures, error: challengeError } = (await supabase

@@ -1,11 +1,11 @@
 import { create } from "zustand";
 
 interface ChallengeState {
-  selectedChallengeId: string;
-  setSelectedChallengeId: (id: string) => void;
+  selectedChallengeId: number;
+  setSelectedChallengeId: (id: number) => void;
 }
 
 export const useChallengeStore = create<ChallengeState>((set) => ({
-  selectedChallengeId: "",
-  setSelectedChallengeId: (id: string) => set({ selectedChallengeId: id }),
+  selectedChallengeId: 0,
+  setSelectedChallengeId: (id: number) => set({ selectedChallengeId: id }),
 }));
