@@ -6,10 +6,15 @@ import { Send, LinkIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { postAssignment } from "@/apis/assignment";
 import { toast } from "sonner";
+import { createSubmission } from '@/apis/assignments';
 
-export function AssignmentSubmissionForm() {
+interface AssignmentSubmissionFormProps {
+  userId: number;
+  challengeLectureId: string;
+}
+
+export function AssignmentSubmissionForm({ userId, challengeLectureId }: AssignmentSubmissionFormProps) {
   const queryClient = useQueryClient();
   const [submitterName, setSubmitterName] = useState("");
   const [submitterEmail, setSubmitterEmail] = useState("");
@@ -17,7 +22,16 @@ export function AssignmentSubmissionForm() {
   const [newSubmission, setNewSubmission] = useState("");
 
   const { mutate: handleSubmit } = useMutation({
-    mutationFn: postAssignment,
+    mutationFn: (data: {
+      name: string;
+      email: string;
+      link: string;
+      text: string;
+    }) => createSubmission({
+      ...data,
+      challengeLectureId,
+      userId: userId.toString(),
+    }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['assignment-submissions'] });
       setNewSubmission("");
