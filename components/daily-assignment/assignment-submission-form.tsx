@@ -8,16 +8,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { createSubmission } from '@/apis/assignments';
+import { userInfo } from '@/types/user';
 
 interface AssignmentSubmissionFormProps {
-  userId: number;
+  userInfo: userInfo;
   challengeLectureId: string;
 }
 
-export function AssignmentSubmissionForm({ userId, challengeLectureId }: AssignmentSubmissionFormProps) {
+export function AssignmentSubmissionForm({ userInfo, challengeLectureId }: AssignmentSubmissionFormProps) {
   const queryClient = useQueryClient();
-  const [submitterName, setSubmitterName] = useState("");
-  const [submitterEmail, setSubmitterEmail] = useState("");
   const [submissionLink, setSubmissionLink] = useState("");
   const [newSubmission, setNewSubmission] = useState("");
 
@@ -30,14 +29,12 @@ export function AssignmentSubmissionForm({ userId, challengeLectureId }: Assignm
     }) => createSubmission({
       ...data,
       challengeLectureId,
-      userId: userId.toString(),
+      userId: userInfo.id.toString(),
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['assignment-submissions'] });
       setNewSubmission("");
       setSubmissionLink("");
-      setSubmitterName("");
-      setSubmitterEmail("");
       toast.success("과제가 성공적으로 제출되었습니다.");
     },
     onError: (error) => {
@@ -50,15 +47,13 @@ export function AssignmentSubmissionForm({ userId, challengeLectureId }: Assignm
     e.preventDefault();
     if (
       !newSubmission.trim() ||
-      !submitterName.trim() ||
-      !submitterEmail.trim() ||
       !submissionLink.trim()
     )
       return;
 
     handleSubmit({
-      name: submitterName,
-      email: submitterEmail,
+      name: userInfo.name,
+      email: userInfo.email,
       link: submissionLink,
       text: newSubmission,
     });

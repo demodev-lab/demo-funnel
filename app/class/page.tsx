@@ -77,7 +77,7 @@ export default function ClassPage() {
 
             {currentLecture && (
               <AssignmentSubmissionSection 
-                userId={user.id} 
+                userInfo={user} 
                 lectureId={currentLecture.id}
                 challengeLectureId={currentLecture.challenge_lecture_id}
               />
