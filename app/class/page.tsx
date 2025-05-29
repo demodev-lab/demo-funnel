@@ -56,7 +56,6 @@ export default function ClassPage() {
           {/* <div className="transform transition-all duration-500 hover:scale-[1.01] shadow-xl rounded-2xl overflow-hidden animate-slide-up"> */}
           <div>
           <div className="bg-gradient-to-br from-[#252A3C] to-[#2A2F45] rounded-xl overflow-hidden shadow-lg border border-gray-700/50">
-            {/* Lecture Section */}
             <div className="transition-all duration-300 hover:brightness-105">
               <DailyLectureSection userId={user.id} />
             </div>
