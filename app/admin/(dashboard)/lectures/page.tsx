@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/dialog";
 import { getLectures, deleteLecture } from "@/apis/lectures";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface Lecture {
