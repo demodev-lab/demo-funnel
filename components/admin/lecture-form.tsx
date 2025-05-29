@@ -6,9 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Switch } from "@/components/ui/switch";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,27 +35,27 @@ import { getChallenges } from "@/apis/challenges";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface Challenge {
-  id: string;
+  id: number;
   name: string;
   lecture_num?: number;
 }
 
 interface ChallengeOrder {
-  challengeId: string;
+  challengeId: number;
   order: number;
 }
 
 interface LectureFormProps {
-  onSuccess?: () => void;
+  onSuccess: () => void;
   isEdit?: boolean;
   initialData?: {
     title: string;
     description: string;
     url: string;
-    assignmentTitle?: string;
-    assignment?: string;
+    assignmentTitle: string;
+    assignment: string;
   };
-  lectureId?: string;
+  lectureId?: number;
   onDelete?: () => void;
   isDeleting?: boolean;
 }
@@ -81,7 +78,7 @@ export default function LectureForm({
   const [title, setTitle] = useState(initialData.title || "");
   const [description, setDescription] = useState(initialData.description || "");
   const [videoUrl, setVideoUrl] = useState(initialData.url || "");
-  const [selectedChallenges, setSelectedChallenges] = useState<string[]>([]);
+  const [selectedChallenges, setSelectedChallenges] = useState<number[]>([]);
   const [challengeOrders, setChallengeOrders] = useState<ChallengeOrder[]>([]);
   const [assignmentTitle, setAssignmentTitle] = useState(
     initialData.assignmentTitle || "",
@@ -104,7 +101,7 @@ export default function LectureForm({
       queryKey: ["lecture-detail", lectureId],
       queryFn: async () => {
         try {
-          const data = await getLectureDetail(String(lectureId));
+          const data = await getLectureDetail(lectureId);
           return data;
         } catch (error) {
           if (error.code === "PGRST116") {
@@ -134,19 +131,24 @@ export default function LectureForm({
         const challenges = lectureDetail.ChallengeLectures.map((cl) =>
           cl.challenge_id.toString(),
         );
-        setSelectedChallenges(challenges);
+        setSelectedChallenges(challenges.map(Number));
 
         const orders = lectureDetail.ChallengeLectures.map((cl) => ({
           challengeId: cl.challenge_id.toString(),
           order: cl.sequence,
         }));
-        setChallengeOrders(orders);
+        setChallengeOrders(
+          orders.map((co) => ({
+            challengeId: Number(co.challengeId),
+            order: co.order,
+          })),
+        );
       }
     }
   }, [lectureDetail]);
 
   // 챌린지별 강의 순서 설정
-  const handleOrderChange = (challengeId: string, order: number) => {
+  const handleOrderChange = (challengeId: number, order: number) => {
     setChallengeOrders((prev) => {
       const filtered = prev.filter((co) => co.challengeId !== challengeId);
       return [...filtered, { challengeId, order }];
@@ -154,7 +156,7 @@ export default function LectureForm({
   };
 
   // 챌린지별 현재 선택된 순서 가져오기
-  const getSelectedOrder = (challengeId: string) => {
+  const getSelectedOrder = (challengeId: number) => {
     return (
       challengeOrders.find((co) => co.challengeId === challengeId)?.order ||
       null
@@ -162,8 +164,10 @@ export default function LectureForm({
   };
 
   // 챌린지별 최대 강의 수 가져오기
-  const getMaxLectureNum = (challengeId: string) => {
-    const challenge = challenges.find((c) => String(c.id) === challengeId);
+  const getMaxLectureNum = (challengeId: number) => {
+    const challenge = challenges.find(
+      (c) => String(c.id) === String(challengeId),
+    );
     return challenge?.lecture_num || 0;
   };
 
@@ -336,8 +340,8 @@ export default function LectureForm({
         <Label>챌린지 및 강의 순서</Label>
         <Select
           onValueChange={(value) => {
-            if (!selectedChallenges.includes(value)) {
-              setSelectedChallenges([...selectedChallenges, value]);
+            if (!selectedChallenges.includes(Number(value))) {
+              setSelectedChallenges([...selectedChallenges, Number(value)]);
             }
           }}
         >
@@ -363,9 +367,7 @@ export default function LectureForm({
         {selectedChallenges.length > 0 && (
           <div className="mt-4 space-y-4">
             {selectedChallenges.map((challengeId) => {
-              const challenge = challenges.find(
-                (c) => String(c.id) === challengeId,
-              );
+              const challenge = challenges.find((c) => c.id === challengeId);
               return (
                 <div
                   key={challengeId}

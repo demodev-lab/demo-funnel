@@ -67,7 +67,7 @@ export default function LecturesPage() {
   // 선택된 챌린지의 강의 목록 조회
   const { data: lectures = [], isLoading } = useQuery({
     queryKey: ["lectures", selectedChallengeId],
-    queryFn: () => getLecturesByChallenge(selectedChallengeId || ""),
+    queryFn: () => getLecturesByChallenge(selectedChallengeId || 0),
     enabled: !!selectedChallengeId,
   });
 
@@ -83,7 +83,7 @@ export default function LecturesPage() {
 
     try {
       setIsDeleting(true);
-      await deleteLecture(String(selectedLecture.id));
+      await deleteLecture(selectedLecture.id);
 
       // 모든 관련 쿼리 무효화
       queryClient.invalidateQueries({ queryKey: ["lectures"] });
@@ -208,7 +208,7 @@ export default function LecturesPage() {
                     assignmentTitle: selectedLecture.assignment_title || "",
                     assignment: selectedLecture.assignment || "",
                   }}
-                  lectureId={String(selectedLecture.id)}
+                  lectureId={selectedLecture.id}
                   onSuccess={() => {
                     handleCloseModal();
                     queryClient.invalidateQueries({ queryKey: ["lectures"] });

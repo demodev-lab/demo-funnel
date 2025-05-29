@@ -44,7 +44,7 @@ export async function createChallenge(data: ChallengeFormData) {
 }
 
 export async function updateChallenge(
-  id: string,
+  id: number,
   data: Partial<ChallengeFormData>,
 ) {
   try {
@@ -68,7 +68,7 @@ export async function updateChallenge(
   }
 }
 
-export async function deleteChallenge(id: string) {
+export async function deleteChallenge(id: number) {
   try {
     // 먼저 ChallengeLectures 테이블에서 관련 데이터 삭제
     const { error: lectureError } = await supabase

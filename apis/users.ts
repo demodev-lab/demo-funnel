@@ -3,12 +3,12 @@ import { supabase } from "./supabase";
 // TODO 인터페이스 파일 분리 필요
 
 interface Challenge {
-  id: string;
+  id: number;
   name: string;
 }
 
 interface ChallengeResponse {
-  challenge_id: string;
+  challenge_id: number;
   Challenges: {
     id: number;
     name: string;
@@ -16,7 +16,7 @@ interface ChallengeResponse {
 }
 
 export interface UserData {
-  id?: string;
+  id?: number;
   name: string;
   email: string;
   phone: string;
@@ -24,7 +24,7 @@ export interface UserData {
 }
 
 interface UserWithChallenges extends UserData {
-  challenges?: string[];
+  challenges?: number[];
 }
 
 interface SubmissionStatus {
@@ -85,7 +85,7 @@ export async function createUser(data: UserWithChallenges) {
     if (userError) throw userError;
 
     if (challenges && Array.isArray(challenges)) {
-      const challengeUsers = challenges.map((challengeId: string) => ({
+      const challengeUsers = challenges.map((challengeId: number) => ({
         user_id: newUser.id,
         challenge_id: challengeId,
         enrolled_at: new Date().toISOString(),
@@ -105,57 +105,44 @@ export async function createUser(data: UserWithChallenges) {
   }
 }
 
-export async function updateUser(data: { id: string; [key: string]: any }) {
+export async function updateUser(data: { id: number; [key: string]: any }) {
   try {
-    // id 값 검증
     if (!data.id) {
       throw new Error("사용자 ID가 필요합니다.");
     }
 
-    // id를 숫자로 변환
-    const userId = parseInt(data.id, 10);
-    if (isNaN(userId)) {
-      throw new Error("유효하지 않은 사용자 ID입니다.");
-    }
-
-    // challenges 필드를 분리
     const { challenges, ...userData } = data;
 
-    // 먼저 사용자가 존재하는지 확인
     const { data: existingUser, error: checkError } = await supabase
       .from("Users")
       .select("*")
-      .eq("id", userId)
+      .eq("id", data.id)
       .single();
 
     if (checkError) throw checkError;
     if (!existingUser) {
-      throw new Error(`ID가 ${userId}인 사용자를 찾을 수 없습니다.`);
+      throw new Error(`ID가 ${data.id}인 사용자를 찾을 수 없습니다.`);
     }
 
-    // Users 테이블 업데이트 (challenges 필드 제외)
     const { data: updatedUser, error: updateError } = await supabase
       .from("Users")
-      .update({ ...userData, id: userId })
-      .eq("id", userId)
+      .update(userData)
+      .eq("id", data.id)
       .select()
       .single();
 
     if (updateError) throw updateError;
 
-    // 챌린지 업데이트 처리
     if (challenges && Array.isArray(challenges)) {
-      // 기존 챌린지 삭제
       const { error: deleteError } = await supabase
         .from("ChallengeUsers")
         .delete()
-        .eq("user_id", userId);
+        .eq("user_id", data.id);
 
       if (deleteError) throw deleteError;
 
-      // 새로운 챌린지 추가
-      const challengeUsers = challenges.map((challengeId: string) => ({
-        user_id: userId,
+      const challengeUsers = challenges.map((challengeId: number) => ({
+        user_id: data.id,
         challenge_id: challengeId,
         enrolled_at: new Date().toISOString(),
       }));
@@ -174,9 +161,8 @@ export async function updateUser(data: { id: string; [key: string]: any }) {
   }
 }
 
-export async function deleteUser(userId: string) {
+export async function deleteUser(userId: number) {
   try {
-    // 먼저 해당 ID의 사용자가 존재하는지 확인
     const { data: existingUser, error: checkError } = await supabase
       .from("Users")
       .select("*")
@@ -188,7 +174,6 @@ export async function deleteUser(userId: string) {
       throw new Error(`ID가 ${userId}인 사용자를 찾을 수 없습니다.`);
     }
 
-    // ChallengeUsers 테이블에서 먼저 삭제
     const { error: challengeDeleteError } = await supabase
       .from("ChallengeUsers")
       .delete()
@@ -196,7 +181,6 @@ export async function deleteUser(userId: string) {
 
     if (challengeDeleteError) throw challengeDeleteError;
 
-    // Users 테이블에서 삭제
     const { error: userDeleteError } = await supabase
       .from("Users")
       .delete()
@@ -211,7 +195,7 @@ export async function deleteUser(userId: string) {
   }
 }
 
-export async function getUserChallenges(userId: string): Promise<Challenge[]> {
+export async function getUserChallenges(userId: number): Promise<Challenge[]> {
   try {
     const { data, error } = await supabase
       .from("ChallengeUsers")
@@ -229,7 +213,7 @@ export async function getUserChallenges(userId: string): Promise<Challenge[]> {
     if (error) throw error;
 
     return (data as unknown as ChallengeResponse[]).map((item) => ({
-      id: item.Challenges.id.toString(),
+      id: item.Challenges.id,
       name: item.Challenges.name,
     }));
   } catch (error) {
@@ -239,10 +223,9 @@ export async function getUserChallenges(userId: string): Promise<Challenge[]> {
 }
 
 export async function getChallengeUsers(
-  challengeId: string,
+  challengeId: number,
 ): Promise<UserData[]> {
   try {
-    // challengeId가 빈 문자열이면 빈 배열 반환
     if (!challengeId) {
       return [];
     }
@@ -261,7 +244,7 @@ export async function getChallengeUsers(
         )
       `,
       )
-      .eq("challenge_id", parseInt(challengeId, 10))
+      .eq("challenge_id", challengeId)
       .order("Users(created_at)", { ascending: true });
 
     if (error) throw error;
