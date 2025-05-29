@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import DailyLectureSection from '@/components/daily-lecture/daily-lecture-section';
 import { AssignmentSubmissionSection } from '@/components/daily-assignment/assignment-submission-section';
 import { getUserLectures } from '@/apis/lectures';
-import type { Lecture } from '@/components/daily-lecture/daily-lecture-section';
+import { Lecture } from '@/types/lecture';
 
 export default function ClassPage() {
   const router = useRouter();
@@ -17,7 +17,7 @@ export default function ClassPage() {
     queryKey: ['daily-lectures', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
-      const data = await getUserLectures(user.id.toString());
+      const data = await getUserLectures(user.id);
       return data as unknown as Lecture[];
     },
     enabled: !!user?.id,
@@ -48,7 +48,7 @@ export default function ClassPage() {
   }
 
   const currentLecture = lectures[0];
-
+  
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#1A1D29] to-[#252A3C] text-white">
       <div className="container mx-auto px-4 py-12">

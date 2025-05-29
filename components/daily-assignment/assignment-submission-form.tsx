@@ -12,7 +12,7 @@ import { userInfo } from '@/types/user';
 
 interface AssignmentSubmissionFormProps {
   userInfo: userInfo;
-  challengeLectureId: string;
+  challengeLectureId: number;
 }
 
 export function AssignmentSubmissionForm({ userInfo, challengeLectureId }: AssignmentSubmissionFormProps) {
@@ -29,7 +29,7 @@ export function AssignmentSubmissionForm({ userInfo, challengeLectureId }: Assig
     }) => createSubmission({
       ...data,
       challengeLectureId,
-      userId: userInfo.id.toString(),
+      userId: userInfo.id,
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['assignment-submissions'] });
@@ -62,23 +62,6 @@ export function AssignmentSubmissionForm({ userInfo, challengeLectureId }: Assig
   return (
     <form onSubmit={onSubmit} className="p-4 border-b border-gray-700">
       <div className="space-y-3">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <Input
-            value={submitterName}
-            onChange={(e) => setSubmitterName(e.target.value)}
-            placeholder="이름"
-            className="bg-[#1C1F2B] border-gray-700"
-            required
-          />
-          <Input
-            type="email"
-            value={submitterEmail}
-            onChange={(e) => setSubmitterEmail(e.target.value)}
-            placeholder="이메일"
-            className="bg-[#1C1F2B] border-gray-700"
-            required
-          />
-        </div>
         <div className="flex items-center gap-2">
           <LinkIcon className="h-4 w-4 text-gray-400" />
           <Input
