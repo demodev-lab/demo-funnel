@@ -1,50 +1,83 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Check, X } from "lucide-react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { useState, useMemo } from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Check, X } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useQuery } from "@tanstack/react-query";
+import { getStudentSubmissions } from "@/apis/users";
+import { useChallengeStore } from "@/lib/store/useChallengeStore";
 
-// Mock data
-const students = [
-  {
-    id: 1,
-    name: "홍길동",
-    email: "test@example.com",
-    submissions: [true, true, false, false, true],
-  },
-  {
-    id: 2,
-    name: "김철수",
-    email: "kim@example.com",
-    submissions: [true, false, true, true, false],
-  },
-  {
-    id: 3,
-    name: "이영희",
-    email: "lee@example.com",
-    submissions: [false, true, true, false, false],
-  },
-  {
-    id: 4,
-    name: "박지민",
-    email: "park@example.com",
-    submissions: [true, true, true, true, true],
-  },
-  {
-    id: 5,
-    name: "최유리",
-    email: "choi@example.com",
-    submissions: [false, false, false, true, false],
-  },
-]
+interface SubmissionDialogProps {
+  studentName: string;
+  lectureNumber: number;
+  isSubmitted: boolean;
+  submissionDate?: string;
+}
 
-export default function CourseInfoTable() {
-  const [selectedSubmission, setSelectedSubmission] = useState<{
-    studentId: number
-    lectureId: number
-    submitted: boolean
-  } | null>(null)
+interface CourseInfoTableProps {
+  searchQuery: string;
+  showUnsubmittedOnly: boolean;
+}
+
+export default function CourseInfoTable({
+  searchQuery,
+  showUnsubmittedOnly,
+}: CourseInfoTableProps) {
+  const [selectedSubmission, setSelectedSubmission] =
+    useState<SubmissionDialogProps | null>(null);
+  const { selectedChallengeId } = useChallengeStore();
+
+  const { data: studentSubmissions = [], isLoading } = useQuery({
+    queryKey: ["student-submissions", selectedChallengeId],
+    queryFn: () => getStudentSubmissions(selectedChallengeId || ""),
+    enabled: !!selectedChallengeId,
+  });
+
+  const filteredStudents = useMemo(() => {
+    return studentSubmissions.filter((student) => {
+      // 검색어 필터링
+      const searchMatch =
+        searchQuery.toLowerCase().trim() === "" ||
+        student.userName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        student.userEmail.toLowerCase().includes(searchQuery.toLowerCase());
+
+      // 미제출자 필터링
+      const unsubmittedMatch =
+        !showUnsubmittedOnly ||
+        student.submissions.some((submission) => !submission.isSubmitted);
+
+      return searchMatch && unsubmittedMatch;
+    });
+  }, [studentSubmissions, searchQuery, showUnsubmittedOnly]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (filteredStudents.length === 0) {
+    return (
+      <div className="bg-[#252A3C] border border-gray-700/30 rounded-xl p-8 text-center text-gray-400">
+        검색 결과가 없습니다.
+      </div>
+    );
+  }
 
   return (
     <>
@@ -54,32 +87,39 @@ export default function CourseInfoTable() {
             <TableRow className="hover:bg-transparent">
               <TableHead>수강생 이름</TableHead>
               <TableHead>이메일</TableHead>
-              <TableHead className="text-center">1강</TableHead>
-              <TableHead className="text-center">2강</TableHead>
-              <TableHead className="text-center">3강</TableHead>
-              <TableHead className="text-center">4강</TableHead>
-              <TableHead className="text-center">5강</TableHead>
+              {filteredStudents[0]?.submissions.map((_, index) => (
+                <TableHead key={index} className="text-center">
+                  {index + 1}강
+                </TableHead>
+              ))}
             </TableRow>
           </TableHeader>
           <TableBody>
-            {students.map((student) => (
-              <TableRow key={student.id} className="hover:bg-[#1C1F2B]/50">
-                <TableCell className="font-medium text-gray-300">{student.name}</TableCell>
-                <TableCell className="text-gray-400">{student.email}</TableCell>
-                {student.submissions.map((submitted, index) => (
+            {filteredStudents.map((student) => (
+              <TableRow key={student.userId} className="hover:bg-[#1C1F2B]/50">
+                <TableCell className="font-medium text-gray-300">
+                  {student.userName}
+                </TableCell>
+                <TableCell className="text-gray-400">
+                  {student.userEmail}
+                </TableCell>
+                {student.submissions.map((submission, index) => (
                   <TableCell
-                    key={index}
+                    key={submission.lectureId}
                     className="text-center cursor-pointer"
                     onClick={() =>
                       setSelectedSubmission({
-                        studentId: student.id,
-                        lectureId: index + 1,
-                        submitted,
+                        studentName: student.userName,
+                        lectureNumber: index + 1,
+                        isSubmitted: submission.isSubmitted,
+                        submissionDate: submission.isSubmitted
+                          ? "2024-03-19 14:30"
+                          : undefined,
                       })
                     }
                   >
                     <div className="flex justify-center">
-                      {submitted ? (
+                      {submission.isSubmitted ? (
                         <div className="w-6 h-6 rounded-full bg-[#5046E4]/20 flex items-center justify-center">
                           <Check className="h-4 w-4 text-[#8C7DFF]" />
                         </div>
@@ -97,23 +137,33 @@ export default function CourseInfoTable() {
         </Table>
       </div>
 
-      <Dialog open={selectedSubmission !== null} onOpenChange={() => setSelectedSubmission(null)}>
+      <Dialog
+        open={!!selectedSubmission}
+        onOpenChange={() => setSelectedSubmission(null)}
+      >
         <DialogContent className="sm:max-w-md bg-[#252A3C] border-gray-700/30 text-white">
           <DialogHeader>
-            <DialogTitle className="text-white">{selectedSubmission?.submitted ? "과제 제출 정보" : "미제출 과제"}</DialogTitle>
+            <DialogTitle className="text-white">
+              {selectedSubmission?.isSubmitted
+                ? "과제 제출 정보"
+                : "미제출 과제"}
+            </DialogTitle>
           </DialogHeader>
-          {selectedSubmission?.submitted ? (
+          {selectedSubmission?.isSubmitted ? (
             <div className="space-y-4">
               <div>
                 <h3 className="font-medium text-gray-200">
-                  {students.find((s) => s.id === selectedSubmission.studentId)?.name} - {selectedSubmission.lectureId}강
-                  과제
+                  {selectedSubmission.studentName} -{" "}
+                  {selectedSubmission.lectureNumber}강 과제
                 </h3>
-                <p className="text-sm text-gray-400">제출일: 2024-05-15 14:30</p>
+                <p className="text-sm text-gray-400">
+                  제출일: {selectedSubmission.submissionDate}
+                </p>
               </div>
               <div className="border border-gray-700/30 rounded-md p-4 bg-[#1A1D29]/60">
                 <p className="text-gray-300">
-                  과제 내용이 여기에 표시됩니다. 실제 구현 시에는 과제 내용을 불러오거나 외부 링크로 연결할 수 있습니다.
+                  과제 내용이 여기에 표시됩니다. 실제 구현 시에는 과제 내용을
+                  불러오거나 외부 링크로 연결할 수 있습니다.
                 </p>
               </div>
               <div className="flex justify-end">
@@ -130,5 +180,5 @@ export default function CourseInfoTable() {
         </DialogContent>
       </Dialog>
     </>
-  )
+  );
 }

@@ -27,6 +27,32 @@ interface UserWithChallenges extends UserData {
   challenges?: string[];
 }
 
+interface SubmissionStatus {
+  lectureId: number;
+  isSubmitted: boolean;
+}
+
+interface ChallengeUserResponse {
+  user_id: string;
+  Users: {
+    id: string;
+    name: string;
+    email: string;
+  };
+}
+
+interface ChallengeLecture {
+  id: number;
+  lecture_id: number;
+}
+
+interface StudentSubmission {
+  userId: string;
+  userName: string;
+  userEmail: string;
+  submissions: SubmissionStatus[];
+}
+
 export async function getUsers() {
   try {
     const { data, error } = await supabase
@@ -245,5 +271,76 @@ export async function getChallengeUsers(
   } catch (error) {
     console.error("챌린지 수강생 정보 조회 실패", error);
     return [];
+  }
+}
+
+export async function getStudentSubmissions(
+  challengeId: string,
+): Promise<StudentSubmission[]> {
+  try {
+    // 1. ChallengeUsers 조회하여 해당 챌린지의 수강생 목록 가져오기
+    const { data: challengeUsers, error: challengeUsersError } = await supabase
+      .from("ChallengeUsers")
+      .select(
+        `
+        user_id,
+        Users (
+          id,
+          name,
+          email
+        )
+      `,
+      )
+      .eq("challenge_id", challengeId);
+
+    if (challengeUsersError) throw challengeUsersError;
+
+    // 2. ChallengeLectures 조회하여 해당 챌린지의 강의 목록 가져오기
+    const { data: challengeLectures, error: challengeLecturesError } =
+      await supabase
+        .from("ChallengeLectures")
+        .select("id, lecture_id")
+        .eq("challenge_id", challengeId)
+        .order("sequence", { ascending: true });
+
+    if (challengeLecturesError) throw challengeLecturesError;
+
+    // 3. 각 수강생별로 제출 여부 확인
+    const studentSubmissions = await Promise.all(
+      (challengeUsers || []).map(async (user: any) => {
+        // 각 강의별 제출 여부 조회
+        const submissions = await Promise.all(
+          (challengeLectures || []).map(async (lecture: ChallengeLecture) => {
+            const { data: submission, error: submissionError } = await supabase
+              .from("Submissions")
+              .select("is_submit")
+              .eq("user_id", user.user_id)
+              .eq("challenge_lecture_id", lecture.id)
+              .single();
+
+            if (submissionError && submissionError.code !== "PGRST116") {
+              throw submissionError;
+            }
+
+            return {
+              lectureId: lecture.lecture_id,
+              isSubmitted: submission?.is_submit ?? false,
+            };
+          }),
+        );
+
+        return {
+          userId: user.user_id,
+          userName: user.Users.name,
+          userEmail: user.Users.email,
+          submissions,
+        };
+      }),
+    );
+
+    return studentSubmissions;
+  } catch (error) {
+    console.error("수강생 제출 현황 조회 실패:", error);
+    throw error;
   }
 }
