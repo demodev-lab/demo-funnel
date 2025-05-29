@@ -158,14 +158,14 @@ export default function LecturesPage() {
                   {lecture.sequence}번째 강의
                 </div>
               </div>
-              <div className="p-4">
-                <h3 className="font-semibold text-lg mb-2 text-white">
+              <div className="p-4 flex flex-col h-[180px]">
+                <h3 className="font-semibold text-lg text-white line-clamp-1">
                   {lecture.name}
                 </h3>
-                <p className="text-gray-400 mb-2 line-clamp-2">
+                <p className="text-gray-400 mt-2 flex-1 line-clamp-3">
                   {lecture.description}
                 </p>
-                <div className="flex justify-between text-sm text-gray-500">
+                <div className="flex justify-between items-center text-sm text-gray-500 mt-2 pt-2 border-t border-gray-700/30">
                   <span>
                     업로드 타입:{" "}
                     {lecture.upload_type === 0 ? "유튜브" : "직접 업로드"}
