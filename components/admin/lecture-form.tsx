@@ -180,8 +180,9 @@ export default function LectureForm({
 
         // 관련된 쿼리들 무효화
         await queryClient.invalidateQueries({ queryKey: ["lectures"] });
+        await queryClient.invalidateQueries({ queryKey: ["lecture-detail"] });
         await queryClient.invalidateQueries({
-          queryKey: ["lecture-challenges", lectureId],
+          queryKey: ["lecture-challenges"],
         });
 
         toast.success("강의가 수정되었습니다.");

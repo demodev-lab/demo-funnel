@@ -74,6 +74,8 @@ export default function LecturesPage() {
   const handleCloseModal = () => {
     setSelectedLecture(null);
     queryClient.invalidateQueries({ queryKey: ["lectures"] });
+    queryClient.invalidateQueries({ queryKey: ["lecture-detail"] });
+    queryClient.invalidateQueries({ queryKey: ["lecture-challenges"] });
   };
 
   const handleDelete = async () => {
