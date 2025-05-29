@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import DailyLectureItem from "./daily-lecture-item";
 import LecturePlayer from "./lecture-player";
 import {
@@ -10,18 +9,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { PlayCircle, Lock, Calendar } from "lucide-react";
-import { getUserLectures } from '@/apis/lectures';
-
-export interface Lecture {
-  id: number;
-  name: string;
-  description: string;
-  url: string;
-  created_at: string;
-  challenge_lecture_id: string;
-  open_at: string;
-  challenge_id: string;
-}
+import { Lecture } from '@/types/lecture';
 
 interface DailyLectureSectionProps {
   lectures: Lecture[];
