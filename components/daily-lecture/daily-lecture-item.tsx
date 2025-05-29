@@ -10,6 +10,7 @@ interface Lecture {
   description: string;
   url: string;
   locked: boolean;
+  description: string;
 }
 
 interface DailyLectureItemProps {
