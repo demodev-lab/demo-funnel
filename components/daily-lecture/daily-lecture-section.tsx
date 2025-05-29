@@ -52,19 +52,10 @@ export default function DailyLectureSection({
     enabled: !!userId,
   });
 
-  // 백엔드 데이터를 프론트엔드에서 필요한 형태로 변환
-  const videos: Video[] = lectures.map(lecture => ({
-    id: lecture.id,
-    title: lecture.name,
-    description: lecture.description,
-    videoUrl: lecture.url,
-    locked: new Date(lecture.open_at) > new Date()
-  }));
-
-  const mainVideo = videos[selectedVideoIdx] ? {
-    title: videos[selectedVideoIdx].title,
-    description: videos[selectedVideoIdx].description,
-    videoUrl: videos[selectedVideoIdx].videoUrl,
+  const mainVideo = lectures[selectedVideoIdx] ? {
+    title: lectures[selectedVideoIdx].name,
+    description: lectures[selectedVideoIdx].description,
+    videoUrl: lectures[selectedVideoIdx].url,
   } : null;
 
   const togglePlay = () => {
@@ -109,10 +100,16 @@ export default function DailyLectureSection({
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-          {videos.map((video, index) => (
-            <div key={video.id} className="group">
+          {lectures.map((lecture, index) => (
+            <div key={lecture.id} className="group">
               <DailyLectureItem
-                video={video}
+                video={{
+                  id: lecture.id,
+                  name: lecture.name,
+                  description: lecture.description,
+                  url: lecture.url,
+                  locked: new Date(lecture.open_at) > new Date()
+                }}
                 onLockedClick={handleLockedClick}
                 onVideoSelect={handleVideoSelect}
                 videoIndex={index}
