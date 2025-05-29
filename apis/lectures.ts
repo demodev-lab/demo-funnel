@@ -1,7 +1,7 @@
 import { supabase } from "./supabase";
 
 interface Challenge {
-  id: string;
+  id: number;
   name: string;
 }
 
@@ -25,15 +25,15 @@ interface ChallengeLectureResponse {
 
 interface LectureChallenge {
   Challenges: {
-    id: string;
+    id: number;
     name: string;
   };
 }
 
 interface ChallengeUser {
-  challenge_id: string;
+  challenge_id: number;
   Challenges: {
-    id: string;
+    id: number;
     open_date: string;
     close_date: string;
   };
@@ -43,20 +43,20 @@ export interface CreateLectureData {
   title: string;
   description: string;
   url: string;
-  challenges: string[];
+  challenges: number[];
   assignmentTitle?: string;
   assignment?: string;
-  challengeOrders?: { challengeId: string; order: number }[];
+  challengeOrders?: { challengeId: number; order: number }[];
 }
 
 export interface UpdateLectureData {
   name: string;
   description: string;
   url: string;
-  challenges: string[];
+  challenges: number[];
   assignmentTitle?: string;
   assignment?: string;
-  challengeOrders?: { challengeId: string; order: number }[];
+  challengeOrders?: { challengeId: number; order: number }[];
 }
 
 export interface LectureDetail {
@@ -73,10 +73,10 @@ export interface LectureDetail {
     contents: string;
   }[];
   ChallengeLectures: {
-    challenge_id: string;
+    challenge_id: number;
     sequence: number;
     Challenges: {
-      id: string;
+      id: number;
       name: string;
     };
   }[];
@@ -161,7 +161,7 @@ export async function createLecture(data: CreateLectureData) {
       // ChallengeLectures 테이블에 데이터 추가
       const challengeLectures = data.challenges.map((challengeId) => {
         const challenge = challengesData.find(
-          (c) => c.id.toString() === challengeId,
+          (c) => c.id.toString() === challengeId.toString(),
         );
         const openDate = new Date(challenge?.open_date || "");
         const sequence =
@@ -221,7 +221,7 @@ export async function createLecture(data: CreateLectureData) {
 }
 
 export async function updateLecture(
-  lectureId: string,
+  lectureId: number,
   data: UpdateLectureData,
 ) {
   const {
@@ -337,7 +337,7 @@ export async function updateLecture(
 
       for (const challengeId of data.challenges) {
         const challenge = challengesData.find(
-          (c) => c.id.toString() === challengeId,
+          (c) => c.id.toString() === challengeId.toString(),
         );
         const openDate = new Date(challenge?.open_date || "");
         const sequence =
@@ -424,7 +424,7 @@ export async function updateLecture(
   }
 }
 
-export async function deleteLecture(lectureId: string) {
+export async function deleteLecture(lectureId: number) {
   const {
     data: { session },
   } = await supabase.auth.getSession();
@@ -483,7 +483,7 @@ export async function deleteLecture(lectureId: string) {
 }
 
 export async function getLectureChallenges(
-  lectureId: string,
+  lectureId: number,
 ): Promise<Challenge[]> {
   try {
     const { data, error } = await supabase
@@ -498,7 +498,7 @@ export async function getLectureChallenges(
       `,
       )
       .eq("lecture_id", lectureId)
-      .returns<{ challenge_id: string; Challenges: Challenge }[]>();
+      .returns<{ challenge_id: number; Challenges: Challenge }[]>();
 
     if (error) throw error;
 
@@ -514,7 +514,7 @@ export async function getLectureChallenges(
 }
 
 export async function getLectureDetail(
-  lectureId: string,
+  lectureId: number,
 ): Promise<LectureDetail | null> {
   try {
     const { data, error } = await supabase
@@ -556,7 +556,7 @@ export async function getLectureDetail(
   }
 }
 
-export async function getUserLectures(userId: string) {
+export async function getUserLectures(userId: number) {
   try {
     // 1. 먼저 사용자가 속한 모든 챌린지 ID를 조회
     const { data: challengeData, error: challengeError } = await supabase
@@ -645,7 +645,7 @@ export async function getUserLectures(userId: string) {
 }
 
 export async function getLecturesByChallenge(
-  challengeId: string,
+  challengeId: number,
 ): Promise<LectureWithSequence[]> {
   try {
     const { data, error } = await supabase
