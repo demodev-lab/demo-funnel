@@ -24,6 +24,7 @@ interface Lecture {
   created_at: string;
   updated_at: string;
   upload_type: number;
+  sequence: number;
   assignment_title?: string;
   assignment?: string;
 }
@@ -145,6 +146,9 @@ export default function LecturesPage() {
                     className="w-full h-full object-cover"
                   />
                 )}
+                <div className="absolute top-2 left-2 bg-[#5046E4] text-white px-2 py-1 rounded-md text-sm font-medium">
+                  {lecture.sequence}번째 강의
+                </div>
               </div>
               <div className="p-4">
                 <h3 className="font-semibold text-lg mb-2 text-white">

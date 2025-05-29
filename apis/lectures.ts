@@ -16,10 +16,10 @@ interface ChallengeLectureResponse {
     upload_type: number;
     created_at: string;
     updated_at: string;
-    Assignments: {
+    Assignments: Array<{
       title: string;
       contents: string;
-    }[];
+    }>;
   };
 }
 
@@ -80,6 +80,19 @@ export interface LectureDetail {
       name: string;
     };
   }[];
+}
+
+export interface LectureWithSequence {
+  id: number;
+  name: string;
+  description: string;
+  url: string;
+  upload_type: number;
+  created_at: string;
+  updated_at: string;
+  sequence: number;
+  assignment_title: string;
+  assignment: string;
 }
 
 export async function getLectures() {
@@ -627,7 +640,9 @@ export async function getUserLectures(userId: string) {
   }
 }
 
-export async function getLecturesByChallenge(challengeId: string) {
+export async function getLecturesByChallenge(
+  challengeId: string,
+): Promise<LectureWithSequence[]> {
   try {
     const { data, error } = await supabase
       .from("ChallengeLectures")
@@ -666,6 +681,7 @@ export async function getLecturesByChallenge(challengeId: string) {
         upload_type: item.Lectures.upload_type,
         created_at: item.Lectures.created_at,
         updated_at: item.Lectures.updated_at,
+        sequence: item.sequence,
         assignment_title: item.Lectures.Assignments?.[0]?.title || "",
         assignment: item.Lectures.Assignments?.[0]?.contents || "",
       })) || [];
