@@ -538,9 +538,13 @@ export async function getLectureDetail(
       `,
       )
       .eq("id", lectureId)
-      .single();
+      .maybeSingle();
 
     if (error) {
+      if (error.code === "PGRST116") {
+        console.log("강의를 찾을 수 없습니다:", lectureId);
+        return null;
+      }
       console.error("강의 상세 정보 조회 실패:", error);
       throw error;
     }

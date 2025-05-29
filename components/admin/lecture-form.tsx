@@ -102,7 +102,17 @@ export default function LectureForm({
   const { data: lectureDetail, isLoading: isLoadingDetail } =
     useQuery<LectureDetail | null>({
       queryKey: ["lecture-detail", lectureId],
-      queryFn: () => getLectureDetail(String(lectureId)),
+      queryFn: async () => {
+        try {
+          const data = await getLectureDetail(String(lectureId));
+          return data;
+        } catch (error) {
+          if (error.code === "PGRST116") {
+            return null;
+          }
+          throw error;
+        }
+      },
       enabled: isEdit && !!lectureId,
     });
 

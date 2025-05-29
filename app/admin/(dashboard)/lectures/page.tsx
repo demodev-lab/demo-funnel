@@ -84,9 +84,15 @@ export default function LecturesPage() {
     try {
       setIsDeleting(true);
       await deleteLecture(String(selectedLecture.id));
-      toast.success("강의가 삭제되었습니다.");
-      handleCloseModal();
+
+      // 모든 관련 쿼리 무효화
       queryClient.invalidateQueries({ queryKey: ["lectures"] });
+      queryClient.invalidateQueries({ queryKey: ["lecture-detail"] });
+      queryClient.invalidateQueries({ queryKey: ["lecture-challenges"] });
+
+      toast.success("강의가 삭제되었습니다.");
+      setSelectedLecture(null);
+      setIsOpen(false);
     } catch (error) {
       console.error("강의 삭제 실패:", error);
       toast.error("강의 삭제에 실패했습니다.");
