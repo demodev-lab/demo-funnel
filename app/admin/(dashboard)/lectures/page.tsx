@@ -11,9 +11,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { getLectures, deleteLecture } from "@/apis/lectures";
+import { getLecturesByChallenge, deleteLecture } from "@/apis/lectures";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useChallengeStore } from "@/lib/store/useChallengeStore";
 
 interface Lecture {
   id: number;
@@ -60,11 +61,13 @@ export default function LecturesPage() {
   const [selectedLecture, setSelectedLecture] = useState<Lecture | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const queryClient = useQueryClient();
+  const { selectedChallengeId } = useChallengeStore();
 
-  // 강의 목록 조회
+  // 선택된 챌린지의 강의 목록 조회
   const { data: lectures = [], isLoading } = useQuery({
-    queryKey: ["lectures"],
-    queryFn: getLectures,
+    queryKey: ["lectures", selectedChallengeId],
+    queryFn: () => getLecturesByChallenge(selectedChallengeId || ""),
+    enabled: !!selectedChallengeId,
   });
 
   const handleCloseModal = () => {
