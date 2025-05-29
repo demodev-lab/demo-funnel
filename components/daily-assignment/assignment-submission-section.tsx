@@ -5,15 +5,16 @@ import { AssignmentSubmissionItem } from './assignment-submission-item';
 import { AssignmentSubmissionForm } from './assignment-submission-form'
 import { useQuery } from '@tanstack/react-query';
 import { getAssignment } from '@/apis/assignments';
+import { userInfo } from '@/types/user';
 
 interface AssignmentSubmissionSectionProps {
-  userId: number;
+  userInfo: userInfo;
   lectureId: number;
   challengeLectureId: string;
 }
 
 export function AssignmentSubmissionSection({
-  userId,
+  userInfo,
   lectureId,
   challengeLectureId,
 }: AssignmentSubmissionSectionProps) {
@@ -41,7 +42,7 @@ export function AssignmentSubmissionSection({
             </div>
           </div>
 
-        <AssignmentSubmissionForm userId={userId} challengeLectureId={challengeLectureId} />
+        <AssignmentSubmissionForm userInfo={userInfo} challengeLectureId={challengeLectureId} />
         
         <div className="p-6 bg-[#1A1D29]/30">
           <h3 className="text-lg font-semibold mb-4 flex items-center">
