@@ -39,8 +39,8 @@ export const assignmentSubmissionHandlers = [
       return new HttpResponse(null, { status: 401 });
     }
 
-    return HttpResponse.json(assignmentData);
-  }),
+//     return HttpResponse.json(assignmentData);
+//   }),
 
   // 과제 제출
   // http.post("/api/classroom/assignment", async ({ request }) => {
