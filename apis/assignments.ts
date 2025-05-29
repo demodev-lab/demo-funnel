@@ -10,6 +10,8 @@ export async function getAssignment(lectureId: string) {
 
     if (error) throw error;
 
+    console.log("과제 목록 데이터:", assignment);
+
     return assignment || [];
   } catch (error) {
     console.error("과제 데이터 조회 실패:", error);

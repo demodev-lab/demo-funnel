@@ -3,12 +3,25 @@
 import { useEffect } from "react";
 import { useUser } from "@/hooks/auth/use-user";
 import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import DailyLectureSection from '@/components/daily-lecture/daily-lecture-section';
 import { AssignmentSubmissionSection } from '@/components/daily-assignment/assignment-submission-section';
+import { getUserLectures } from '@/apis/lectures';
+import type { Lecture } from '@/components/daily-lecture/daily-lecture-section';
 
 export default function ClassPage() {
   const router = useRouter();
   const { data: user, isLoading } = useUser();
+
+  const { data: lectures = [] } = useQuery({
+    queryKey: ['daily-lectures', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const data = await getUserLectures(user.id.toString());
+      return data as unknown as Lecture[];
+    },
+    enabled: !!user?.id,
+  });
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -34,6 +47,8 @@ export default function ClassPage() {
     return null;
   }
 
+  const currentLecture = lectures[0];
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#1A1D29] to-[#252A3C] text-white">
       <div className="container mx-auto px-4 py-12">
@@ -57,10 +72,16 @@ export default function ClassPage() {
           <div>
           <div className="bg-gradient-to-br from-[#252A3C] to-[#2A2F45] rounded-xl overflow-hidden shadow-lg border border-gray-700/50">
             <div className="transition-all duration-300 hover:brightness-105">
-              <DailyLectureSection userId={user.id} />
+              <DailyLectureSection lectures={lectures} />
             </div>
 
-            <AssignmentSubmissionSection />
+            {currentLecture && (
+              <AssignmentSubmissionSection 
+                userId={user.id} 
+                lectureId={currentLecture.id}
+                challengeLectureId={currentLecture.challenge_lecture_id}
+              />
+            )}
           </div>
           </div>
         </div>

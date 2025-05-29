@@ -12,7 +12,7 @@ import {
 import { PlayCircle, Lock, Calendar } from "lucide-react";
 import { getUserLectures } from '@/apis/lectures';
 
-interface Lecture {
+export interface Lecture {
   id: number;
   name: string;
   description: string;
@@ -23,34 +23,17 @@ interface Lecture {
   challenge_id: string;
 }
 
-interface Video {
-  id: number;
-  title: string;
-  videoUrl: string;
-  locked: boolean;
-  description: string;
-}
-
 interface DailyLectureSectionProps {
-  userId: number;
+  lectures: Lecture[];
 }
 
 export default function DailyLectureSection({
-  userId,
+  lectures,
 }: DailyLectureSectionProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [selectedVideoIdx, setSelectedVideoIdx] = useState(0);
   const [isLockedModalOpen, setIsLockedModalOpen] = useState(false);
   const [lockedVideoTitle, setLockedVideoTitle] = useState("");
-
-  const { data: lectures = [], isLoading } = useQuery({
-    queryKey: ['daily-lectures', userId],
-    queryFn: async () => {
-      const data = await getUserLectures(userId.toString());
-      return data as unknown as Lecture[];
-    },
-    enabled: !!userId,
-  });
 
   const mainVideo = lectures[selectedVideoIdx] ? {
     title: lectures[selectedVideoIdx].name,
