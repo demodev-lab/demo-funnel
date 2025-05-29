@@ -30,8 +30,10 @@ interface UserWithChallenges extends UserData {
 interface SubmissionStatus {
   lectureId: number;
   isSubmitted: boolean;
-  assignmentUrl?: string;
-  assignmentComment?: string;
+  assignments?: {
+    url: string;
+    comment: string;
+  }[];
 }
 
 interface ChallengeUserResponse {
@@ -313,22 +315,28 @@ export async function getStudentSubmissions(
         // 각 강의별 제출 여부 조회
         const submissions = await Promise.all(
           (challengeLectures || []).map(async (lecture: ChallengeLecture) => {
-            const { data: submission, error: submissionError } = await supabase
+            const { data: submissions, error: submissionError } = await supabase
               .from("Submissions")
               .select("is_submit, assignment_url, assignment_comment")
               .eq("user_id", user.user_id)
-              .eq("challenge_lecture_id", lecture.id)
-              .single();
+              .eq("challenge_lecture_id", lecture.id);
 
-            if (submissionError && submissionError.code !== "PGRST116") {
-              throw submissionError;
-            }
+            if (submissionError) throw submissionError;
+
+            const isSubmitted =
+              submissions?.some((sub) => sub.is_submit) ?? false;
+            const assignments =
+              submissions
+                ?.filter((sub) => sub.is_submit)
+                .map((sub) => ({
+                  url: sub.assignment_url,
+                  comment: sub.assignment_comment,
+                })) ?? [];
 
             return {
               lectureId: lecture.lecture_id,
-              isSubmitted: submission?.is_submit ?? false,
-              assignmentUrl: submission?.assignment_url,
-              assignmentComment: submission?.assignment_comment,
+              isSubmitted,
+              assignments: assignments.length > 0 ? assignments : undefined,
             };
           }),
         );

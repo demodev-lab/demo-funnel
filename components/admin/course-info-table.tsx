@@ -25,8 +25,10 @@ interface SubmissionDialogProps {
   lectureNumber: number;
   isSubmitted: boolean;
   submissionDate?: string;
-  assignmentUrl?: string;
-  assignmentComment?: string;
+  assignments?: {
+    url: string;
+    comment: string;
+  }[];
 }
 
 interface CourseInfoTableProps {
@@ -117,8 +119,7 @@ export default function CourseInfoTable({
                         submissionDate: submission.isSubmitted
                           ? "2024-03-19 14:30"
                           : undefined,
-                        assignmentUrl: submission.assignmentUrl,
-                        assignmentComment: submission.assignmentComment,
+                        assignments: submission.assignments,
                       })
                     }
                   >
@@ -164,47 +165,66 @@ export default function CourseInfoTable({
                   제출일: {selectedSubmission.submissionDate}
                 </p>
               </div>
-              <div className="border border-gray-700/30 rounded-md p-4 bg-[#1A1D29]/60">
-                {selectedSubmission.assignmentComment ? (
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-gray-300">
-                      과제 설명:
-                    </p>
-                    <p className="text-gray-300 whitespace-pre-wrap">
-                      {selectedSubmission.assignmentComment}
+              <div className="space-y-4">
+                {selectedSubmission.assignments?.map((assignment, index) => (
+                  <div
+                    key={index}
+                    className="border border-gray-700/30 rounded-md p-4 bg-[#1A1D29]/60"
+                  >
+                    <div className="space-y-3">
+                      {assignment.comment && (
+                        <div className="space-y-2">
+                          <p className="text-sm font-medium text-gray-300">
+                            과제 설명{" "}
+                            {selectedSubmission.assignments!.length > 1
+                              ? `#${index + 1}`
+                              : ""}
+                            :
+                          </p>
+                          <p className="text-gray-300 whitespace-pre-wrap">
+                            {assignment.comment}
+                          </p>
+                        </div>
+                      )}
+                      {assignment.url && (
+                        <div className="flex justify-end">
+                          <a
+                            href={assignment.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#5046E4] hover:bg-[#6A5AFF] transition-colors text-white font-medium"
+                          >
+                            과제 보러가기
+                            <svg
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="stroke-current"
+                            >
+                              <path
+                                d="M7 17L17 7M17 7H7M17 7V17"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                {(!selectedSubmission.assignments ||
+                  selectedSubmission.assignments.length === 0) && (
+                  <div className="border border-gray-700/30 rounded-md p-4 bg-[#1A1D29]/60">
+                    <p className="text-gray-400 text-sm">
+                      과제 정보가 없습니다.
                     </p>
                   </div>
-                ) : (
-                  <p className="text-gray-400 text-sm">과제 설명이 없습니다.</p>
                 )}
               </div>
-              {selectedSubmission.assignmentUrl && (
-                <div className="flex justify-end">
-                  <a
-                    href={selectedSubmission.assignmentUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#5046E4] hover:bg-[#6A5AFF] transition-colors text-white font-medium"
-                  >
-                    과제 보러가기
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="stroke-current"
-                    >
-                      <path
-                        d="M7 17L17 7M17 7H7M17 7V17"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </a>
-                </div>
-              )}
             </div>
           ) : (
             <div className="py-6 text-center text-gray-400">
