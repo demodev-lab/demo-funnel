@@ -10,7 +10,7 @@ import { userInfo } from '@/types/user';
 interface AssignmentSubmissionSectionProps {
   userInfo: userInfo;
   lectureId: number;
-  challengeLectureId: string;
+  challengeLectureId: number;
 }
 
 export function AssignmentSubmissionSection({
@@ -18,15 +18,15 @@ export function AssignmentSubmissionSection({
   lectureId,
   challengeLectureId,
 }: AssignmentSubmissionSectionProps) {
-  const { data: assignments = [] } = useQuery({
+  const { data: assignmentInfo = [] } = useQuery({
     queryKey: ['assignment-submissions', lectureId],
     queryFn: async () => {
-      const data = await getAssignment(lectureId.toString());
+      const data = await getAssignment(lectureId);
       return data;
     },
   });
 
-  const currentAssignment = assignments[0]; // 첫 번째 과제를 현재 과제로 사용
+  const currentAssignment = assignmentInfo[0]; // 첫 번째 과제를 현재 과제로 사용
 
   return (
     <div className="border-t border-gray-700/50 mt-6">
@@ -51,7 +51,7 @@ export function AssignmentSubmissionSection({
           </h3>
           <div className="space-y-4">
             {/* TODO: 제출된 과제 목록으로 수정 */}
-            {assignments?.map((submission) => (
+            {/* {assignments?.map((submission) => (
               <AssignmentSubmissionItem
                 key={submission.id}
                 id={submission.id}
@@ -61,7 +61,7 @@ export function AssignmentSubmissionSection({
                 link={submission.assignment_url}
                 linkType="GitHub"
               />
-            ))}
+            ))} */}
           </div>
         </div>
       </div>
