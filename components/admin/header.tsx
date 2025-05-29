@@ -106,7 +106,7 @@ export default function Header() {
   }
 
   return (
-    <header className="border-b border-gray-700/30 bg-[#1A1D29]/90 backdrop-blur-sm py-4 px-6">
+    <header className="border-b border-gray-700/30 bg-[#1A1D29]/90 backdrop-blur-sm py-4 px-6 h-[74px]">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <Sheet>
