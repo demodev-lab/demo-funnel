@@ -30,6 +30,8 @@ interface UserWithChallenges extends UserData {
 interface SubmissionStatus {
   lectureId: number;
   isSubmitted: boolean;
+  assignmentUrl?: string;
+  assignmentComment?: string;
 }
 
 interface ChallengeUserResponse {
@@ -313,7 +315,7 @@ export async function getStudentSubmissions(
           (challengeLectures || []).map(async (lecture: ChallengeLecture) => {
             const { data: submission, error: submissionError } = await supabase
               .from("Submissions")
-              .select("is_submit")
+              .select("is_submit, assignment_url, assignment_comment")
               .eq("user_id", user.user_id)
               .eq("challenge_lecture_id", lecture.id)
               .single();
@@ -325,6 +327,8 @@ export async function getStudentSubmissions(
             return {
               lectureId: lecture.lecture_id,
               isSubmitted: submission?.is_submit ?? false,
+              assignmentUrl: submission?.assignment_url,
+              assignmentComment: submission?.assignment_comment,
             };
           }),
         );

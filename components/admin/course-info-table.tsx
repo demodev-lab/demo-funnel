@@ -25,6 +25,8 @@ interface SubmissionDialogProps {
   lectureNumber: number;
   isSubmitted: boolean;
   submissionDate?: string;
+  assignmentUrl?: string;
+  assignmentComment?: string;
 }
 
 interface CourseInfoTableProps {
@@ -115,6 +117,8 @@ export default function CourseInfoTable({
                         submissionDate: submission.isSubmitted
                           ? "2024-03-19 14:30"
                           : undefined,
+                        assignmentUrl: submission.assignmentUrl,
+                        assignmentComment: submission.assignmentComment,
                       })
                     }
                   >
@@ -161,16 +165,46 @@ export default function CourseInfoTable({
                 </p>
               </div>
               <div className="border border-gray-700/30 rounded-md p-4 bg-[#1A1D29]/60">
-                <p className="text-gray-300">
-                  과제 내용이 여기에 표시됩니다. 실제 구현 시에는 과제 내용을
-                  불러오거나 외부 링크로 연결할 수 있습니다.
-                </p>
+                {selectedSubmission.assignmentComment ? (
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-gray-300">
+                      과제 설명:
+                    </p>
+                    <p className="text-gray-300 whitespace-pre-wrap">
+                      {selectedSubmission.assignmentComment}
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-gray-400 text-sm">과제 설명이 없습니다.</p>
+                )}
               </div>
-              <div className="flex justify-end">
-                <a href="#" className="text-[#8C7DFF] text-sm hover:underline">
-                  외부 링크로 보기
-                </a>
-              </div>
+              {selectedSubmission.assignmentUrl && (
+                <div className="flex justify-end">
+                  <a
+                    href={selectedSubmission.assignmentUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#5046E4] hover:bg-[#6A5AFF] transition-colors text-white font-medium"
+                  >
+                    과제 보러가기
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="stroke-current"
+                    >
+                      <path
+                        d="M7 17L17 7M17 7H7M17 7V17"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </a>
+                </div>
+              )}
             </div>
           ) : (
             <div className="py-6 text-center text-gray-400">
