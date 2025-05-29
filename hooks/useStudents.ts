@@ -98,7 +98,7 @@ export const useStudents = () => {
   });
 };
 
-export const useStudentsByChallenge = (selectedChallengeId: string) => {
+export const useStudentsByChallenge = (selectedChallengeId: number) => {
   return useQuery<UserData[]>({
     queryKey: ["students", selectedChallengeId],
     queryFn: () => getChallengeUsers(selectedChallengeId),
@@ -122,7 +122,15 @@ export function useUpdateStudent() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (student: Student) => updateUser(student),
+    mutationFn: (student: Student) => {
+      // Student 타입의 id를 number로 변환
+      const updatedStudent = {
+        ...student,
+        id: Number(student.id),
+        challenges: student.challenges?.map(Number),
+      };
+      return updateUser(updatedStudent);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["students"] });
       queryClient.invalidateQueries({ queryKey: ["students", "byChallenges"] });
@@ -134,7 +142,7 @@ export function useDeleteStudent() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: deleteUser,
+    mutationFn: (userId: number) => deleteUser(userId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["students"] });
       queryClient.invalidateQueries({ queryKey: ["students", "byChallenges"] });

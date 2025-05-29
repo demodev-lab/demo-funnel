@@ -55,7 +55,7 @@ export default function Header() {
   useEffect(() => {
     if (challenges.length > 0 && !selectedChallengeId) {
       const firstChallenge = challenges[0];
-      setSelectedChallengeId(String(firstChallenge.id));
+      setSelectedChallengeId(firstChallenge.id);
       setSelectedCohort({
         id: String(firstChallenge.id),
         name: firstChallenge.name,
@@ -67,10 +67,7 @@ export default function Header() {
 
   useEffect(() => {
     if (selectedChallengeId && challenges.length > 0) {
-      const challenge = challenges.find(
-        (c) => String(c.id) === selectedChallengeId,
-      );
-      console.log(challenge, "여기여");
+      const challenge = challenges.find((c) => c.id === selectedChallengeId);
       if (challenge) {
         setSelectedCohort({
           id: String(challenge.id),
