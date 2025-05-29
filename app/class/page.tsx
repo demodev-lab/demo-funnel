@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
-import { DemoUI } from "@/components/demo-ui";
 import { useUser } from "@/hooks/auth/use-user";
 import { useRouter } from "next/navigation";
+import DailyLectureSection from '@/components/daily-lecture/daily-lecture-section';
+import { AssignmentSubmissionSection } from '@/components/daily-assignment/assignment-submission-section';
 
 export default function ClassPage() {
   const router = useRouter();
@@ -54,7 +55,14 @@ export default function ClassPage() {
           {/* FIXME: 애니메이션 추가시, 깜빡임 발생 */}
           {/* <div className="transform transition-all duration-500 hover:scale-[1.01] shadow-xl rounded-2xl overflow-hidden animate-slide-up"> */}
           <div>
-            <DemoUI />
+          <div className="bg-gradient-to-br from-[#252A3C] to-[#2A2F45] rounded-xl overflow-hidden shadow-lg border border-gray-700/50">
+            {/* Lecture Section */}
+            <div className="transition-all duration-300 hover:brightness-105">
+              <DailyLectureSection userId={user.id} />
+            </div>
+
+            <AssignmentSubmissionSection />
+          </div>
           </div>
         </div>
       </div>
