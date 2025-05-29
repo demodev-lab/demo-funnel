@@ -50,7 +50,7 @@ export default function ChallengesPage() {
   const [editingChallenge, setEditingChallenge] = useState<Challenge | null>(
     null,
   );
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
   const [newChallenge, setNewChallenge] = useState<ChallengeFormData>({
     name: "",
     open_date: new Date().toISOString().split("T")[0],
@@ -92,7 +92,7 @@ export default function ChallengesPage() {
 
   // 챌린지 삭제
   const { mutate: removeChallenge, isPending: isDeleting } = useMutation({
-    mutationFn: (id: string) => deleteChallenge(id),
+    mutationFn: (id: number) => deleteChallenge(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["challenges"] });
       toast.success("챌린지가 성공적으로 삭제되었습니다.");
@@ -106,7 +106,7 @@ export default function ChallengesPage() {
 
   // 챌린지 수정
   const { mutate: modifyChallenge, isPending: isUpdating } = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<Challenge> }) =>
+    mutationFn: ({ id, data }: { id: number; data: Partial<Challenge> }) =>
       updateChallenge(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["challenges"] });
@@ -198,7 +198,7 @@ export default function ChallengesPage() {
     createChallengeMutation(newChallenge);
   };
 
-  const handleDeleteChallenge = (id: string) => {
+  const handleDeleteChallenge = (id: number) => {
     if (window.confirm("정말로 이 챌린지를 삭제하시겠습니까?")) {
       setDeletingId(id);
       removeChallenge(id);
@@ -243,7 +243,7 @@ export default function ChallengesPage() {
     }
 
     modifyChallenge({
-      id: editingChallenge.id.toString(),
+      id: editingChallenge.id,
       data: {
         name: editingChallenge.name,
         open_date: editingChallenge.startDate.toISOString().split("T")[0],
@@ -529,9 +529,7 @@ export default function ChallengesPage() {
                         </svg>
                       </Button>
                       <Button
-                        onClick={() =>
-                          handleDeleteChallenge(challenge.id.toString())
-                        }
+                        onClick={() => handleDeleteChallenge(challenge.id)}
                         variant="ghost"
                         className="h-8 w-8 p-0 text-gray-400 hover:text-red-400 hover:bg-[#1A1D29]/60"
                       >
