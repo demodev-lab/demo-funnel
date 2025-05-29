@@ -6,6 +6,7 @@ interface Video {
   title: string;
   videoUrl: string;
   locked: boolean;
+  description: string;
 }
 
 interface DailyLectureItemProps {
@@ -32,12 +33,14 @@ export default function DailyLectureItem({
     >
       <div className="aspect-video bg-gray-800 relative transform group-hover:-translate-y-1 transition-transform duration-300">
         <Image
-          src={`https://img.youtube.com/vi/${
-            video.videoUrl.split("v=")[1]
-          }/maxresdefault.jpg`}
+          src={`https://img.youtube.com/vi/${video.videoUrl.split("watch?v=")[1]?.split(/[&/]/)[0]?.trim() || ""}/hqdefault.jpg`}
           alt={video.title}
           fill
           className={`object-cover transition-all duration-500 ${video.locked ? "opacity-40 blur-[1px]" : "hover:scale-105"}`}
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = "https://via.placeholder.com/1280x720?text=No+Thumbnail";
+          }}
         />
         {video.locked ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 perspective-0">

@@ -65,10 +65,14 @@ export default function LecturePlayer({
             <div className="absolute inset-0 overflow-hidden">
               <div className="absolute inset-0 bg-black/30" />
               <Image
-                src={`https://img.youtube.com/vi/${videoUrl.split("v=")[1]}/maxresdefault.jpg`}
+                src={`https://img.youtube.com/vi/${videoUrl.split("watch?v=")[1]?.split(/[&/]/)[0]?.trim() || ""}/hqdefault.jpg`}
                 alt={title}
                 fill
                 className="object-cover"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = "https://via.placeholder.com/1280x720?text=No+Thumbnail";
+                }}
               />
             </div>
             <div className="z-10 flex flex-col items-center space-y-4">
