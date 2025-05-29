@@ -9,8 +9,13 @@ import {
 } from "@/apis/users";
 
 // 공통 데이터 모듈에서 타입 가져오기
-export type { Student } from "@/lib/data/students-data";
-import type { Student } from "@/lib/data/students-data";
+export interface Student {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  challenges?: number[];
+}
 
 interface ApiResponse<T> {
   data: T;
@@ -74,13 +79,13 @@ const studentsApi = {
   },
 
   // 학생 삭제
-  deleteStudent: async (id: string): Promise<Student> => {
+  deleteStudent: async (id: number): Promise<Student> => {
     console.log(`deleteStudent 호출됨: ID=${id}`); // 디버깅
 
     try {
       await deleteUser(id);
       // 삭제된 학생 정보를 반환 (실제로는 null이 반환될 수 있음)
-      return { id, name: "", email: "", phone: "" };
+      return { id: 0, name: "", email: "", phone: "" };
     } catch (error) {
       console.error(`DELETE 실패:`, error); // 디버깅
       throw new Error(
@@ -142,10 +147,17 @@ export function useDeleteStudent() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (userId: number) => deleteUser(userId),
+    mutationFn: async (id: number) => {
+      try {
+        await deleteUser(id);
+        return { id: 0, name: "", email: "", phone: "" };
+      } catch (error) {
+        console.error(`DELETE 실패:`, error);
+        throw error;
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["students"] });
-      queryClient.invalidateQueries({ queryKey: ["students", "byChallenges"] });
     },
   });
 }

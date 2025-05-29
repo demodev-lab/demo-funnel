@@ -262,7 +262,7 @@ export async function getChallengeUsers(
 }
 
 export async function getStudentSubmissions(
-  challengeId: string,
+  challengeId: number,
 ): Promise<StudentSubmission[]> {
   try {
     // 1. ChallengeUsers 조회하여 해당 챌린지의 수강생 목록 가져오기

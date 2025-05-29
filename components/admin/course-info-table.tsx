@@ -46,7 +46,7 @@ export default function CourseInfoTable({
 
   const { data: studentSubmissions = [], isLoading } = useQuery({
     queryKey: ["student-submissions", selectedChallengeId],
-    queryFn: () => getStudentSubmissions(selectedChallengeId || ""),
+    queryFn: () => getStudentSubmissions(selectedChallengeId),
     enabled: !!selectedChallengeId,
   });
 

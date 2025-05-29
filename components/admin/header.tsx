@@ -129,9 +129,9 @@ export default function Header() {
                   현재 기수
                 </div>
                 <Select
-                  value={selectedChallengeId}
+                  value={String(selectedChallengeId)}
                   onValueChange={(value) => {
-                    setSelectedChallengeId(value);
+                    setSelectedChallengeId(Number(value));
                     const challenge = challenges.find(
                       (c) => String(c.id) === value,
                     );
