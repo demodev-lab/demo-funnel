@@ -9,7 +9,10 @@ export interface ChallengeFormData {
 
 export async function getChallenges() {
   try {
-    const { data, error } = await supabase.from("Challenges").select("*");
+    const { data, error } = await supabase
+      .from("Challenges")
+      .select("*")
+      .order("created_at", { ascending: true });
 
     if (error) throw error;
 
