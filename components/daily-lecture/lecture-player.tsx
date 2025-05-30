@@ -1,7 +1,11 @@
 import Image from "next/image";
 import { Play, Pause, Bookmark, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getUploadTypeFromUrl, getVideoThumbnailUrl, getYouTubeEmbedUrl } from '@/lib/utils/videoUtils';
+import {
+  getUploadTypeFromUrl,
+  getVideoThumbnailUrl,
+  getYouTubeEmbedUrl,
+} from "@/lib/utils/videoUtils";
 
 interface LecturePlayerProps {
   title: string;
@@ -18,7 +22,6 @@ export default function LecturePlayer({
   isPlaying,
   onTogglePlay,
 }: LecturePlayerProps) {
-
   const upload_type = getUploadTypeFromUrl(lectureUrl);
 
   return (
@@ -68,23 +71,25 @@ export default function LecturePlayer({
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="absolute inset-0 overflow-hidden">
               <div className="absolute inset-0 bg-black/30" />
-                {upload_type === 0 ? (
-                  getVideoThumbnailUrl(upload_type, lectureUrl) && (
-                    <img
-                      src={getVideoThumbnailUrl(upload_type, lectureUrl) || undefined}
-                      alt={title}
-                      className="w-full h-full object-cover"
-                    />
-                  )
-                ) : (
-                  <video
-                    src={lectureUrl}
+              {upload_type === 0 ? (
+                getVideoThumbnailUrl(upload_type, lectureUrl) && (
+                  <img
+                    src={
+                      getVideoThumbnailUrl(upload_type, lectureUrl) || undefined
+                    }
+                    alt={title}
                     className="w-full h-full object-cover"
-                    preload="metadata"
-                    muted
-                    playsInline
                   />
-                )}
+                )
+              ) : (
+                <video
+                  src={lectureUrl}
+                  className="w-full h-full object-cover"
+                  preload="metadata"
+                  muted
+                  playsInline
+                />
+              )}
             </div>
             <div className="z-10 flex flex-col items-center space-y-4">
               <Button
