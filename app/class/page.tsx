@@ -16,15 +16,9 @@ export default function ClassPage() {
   const { data: lectures = [] } = useQuery({
     queryKey: ['daily-lectures', user?.id],
     queryFn: async () => {
-      if (!user?.id) return [];
-      try {
-        const data = await getUserLectures(user.id);
-        console.log('강의 데이터:', data);
-        return data as unknown as Lecture[];
-      } catch (error) {
-        console.error('강의 데이터 조회 실패:', error);
-        return [];
-      }
+      const data = await getUserLectures(user.id);
+      // console.log('강의 데이터:', data);
+      return data as unknown as Lecture[];
     },
     enabled: !!user?.id,
   });
@@ -36,6 +30,7 @@ export default function ClassPage() {
       return;
     }
 
+    // TODO: 콘솔 제거
     if (user) {
       console.log("사용자 정보:", {
         id: user.id,
@@ -55,6 +50,7 @@ export default function ClassPage() {
     return null;
   }
 
+  // TODO: 오픈된 강의로 변경 (시작일 확인)
   const currentLecture = lectures[0];
   
   return (
