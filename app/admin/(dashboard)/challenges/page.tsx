@@ -283,285 +283,274 @@ export default function ChallengesPage() {
   }
 
   return (
-    <>
-      <div className="space-y-4">
-        <h1 className="text-2xl font-bold">
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#5046E4] to-[#8C7DFF]">
-            챌린지 관리
-          </span>
-        </h1>
-        <div className="flex justify-end">
-          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-gradient-to-r from-[#5046E4] to-[#6A5AFF] hover:brightness-110 text-white shadow-md hover:shadow-xl transition-all duration-300">
-                챌린지 추가
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="bg-[#252A3C] border-gray-700/30 text-white">
-              <DialogHeader>
-                <DialogTitle className="text-white">새 챌린지 추가</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name" className="text-gray-300">
-                    기수 이름
-                  </Label>
-                  <Input
-                    id="name"
-                    value={newChallenge.name}
-                    className="bg-[#1A1D29]/70 border-gray-700/50 text-white placeholder:text-gray-500 focus:border-[#5046E4] focus:ring-[#5046E4]/20"
-                    onChange={(e) =>
-                      setNewChallenge({
-                        ...newChallenge,
-                        name: e.target.value,
-                      })
-                    }
-                    disabled={isCreating}
-                    placeholder="예: 2024년 1기"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="open_date" className="text-gray-300">
-                    시작일
-                  </Label>
-                  <Input
-                    id="open_date"
-                    type="date"
-                    className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20"
-                    value={newChallenge.open_date}
-                    onChange={(e) =>
-                      handleNewChallengeDateChange("open_date", e.target.value)
-                    }
-                    disabled={isCreating}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="close_date" className="text-gray-300">
-                    종료일
-                  </Label>
-                  <Input
-                    id="close_date"
-                    type="date"
-                    className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20"
-                    value={newChallenge.close_date}
-                    onChange={(e) =>
-                      handleNewChallengeDateChange("close_date", e.target.value)
-                    }
-                    disabled={isCreating}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lecture_num" className="text-gray-300">
-                    강의 개수
-                  </Label>
-                  <Input
-                    id="lecture_num"
-                    type="number"
-                    className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20"
-                    value={newChallenge.lecture_num}
-                    disabled={true}
-                    readOnly
-                  />
-                  <p className="text-sm text-gray-400">
-                    강의 개수는 시작일과 종료일을 기준으로 자동 계산됩니다.
-                  </p>
-                </div>
-                <Button
-                  onClick={handleAddChallenge}
-                  className="w-full"
-                  disabled={isCreating}
-                >
-                  {isCreating ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      추가 중...
-                    </>
-                  ) : (
-                    "추가"
-                  )}
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
-        </div>
-
-        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+    <div className="space-y-4">
+      <h1 className="text-2xl font-bold">
+        <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#5046E4] to-[#8C7DFF]">
+          챌린지 관리
+        </span>
+      </h1>
+      <div className="flex justify-end">
+        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-gradient-to-r from-[#5046E4] to-[#6A5AFF] hover:brightness-110 text-white shadow-md hover:shadow-xl transition-all duration-300">
+              챌린지 추가
+            </Button>
+          </DialogTrigger>
           <DialogContent className="bg-[#252A3C] border-gray-700/30 text-white">
             <DialogHeader>
-              <DialogTitle className="text-white">챌린지 수정</DialogTitle>
+              <DialogTitle className="text-white">새 챌린지 추가</DialogTitle>
             </DialogHeader>
-            {editingChallenge && (
-              <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="edit-name" className="text-gray-300">
-                    기수 이름
-                  </Label>
-                  <Input
-                    id="edit-name"
-                    value={editingChallenge.name}
-                    className="bg-[#1A1D29]/70 border-gray-700/50 text-white placeholder:text-gray-500 focus:border-[#5046E4] focus:ring-[#5046E4]/20"
-                    onChange={(e) =>
-                      setEditingChallenge({
-                        ...editingChallenge,
-                        name: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="edit-startDate" className="text-gray-300">
-                    시작일
-                  </Label>
-                  <Input
-                    id="edit-startDate"
-                    type="date"
-                    className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20"
-                    value={
-                      editingChallenge.startDate?.toISOString().split("T")[0]
-                    }
-                    onChange={(e) =>
-                      handleEditChallengeDateChange("startDate", e.target.value)
-                    }
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="edit-endDate" className="text-gray-300">
-                    종료일
-                  </Label>
-                  <Input
-                    id="edit-endDate"
-                    type="date"
-                    className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20"
-                    value={
-                      editingChallenge.endDate?.toISOString().split("T")[0]
-                    }
-                    onChange={(e) =>
-                      handleEditChallengeDateChange("endDate", e.target.value)
-                    }
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="edit-lectureCount" className="text-gray-300">
-                    강의 개수
-                  </Label>
-                  <Input
-                    id="edit-lectureCount"
-                    type="number"
-                    className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20"
-                    value={editingChallenge.lectureCount || 0}
-                    disabled={true}
-                    readOnly
-                  />
-                  <p className="text-sm text-gray-400">
-                    강의 개수는 시작일과 종료일을 기준으로 자동 계산됩니다.
-                  </p>
-                </div>
-                <Button
-                  onClick={handleUpdateChallenge}
-                  className="w-full bg-gradient-to-r from-[#5046E4] to-[#6A5AFF] hover:brightness-110 text-white shadow-md hover:shadow-xl transition-all duration-300"
-                >
-                  수정 완료
-                </Button>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="name" className="text-gray-300">
+                  기수 이름
+                </Label>
+                <Input
+                  id="name"
+                  value={newChallenge.name}
+                  className="bg-[#1A1D29]/70 border-gray-700/50 text-white placeholder:text-gray-500 focus:border-[#5046E4] focus:ring-[#5046E4]/20"
+                  onChange={(e) =>
+                    setNewChallenge({
+                      ...newChallenge,
+                      name: e.target.value,
+                    })
+                  }
+                  disabled={isCreating}
+                  placeholder="예: 2024년 1기"
+                />
               </div>
-            )}
+              <div className="space-y-2">
+                <Label htmlFor="open_date" className="text-gray-300">
+                  시작일
+                </Label>
+                <Input
+                  id="open_date"
+                  type="date"
+                  className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20"
+                  value={newChallenge.open_date}
+                  onChange={(e) =>
+                    handleNewChallengeDateChange("open_date", e.target.value)
+                  }
+                  disabled={isCreating}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="close_date" className="text-gray-300">
+                  종료일
+                </Label>
+                <Input
+                  id="close_date"
+                  type="date"
+                  className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20"
+                  value={newChallenge.close_date}
+                  onChange={(e) =>
+                    handleNewChallengeDateChange("close_date", e.target.value)
+                  }
+                  disabled={isCreating}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="lecture_num" className="text-gray-300">
+                  강의 개수
+                </Label>
+                <Input
+                  id="lecture_num"
+                  type="number"
+                  className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20"
+                  value={newChallenge.lecture_num}
+                  disabled={true}
+                  readOnly
+                />
+                <p className="text-sm text-gray-400">
+                  강의 개수는 시작일과 종료일을 기준으로 자동 계산됩니다.
+                </p>
+              </div>
+              <Button
+                onClick={handleAddChallenge}
+                className="w-full"
+                disabled={isCreating}
+              >
+                {isCreating ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    추가 중...
+                  </>
+                ) : (
+                  "추가"
+                )}
+              </Button>
+            </div>
           </DialogContent>
         </Dialog>
+      </div>
 
-        <div className="bg-[#252A3C] border border-gray-700/30 rounded-xl overflow-hidden shadow-lg">
-          <Table>
-            <TableHeader className="bg-[#1A1D29]/60">
-              <TableRow className="hover:bg-transparent">
-                <TableHead>기수 이름</TableHead>
-                <TableHead>시작일</TableHead>
-                <TableHead>종료일</TableHead>
-                <TableHead>강의 개수</TableHead>
-                <TableHead className="text-right">관리</TableHead>
+      <div className="bg-[#252A3C] border border-gray-700/30 rounded-xl overflow-hidden shadow-lg">
+        <Table>
+          <TableHeader className="bg-[#1A1D29]/60">
+            <TableRow className="hover:bg-transparent">
+              <TableHead>기수 이름</TableHead>
+              <TableHead>시작일</TableHead>
+              <TableHead>종료일</TableHead>
+              <TableHead>강의 개수</TableHead>
+              <TableHead className="text-right">관리</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {challenges.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={5}
+                  className="text-center text-gray-400 py-8"
+                >
+                  등록된 챌린지가 없습니다.
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {challenges.length === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={5}
-                    className="text-center text-gray-400 py-8"
-                  >
-                    등록된 챌린지가 없습니다.
+            ) : (
+              challenges.map((challenge) => (
+                <TableRow key={challenge.id} className="hover:bg-[#1C1F2B]/50">
+                  <TableCell className="font-medium text-gray-300">
+                    {challenge.name}
+                  </TableCell>
+                  <TableCell className="text-gray-400">
+                    {new Date(challenge.open_date).toLocaleDateString("ko-KR")}
+                  </TableCell>
+                  <TableCell className="text-gray-400">
+                    {new Date(challenge.close_date).toLocaleDateString("ko-KR")}
+                  </TableCell>
+                  <TableCell className="text-gray-300">
+                    {challenge.lecture_num}개
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      onClick={() => handleEditChallenge(challenge)}
+                      variant="ghost"
+                      className="h-8 w-8 p-0 mr-1 text-gray-400 hover:text-[#8C7DFF] hover:bg-[#1A1D29]/60"
+                    >
+                      <span className="sr-only">Edit</span>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="h-4 w-4"
+                      >
+                        <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34" />
+                        <polygon points="18 2 22 6 12 16 8 16 8 12 18 2" />
+                      </svg>
+                    </Button>
+                    <Button
+                      onClick={() => handleDeleteChallenge(challenge.id)}
+                      variant="ghost"
+                      className="h-8 w-8 p-0 text-gray-400 hover:text-red-400 hover:bg-[#1A1D29]/60"
+                    >
+                      <span className="sr-only">Delete</span>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="h-4 w-4"
+                      >
+                        <path d="M3 6h18" />
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                        <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                        <line x1="10" y1="11" x2="10" y2="17" />
+                        <line x1="14" y1="11" x2="14" y2="17" />
+                      </svg>
+                    </Button>
                   </TableCell>
                 </TableRow>
-              ) : (
-                challenges.map((challenge) => (
-                  <TableRow
-                    key={challenge.id}
-                    className="hover:bg-[#1C1F2B]/50"
-                  >
-                    <TableCell className="font-medium text-gray-300">
-                      {challenge.name}
-                    </TableCell>
-                    <TableCell className="text-gray-400">
-                      {new Date(challenge.open_date).toLocaleDateString(
-                        "ko-KR",
-                      )}
-                    </TableCell>
-                    <TableCell className="text-gray-400">
-                      {new Date(challenge.close_date).toLocaleDateString(
-                        "ko-KR",
-                      )}
-                    </TableCell>
-                    <TableCell className="text-gray-300">
-                      {challenge.lecture_num}개
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button
-                        onClick={() => handleEditChallenge(challenge)}
-                        variant="ghost"
-                        className="h-8 w-8 p-0 mr-1 text-gray-400 hover:text-[#8C7DFF] hover:bg-[#1A1D29]/60"
-                      >
-                        <span className="sr-only">Edit</span>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="h-4 w-4"
-                        >
-                          <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34" />
-                          <polygon points="18 2 22 6 12 16 8 16 8 12 18 2" />
-                        </svg>
-                      </Button>
-                      <Button
-                        onClick={() => handleDeleteChallenge(challenge.id)}
-                        variant="ghost"
-                        className="h-8 w-8 p-0 text-gray-400 hover:text-red-400 hover:bg-[#1A1D29]/60"
-                      >
-                        <span className="sr-only">Delete</span>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="h-4 w-4"
-                        >
-                          <path d="M3 6h18" />
-                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
-                          <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                          <line x1="10" y1="11" x2="10" y2="17" />
-                          <line x1="14" y1="11" x2="14" y2="17" />
-                        </svg>
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
+              ))
+            )}
+          </TableBody>
+        </Table>
       </div>
-    </>
+
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="bg-[#252A3C] border-gray-700/30 text-white">
+          <DialogHeader>
+            <DialogTitle className="text-white">챌린지 수정</DialogTitle>
+          </DialogHeader>
+          {editingChallenge && (
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-name" className="text-gray-300">
+                  기수 이름
+                </Label>
+                <Input
+                  id="edit-name"
+                  value={editingChallenge.name}
+                  className="bg-[#1A1D29]/70 border-gray-700/50 text-white placeholder:text-gray-500 focus:border-[#5046E4] focus:ring-[#5046E4]/20"
+                  onChange={(e) =>
+                    setEditingChallenge({
+                      ...editingChallenge,
+                      name: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-startDate" className="text-gray-300">
+                  시작일
+                </Label>
+                <Input
+                  id="edit-startDate"
+                  type="date"
+                  className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20"
+                  value={
+                    editingChallenge.startDate?.toISOString().split("T")[0]
+                  }
+                  onChange={(e) =>
+                    handleEditChallengeDateChange("startDate", e.target.value)
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-endDate" className="text-gray-300">
+                  종료일
+                </Label>
+                <Input
+                  id="edit-endDate"
+                  type="date"
+                  className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20"
+                  value={editingChallenge.endDate?.toISOString().split("T")[0]}
+                  onChange={(e) =>
+                    handleEditChallengeDateChange("endDate", e.target.value)
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-lectureCount" className="text-gray-300">
+                  강의 개수
+                </Label>
+                <Input
+                  id="edit-lectureCount"
+                  type="number"
+                  className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20"
+                  value={editingChallenge.lectureCount || 0}
+                  disabled={true}
+                  readOnly
+                />
+                <p className="text-sm text-gray-400">
+                  강의 개수는 시작일과 종료일을 기준으로 자동 계산됩니다.
+                </p>
+              </div>
+              <Button
+                onClick={handleUpdateChallenge}
+                className="w-full bg-gradient-to-r from-[#5046E4] to-[#6A5AFF] hover:brightness-110 text-white shadow-md hover:shadow-xl transition-all duration-300"
+              >
+                수정 완료
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }
