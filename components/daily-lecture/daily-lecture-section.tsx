@@ -1,6 +1,4 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
 import DailyLectureItem from "./daily-lecture-item";
 import LecturePlayer from "./lecture-player";
 import {
@@ -11,46 +9,24 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { PlayCircle, Lock, Calendar } from "lucide-react";
-
-interface Video {
-  id: number;
-  title: string;
-  videoUrl: string;
-  locked: boolean;
-  description: string;
-}
+import { Lecture } from '@/types/lecture';
 
 interface DailyLectureSectionProps {
-  isLockedModalOpen: boolean;
-  lockedVideoTitle: string;
-  onLockedClick: (title: string) => void;
-  onLockedModalChange: (open: boolean) => void;
+  lectures: Lecture[];
 }
 
-// TODO: api 경로 수정 및 분리
-const fetchLectures = async (): Promise<Video[]> => {
-  const { data } = await axios.get<Video[]>('/api/classroom/lectures');
-  return data;
-};
-
 export default function DailyLectureSection({
-  isLockedModalOpen,
-  lockedVideoTitle,
-  onLockedClick,
-  onLockedModalChange,
+  lectures,
 }: DailyLectureSectionProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [selectedVideoIdx, setSelectedVideoIdx] = useState(0);
+  const [isLockedModalOpen, setIsLockedModalOpen] = useState(false);
+  const [lockedVideoTitle, setLockedVideoTitle] = useState("");
 
-  const { data: videos = [] } = useQuery({
-    queryKey: ['daily-lectures'],
-    queryFn: fetchLectures,
-  });
-
-  const mainVideo = videos[selectedVideoIdx] ? {
-    title: videos[selectedVideoIdx].title,
-    description: videos[selectedVideoIdx].description,
-    videoUrl: videos[selectedVideoIdx].videoUrl,
+  const mainVideo = lectures[selectedVideoIdx] ? {
+    title: lectures[selectedVideoIdx].name,
+    description: lectures[selectedVideoIdx].description,
+    videoUrl: lectures[selectedVideoIdx].url,
   } : null;
 
   const togglePlay = () => {
@@ -62,19 +38,31 @@ export default function DailyLectureSection({
     setIsPlaying(false);
   };
 
-  if (!mainVideo) return null;
+  const handleLockedClick = (title: string) => {
+    setLockedVideoTitle(title);
+    setIsLockedModalOpen(true);
+  };
 
   return (
     <>
       {/* Main Video Player */}
       <div className="relative">
-        <LecturePlayer
-          title={mainVideo.title}
-          description={mainVideo.description}
-          videoUrl={mainVideo.videoUrl}
-          isPlaying={isPlaying}
-          onTogglePlay={togglePlay}
-        />
+        {mainVideo ? (
+          <LecturePlayer
+            title={mainVideo.title}
+            description={mainVideo.description}
+            videoUrl={mainVideo.videoUrl}
+            isPlaying={isPlaying}
+            onTogglePlay={togglePlay}
+          />
+        ) : (
+          <div className="aspect-video bg-[#1A1D29] flex items-center justify-center">
+            <div className="text-center text-gray-400">
+              <PlayCircle className="h-12 w-12 mx-auto mb-4 text-gray-600" />
+              <p>아직 강의가 없습니다.</p>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="p-6 space-y-6">
@@ -90,22 +78,34 @@ export default function DailyLectureSection({
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-          {videos.map((video: Video, index: number) => (
-            <div key={video.id} className="group">
-              <DailyLectureItem
-                video={video}
-                onLockedClick={onLockedClick}
-                onVideoSelect={handleVideoSelect}
-                videoIndex={index}
-              />
-              <div className={`mt-2 h-1 bg-gradient-to-r from-[#5046E4] to-[#8C7DFF] rounded-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ${index === selectedVideoIdx ? 'scale-x-100' : ''}`}></div>
+          {lectures.length > 0 ? (
+            lectures.map((lecture, index) => (
+              <div key={lecture.id} className="group">
+                <DailyLectureItem
+                  video={{
+                    id: lecture.id,
+                    name: lecture.name,
+                    description: lecture.description,
+                    url: lecture.url,
+                    locked: new Date(lecture.open_at) > new Date()
+                  }}
+                  onLockedClick={handleLockedClick}
+                  onVideoSelect={handleVideoSelect}
+                  videoIndex={index}
+                />
+                <div className={`mt-2 h-1 bg-gradient-to-r from-[#5046E4] to-[#8C7DFF] rounded-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ${index === selectedVideoIdx ? 'scale-x-100' : ''}`}></div>
+              </div>
+            ))
+          ) : (
+            <div className="col-span-full text-center py-8 text-gray-400">
+              아직 강의가 없습니다.
             </div>
-          ))}
+          )}
         </div>
       </div>
 
       {/* Locked Video Modal */}
-      <Dialog open={isLockedModalOpen} onOpenChange={onLockedModalChange}>
+      <Dialog open={isLockedModalOpen} onOpenChange={setIsLockedModalOpen}>
         <DialogContent className="bg-gradient-to-b from-[#1A1D29] to-[#252A3C] border-gray-700/50 text-white rounded-lg shadow-xl">
           <DialogHeader className="pb-4 border-b border-gray-700/30">
             <DialogTitle className="text-xl font-bold flex items-center">

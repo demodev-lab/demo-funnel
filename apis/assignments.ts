@@ -19,6 +19,8 @@ export async function getAssignment(lectureId: number) {
 
     if (error) throw error;
 
+    console.log("과제 정보:", assignment);
+
     return assignment || [];
   } catch (error) {
     console.error("과제 데이터 조회 실패:", error);
