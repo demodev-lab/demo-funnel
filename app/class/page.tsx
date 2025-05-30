@@ -18,6 +18,7 @@ export default function ClassPage() {
     queryFn: async () => {
       if (!user?.id) return [];
       const data = await getUserLectures(user.id);
+      console.log('강의 데이터:', data);
       return data as unknown as Lecture[];
     },
     enabled: !!user?.id,
@@ -37,7 +38,9 @@ export default function ClassPage() {
         email: user.email,
       });
     }
-  }, [user, isLoading, router]);
+
+    console.log('현재 강의:', lectures[0]);
+  }, [user, isLoading, router, lectures]);
 
   if (isLoading) {
     return <div>로딩 중...</div>;
@@ -70,19 +73,17 @@ export default function ClassPage() {
           {/* FIXME: 애니메이션 추가시, 깜빡임 발생 */}
           {/* <div className="transform transition-all duration-500 hover:scale-[1.01] shadow-xl rounded-2xl overflow-hidden animate-slide-up"> */}
           <div>
-          <div className="bg-gradient-to-br from-[#252A3C] to-[#2A2F45] rounded-xl overflow-hidden shadow-lg border border-gray-700/50">
-            <div className="transition-all duration-300 hover:brightness-105">
-              <DailyLectureSection lectures={lectures} />
-            </div>
+            <div className="bg-gradient-to-br from-[#252A3C] to-[#2A2F45] rounded-xl overflow-hidden shadow-lg border border-gray-700/50">
+              <div className="transition-all duration-300 hover:brightness-105">
+                <DailyLectureSection lectures={lectures} />
+              </div>
 
-            {currentLecture && (
               <AssignmentSubmissionSection 
                 userInfo={user} 
-                lectureId={currentLecture.id}
-                challengeLectureId={currentLecture.challenge_lecture_id}
+                lectureId={currentLecture?.id}
+                challengeLectureId={currentLecture?.challenge_lecture_id}
               />
-            )}
-          </div>
+            </div>
           </div>
         </div>
       </div>
