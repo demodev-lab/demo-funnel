@@ -33,7 +33,10 @@ export default function DailyLectureItem({
     >
       <div className="aspect-video bg-gray-800 relative transform group-hover:-translate-y-1 transition-transform duration-300">
         <Image
-          src={`https://img.youtube.com/vi/${video.url.split("watch?v=")[1]?.split(/[&/]/)[0]?.trim() || ""}/hqdefault.jpg`}
+          src={video.url.includes('youtube.com') 
+            ? `https://img.youtube.com/vi/${video.url.split("watch?v=")[1]?.split(/[&/]/)[0]?.trim() || ""}/hqdefault.jpg`
+            : "https://via.placeholder.com/1280x720?text=Video+Thumbnail"
+          }
           alt={video.name}
           fill
           className={`object-cover transition-all duration-500 ${video.locked ? "opacity-40 blur-[1px]" : "hover:scale-105"}`}
