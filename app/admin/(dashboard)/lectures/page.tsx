@@ -149,7 +149,12 @@ export default function LecturesPage() {
                 {lecture.upload_type === 0 ? (
                   getVideoThumbnailUrl(lecture.upload_type, lecture.url) && (
                     <img
-                      src={getVideoThumbnailUrl(lecture.upload_type, lecture.url) || undefined}
+                      src={
+                        getVideoThumbnailUrl(
+                          lecture.upload_type,
+                          lecture.url,
+                        ) || undefined
+                      }
                       alt={lecture.name}
                       className="w-full h-full object-cover"
                     />
