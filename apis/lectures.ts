@@ -275,9 +275,25 @@ export async function updateLecture(
 
     // 파일이 있는 경우 Supabase Storage에 업로드
     if (data.file && data.upload_type === 1) {
-      // 파일 이름에서 확장자 추출
+      // 기존 강의 정보 조회
+      const { data: existingLecture, error: fetchError } = await supabase
+        .from("Lectures")
+        .select("url, upload_type")
+        .eq("id", lectureId)
+        .single();
+
+      if (fetchError) {
+        console.error("기존 강의 정보 조회 에러:", fetchError);
+        throw fetchError;
+      }
+
+      // 기존 파일이 Supabase Storage에 있는 경우 삭제
+      if (existingLecture?.upload_type === 1 && existingLecture?.url) {
+        await deleteStorageFile(existingLecture.url);
+      }
+
+      // 새로운 파일 업로드
       const fileExtension = data.file.name.split(".").pop();
-      // 안전한 파일 이름 생성 (timestamp + 랜덤 문자열)
       const timestamp = new Date().getTime();
       const randomString = Math.random().toString(36).substring(2, 15);
       const safeFileName = `${timestamp}-${randomString}.${fileExtension}`;
@@ -493,6 +509,25 @@ export async function updateLecture(
   }
 }
 
+async function deleteStorageFile(url: string): Promise<void> {
+  const urlMatch = url.match(/\/videos\/(.+)$/);
+  if (urlMatch && urlMatch[1]) {
+    const filePath = urlMatch[1].replace(/^\//, "");
+    console.log("삭제할 파일 경로:", filePath);
+
+    const { data: deleteData, error: deleteError } = await supabase.storage
+      .from("videos")
+      .remove([`${filePath}`]);
+
+    if (deleteError) {
+      console.error("파일 삭제 에러:", deleteError);
+      console.error("에러 상세:", JSON.stringify(deleteError, null, 2));
+    } else {
+      console.log("파일 삭제 성공:", deleteData);
+    }
+  }
+}
+
 export async function deleteLecture(lectureId: number) {
   const {
     data: { session },
@@ -506,12 +541,17 @@ export async function deleteLecture(lectureId: number) {
     // 먼저 해당 ID의 강의가 존재하는지 확인
     const { data: lecture, error: checkError } = await supabase
       .from("Lectures")
-      .select("id")
+      .select("id, url, upload_type")
       .eq("id", lectureId)
       .single();
 
     if (checkError || !lecture) {
       throw new Error(`ID가 ${lectureId}인 강의를 찾을 수 없습니다.`);
+    }
+
+    // Supabase Storage에 저장된 파일이 있는 경우 삭제
+    if (lecture.upload_type === 1 && lecture.url) {
+      await deleteStorageFile(lecture.url);
     }
 
     // 먼저 ChallengeLectures 테이블에서 관련 레코드 삭제
@@ -765,4 +805,26 @@ export async function getLecturesByChallenge(
     console.error("챌린지별 강의 데이터 조회 실패:", error);
     return [];
   }
+}
+export async function uploadFile(file: File): Promise<string> {
+  const fileExtension = file.name.split(".").pop();
+  const timestamp = new Date().getTime();
+  const randomString = Math.random().toString(36).substring(2, 15);
+  const safeFileName = `${timestamp}-${randomString}.${fileExtension}`;
+
+  const { data: uploadData, error: uploadError } = await supabase.storage
+    .from("videos")
+    .upload(`/${safeFileName}`, file, {
+      cacheControl: "3600",
+      upsert: false,
+      contentType: file.type,
+    });
+
+  if (uploadError) throw uploadError;
+
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from("videos").getPublicUrl(uploadData.path);
+
+  return publicUrl;
 }
