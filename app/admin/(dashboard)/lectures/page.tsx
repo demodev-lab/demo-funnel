@@ -15,7 +15,11 @@ import { getLecturesByChallenge, deleteLecture } from "@/apis/lectures";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useChallengeStore } from "@/lib/store/useChallengeStore";
-import { getVideoThumbnailUrl, getYouTubeEmbedUrl, getYouTubeVideoId } from '@/lib/utils/videoUtils';
+import {
+  getVideoThumbnailUrl,
+  getYouTubeEmbedUrl,
+  getYouTubeVideoId,
+} from "@/lib/utils/videoUtils";
 
 interface Lecture {
   id: number;
@@ -132,7 +136,12 @@ export default function LecturesPage() {
                 {lecture.upload_type === 0 ? (
                   getVideoThumbnailUrl(lecture.upload_type, lecture.url) && (
                     <img
-                      src={getVideoThumbnailUrl(lecture.upload_type, lecture.url) || undefined}
+                      src={
+                        getVideoThumbnailUrl(
+                          lecture.upload_type,
+                          lecture.url,
+                        ) || undefined
+                      }
                       alt={lecture.name}
                       className="w-full h-full object-cover"
                     />
