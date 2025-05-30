@@ -581,7 +581,7 @@ export async function getUserLectures(userId: number) {
     console.log("챌린지 데이터:", JSON.stringify(challengeData, null, 2));
 
     // 현재 날짜
-    const currentDate = new Date();
+    const currentDate = new Date(new Date().setHours(0, 0, 0, 0));
 
     // 2. 현재 진행 중인 챌린지 ID만 필터링
     const activeChallengeIds = (challengeData as unknown as ChallengeUser[])
@@ -592,7 +592,7 @@ export async function getUserLectures(userId: number) {
         }
         const openDate = new Date(challenge.Challenges.open_date);
         const closeDate = new Date(challenge.Challenges.close_date);
-        return currentDate >= openDate && currentDate < closeDate;
+        return currentDate >= openDate && currentDate <= closeDate;
       })
       .map((challenge) => challenge.challenge_id);
 
