@@ -23,10 +23,10 @@ export default function DailyLectureSection({
   const [isLockedModalOpen, setIsLockedModalOpen] = useState(false);
   const [lockedVideoTitle, setLockedVideoTitle] = useState("");
 
-  const mainVideo = lectures[selectedVideoIdx] ? {
+  const mainLecture = lectures[selectedVideoIdx] ? {
     title: lectures[selectedVideoIdx].name,
     description: lectures[selectedVideoIdx].description,
-    videoUrl: lectures[selectedVideoIdx].url,
+    lectureUrl: lectures[selectedVideoIdx].url,
   } : null;
 
   const togglePlay = () => {
@@ -47,11 +47,11 @@ export default function DailyLectureSection({
     <>
       {/* Main Video Player */}
       <div className="relative">
-        {mainVideo ? (
+        {mainLecture ? (
           <LecturePlayer
-            title={mainVideo.title}
-            description={mainVideo.description}
-            videoUrl={mainVideo.videoUrl}
+            title={mainLecture.title}
+            description={mainLecture.description}
+            lectureUrl={mainLecture.lectureUrl}
             isPlaying={isPlaying}
             onTogglePlay={togglePlay}
           />
@@ -82,13 +82,7 @@ export default function DailyLectureSection({
             lectures.map((lecture, index) => (
               <div key={lecture.id} className="group">
                 <DailyLectureItem
-                  video={{
-                    id: lecture.id,
-                    name: lecture.name,
-                    description: lecture.description,
-                    url: lecture.url,
-                    locked: new Date(lecture.open_at) > new Date()
-                  }}
+                  dailyLecture={lecture}
                   onLockedClick={handleLockedClick}
                   onVideoSelect={handleVideoSelect}
                   videoIndex={index}

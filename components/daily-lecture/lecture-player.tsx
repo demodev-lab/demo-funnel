@@ -1,11 +1,12 @@
 import Image from "next/image";
 import { Play, Pause, Bookmark, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getUploadTypeFromUrl, getVideoThumbnailUrl } from '@/lib/utils/videoUtils';
 
 interface LecturePlayerProps {
   title: string;
   description: string;
-  videoUrl: string;
+  lectureUrl: string;
   isPlaying: boolean;
   onTogglePlay: () => void;
 }
@@ -13,10 +14,13 @@ interface LecturePlayerProps {
 export default function LecturePlayer({
   title,
   description,
-  videoUrl,
+  lectureUrl,
   isPlaying,
   onTogglePlay,
 }: LecturePlayerProps) {
+
+  const upload_type = getUploadTypeFromUrl(lectureUrl);
+
   return (
     <>
       <div className="p-4 md:p-6 bg-[#1A1D29]/80 backdrop-blur-sm">
@@ -46,7 +50,7 @@ export default function LecturePlayer({
         {isPlaying ? (
           <div className="relative h-full w-full">
             <iframe
-              src={`https://www.youtube.com/embed/${videoUrl.split("v=")[1]}?autoplay=1`}
+              src={`https://www.youtube.com/embed/${lectureUrl.split("v=")[1]}?autoplay=1`}
               className="absolute inset-0 w-full h-full"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
@@ -64,16 +68,23 @@ export default function LecturePlayer({
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="absolute inset-0 overflow-hidden">
               <div className="absolute inset-0 bg-black/30" />
-              <Image
-                src={`https://img.youtube.com/vi/${videoUrl.split("watch?v=")[1]?.split(/[&/]/)[0]?.trim() || ""}/hqdefault.jpg`}
-                alt={title}
-                fill
-                className="object-cover"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.src = "https://via.placeholder.com/1280x720?text=No+Thumbnail";
-                }}
-              />
+                {upload_type === 0 ? (
+                  getVideoThumbnailUrl(upload_type, lectureUrl) && (
+                    <img
+                      src={getVideoThumbnailUrl(upload_type, lectureUrl) || undefined}
+                      alt={title}
+                      className="w-full h-full object-cover"
+                    />
+                  )
+                ) : (
+                  <video
+                    src={lectureUrl}
+                    className="w-full h-full object-cover"
+                    preload="metadata"
+                    muted
+                    playsInline
+                  />
+                )}
             </div>
             <div className="z-10 flex flex-col items-center space-y-4">
               <Button
