@@ -490,8 +490,8 @@ export default function StudentList() {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="py-4 flex justify-end">
+    <>
+      <div className="flex justify-end">
         <div className="space-x-2">
           {/* 엑셀 업로드 다이얼로그 */}
           <Dialog
@@ -911,6 +911,6 @@ export default function StudentList() {
           </tbody>
         </table>
       </div>
-    </div>
+    </>
   );
 }
