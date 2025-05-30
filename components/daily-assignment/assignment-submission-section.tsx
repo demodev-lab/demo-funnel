@@ -22,9 +22,11 @@ export function AssignmentSubmissionSection({
   const { data: assignmentInfo = [] } = useQuery({
     queryKey: ['assignment-info', lectureId],
     queryFn: async () => {
+      if (!lectureId) return [];
       const data = await getAssignment(lectureId);
       return data;
     },
+    enabled: !!lectureId,
   });
 
   const { data: submittedAssignments } = useQuery({
