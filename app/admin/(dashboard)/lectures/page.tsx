@@ -111,7 +111,6 @@ export default function LecturesPage() {
 
   return (
     <div className="space-y-4">
-      <Header />
       <div className="space-y-4">
         <h1 className="text-2xl font-bold">강의 관리</h1>
         <div className="flex justify-end">

@@ -7,7 +7,6 @@ import { BarChart3, Users, CheckCircle2, PlayCircle } from "lucide-react";
 export default function Dashboard() {
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
       <div className="p-6 md:p-8 space-y-6 animate-fade-in">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <h1 className="text-2xl md:text-3xl font-bold">
@@ -24,7 +23,9 @@ export default function Dashboard() {
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 animate-slide-up">
           <Card className="bg-[#252A3C] border-gray-700/30 hover:border-gray-600/50 hover:shadow-lg transition-all rounded-xl overflow-hidden">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 border-b border-gray-700/30 bg-[#1A1D29]/40">
-              <CardTitle className="text-sm font-medium text-gray-300">총 수강생</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-300">
+                총 수강생
+              </CardTitle>
               <div className="p-2 bg-[#5046E4]/10 rounded-full">
                 <Users className="h-4 w-4 text-[#8C7DFF]" />
               </div>

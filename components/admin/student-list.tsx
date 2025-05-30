@@ -64,13 +64,13 @@ export default function StudentList() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [studentToDelete, setStudentToDelete] = useState<string | null>(null);
+  const [studentToDelete, setStudentToDelete] = useState<number | null>(null);
   const [currentStudent, setCurrentStudent] = useState<Omit<Student, "id">>({
     name: "",
     email: "",
     phone: "",
   });
-  const [editingStudentId, setEditingStudentId] = useState<string | null>(null);
+  const [editingStudentId, setEditingStudentId] = useState<number | null>(null);
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
     {},
   );
@@ -85,7 +85,7 @@ export default function StudentList() {
   const [selectedFileName, setSelectedFileName] = useState<string>("");
 
   // 챌린지 관련 상태 추가
-  const [selectedChallenges, setSelectedChallenges] = useState<string[]>([]);
+  const [selectedChallenges, setSelectedChallenges] = useState<number[]>([]);
 
   // 챌린지 목록 조회
   const { data: challenges = [] } = useQuery({
@@ -128,7 +128,7 @@ export default function StudentList() {
 
   const checkDuplicateEmail = (
     email: string,
-    excludeId?: string,
+    excludeId?: number,
   ): string | undefined => {
     const isDuplicate = students.some(
       (student) => student.email === email && student.id !== excludeId,
@@ -141,7 +141,7 @@ export default function StudentList() {
 
   const checkDuplicatePhone = (
     phone: string,
-    excludeId?: string,
+    excludeId?: number,
   ): string | undefined => {
     const isDuplicate = students.some(
       (student) => student.phone === phone && student.id !== excludeId,
@@ -241,7 +241,7 @@ export default function StudentList() {
     setIsFormOpen(true);
   };
 
-  const handleDeleteClick = (studentId: string) => {
+  const handleDeleteClick = (studentId: number) => {
     setStudentToDelete(studentId);
     setIsDeleteOpen(true);
   };
@@ -382,12 +382,11 @@ export default function StudentList() {
     try {
       setIsProcessing(true);
 
-      // 유효한 학생 데이터만 순차적으로 추가
       for (const student of validStudents) {
         const { isValid, errors, ...studentData } = student;
         await createStudentMutation.mutateAsync({
           ...studentData,
-          challenges: [selectedChallengeId], // 현재 선택된 챌린지 ID를 배열로 전달
+          challenges: [selectedChallengeId],
         });
       }
 
@@ -395,7 +394,6 @@ export default function StudentList() {
         `${validStudents.length}명의 수강생이 성공적으로 추가되었습니다.`,
       );
 
-      // 모달과 관련 상태 초기화
       setIsExcelPreviewOpen(false);
       setExcelData([]);
       setSelectedFileName("");
@@ -743,8 +741,12 @@ export default function StudentList() {
                   <Label className="text-gray-300">챌린지</Label>
                   <Select
                     onValueChange={(value) => {
-                      if (!selectedChallenges.includes(value)) {
-                        setSelectedChallenges([...selectedChallenges, value]);
+                      const numValue = parseInt(value, 10);
+                      if (!selectedChallenges.includes(numValue)) {
+                        setSelectedChallenges([
+                          ...selectedChallenges,
+                          numValue,
+                        ]);
                       }
                     }}
                   >
@@ -768,7 +770,7 @@ export default function StudentList() {
                       <div className="flex flex-wrap gap-2">
                         {selectedChallenges.map((challengeId) => {
                           const challenge = challenges.find(
-                            (c) => c.id.toString() === challengeId,
+                            (c) => c.id === challengeId,
                           );
                           return (
                             <div
@@ -896,7 +898,7 @@ export default function StudentList() {
                         variant="outline"
                         size="sm"
                         className="border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300"
-                        onClick={() => handleDeleteClick(student.id)}
+                        onClick={() => handleDeleteClick(student.id!)}
                         disabled={deleteStudentMutation.isPending}
                       >
                         삭제
