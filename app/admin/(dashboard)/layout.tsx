@@ -22,7 +22,7 @@ export default function DashboardLayout({
       <Sidebar />
       <main className="flex-1 overflow-y-auto bg-[#1C1F2B] text-white">
         <Header />
-        {children}
+        <div className="p-6 space-y-6">{children}</div>
       </main>
     </div>
   );

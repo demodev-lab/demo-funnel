@@ -283,9 +283,13 @@ export default function ChallengesPage() {
   }
 
   return (
-    <div className="space-y-4">
+    <>
       <div className="space-y-4">
-        <h1 className="text-2xl font-bold">챌린지 관리</h1>
+        <h1 className="text-2xl font-bold">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#5046E4] to-[#8C7DFF]">
+            챌린지 관리
+          </span>
+        </h1>
         <div className="flex justify-end">
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
@@ -558,6 +562,6 @@ export default function ChallengesPage() {
           </Table>
         </div>
       </div>
-    </div>
+    </>
   );
 }

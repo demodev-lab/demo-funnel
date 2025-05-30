@@ -12,7 +12,7 @@ export default function CourseInfoPage() {
   const [showUnsubmittedOnly, setShowUnsubmittedOnly] = useState(false);
 
   return (
-    <div className="space-y-6 p-6">
+    <>
       <h1 className="text-2xl font-bold">
         <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#5046E4] to-[#8C7DFF]">
           수강 정보 관리
@@ -49,6 +49,6 @@ export default function CourseInfoPage() {
         searchQuery={searchQuery}
         showUnsubmittedOnly={showUnsubmittedOnly}
       />
-    </div>
+    </>
   );
 }

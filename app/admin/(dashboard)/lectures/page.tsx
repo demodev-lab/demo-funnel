@@ -110,9 +110,13 @@ export default function LecturesPage() {
   }
 
   return (
-    <div className="space-y-4">
+    <>
       <div className="space-y-4">
-        <h1 className="text-2xl font-bold">강의 관리</h1>
+        <h1 className="text-2xl font-bold">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#5046E4] to-[#8C7DFF]">
+            강의 관리
+          </span>
+        </h1>
         <div className="flex justify-end">
           <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
@@ -221,6 +225,6 @@ export default function LecturesPage() {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }
