@@ -57,6 +57,19 @@ const getYouTubeEmbedUrl = (url: string) => {
   return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
 };
 
+const getVideoThumbnailUrl = (lecture: Lecture) => {
+  if (lecture.upload_type === 0) {
+    // YouTube 동영상인 경우
+    const videoId = getYouTubeVideoId(lecture.url);
+    return videoId
+      ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
+      : null;
+  } else {
+    // Supabase Storage 동영상인 경우
+    return lecture.url;
+  }
+};
+
 export default function LecturesPage() {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedLecture, setSelectedLecture] = useState<Lecture | null>(null);
@@ -146,11 +159,21 @@ export default function LecturesPage() {
               onClick={() => setSelectedLecture(lecture)}
             >
               <div className="aspect-video relative">
-                {getYouTubeThumbnailUrl(lecture.url) && (
-                  <img
-                    src={getYouTubeThumbnailUrl(lecture.url) || undefined}
-                    alt={lecture.name}
+                {lecture.upload_type === 0 ? (
+                  getVideoThumbnailUrl(lecture) && (
+                    <img
+                      src={getVideoThumbnailUrl(lecture) || undefined}
+                      alt={lecture.name}
+                      className="w-full h-full object-cover"
+                    />
+                  )
+                ) : (
+                  <video
+                    src={lecture.url}
                     className="w-full h-full object-cover"
+                    preload="metadata"
+                    muted
+                    playsInline
                   />
                 )}
                 <div className="absolute top-2 left-2 bg-[#5046E4] text-white px-2 py-1 rounded-md text-sm font-medium">
@@ -189,12 +212,20 @@ export default function LecturesPage() {
           {selectedLecture && (
             <div className="space-y-4">
               <div className="aspect-video">
-                {getYouTubeEmbedUrl(selectedLecture.url) && (
-                  <iframe
-                    src={getYouTubeEmbedUrl(selectedLecture.url) || undefined}
+                {selectedLecture.upload_type === 0 ? (
+                  getYouTubeEmbedUrl(selectedLecture.url) && (
+                    <iframe
+                      src={getYouTubeEmbedUrl(selectedLecture.url) || undefined}
+                      className="w-full h-full rounded-lg border border-gray-700/30"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  )
+                ) : (
+                  <video
+                    src={selectedLecture.url}
                     className="w-full h-full rounded-lg border border-gray-700/30"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
+                    controls
                   />
                 )}
               </div>

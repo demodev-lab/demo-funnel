@@ -47,6 +47,8 @@ export interface CreateLectureData {
   assignmentTitle?: string;
   assignment?: string;
   challengeOrders?: { challengeId: number; order: number }[];
+  file?: File;
+  upload_type: number;
 }
 
 export interface UpdateLectureData {
@@ -57,6 +59,8 @@ export interface UpdateLectureData {
   assignmentTitle?: string;
   assignment?: string;
   challengeOrders?: { challengeId: number; order: number }[];
+  file?: File;
+  upload_type: number;
 }
 
 export interface LectureDetail {
@@ -124,6 +128,38 @@ export async function createLecture(data: CreateLectureData) {
   try {
     console.log("강의 생성 시도:", data);
 
+    let videoUrl = data.url;
+
+    // 파일이 있는 경우 Supabase Storage에 업로드
+    if (data.file && data.upload_type === 1) {
+      // 파일 이름에서 확장자 추출
+      const fileExtension = data.file.name.split(".").pop();
+      // 안전한 파일 이름 생성 (timestamp + 랜덤 문자열)
+      const timestamp = new Date().getTime();
+      const randomString = Math.random().toString(36).substring(2, 15);
+      const safeFileName = `${timestamp}-${randomString}.${fileExtension}`;
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from("videos")
+        .upload(`/${safeFileName}`, data.file, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: data.file.type,
+        });
+
+      if (uploadError) {
+        console.error("파일 업로드 에러:", uploadError);
+        throw uploadError;
+      }
+
+      // 업로드된 파일의 URL 가져오기
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("videos").getPublicUrl(uploadData.path);
+
+      videoUrl = publicUrl;
+    }
+
     // Lectures 테이블에 강의 추가
     const { data: lecture, error: lectureError } = await supabase
       .from("Lectures")
@@ -131,8 +167,8 @@ export async function createLecture(data: CreateLectureData) {
         {
           name: data.title,
           description: data.description,
-          url: data.url,
-          upload_type: 0, // URL 방식
+          url: videoUrl,
+          upload_type: data.upload_type,
         },
       ])
       .select()
@@ -235,13 +271,46 @@ export async function updateLecture(
   try {
     console.log("수정 요청 데이터:", data);
 
+    let videoUrl = data.url;
+
+    // 파일이 있는 경우 Supabase Storage에 업로드
+    if (data.file && data.upload_type === 1) {
+      // 파일 이름에서 확장자 추출
+      const fileExtension = data.file.name.split(".").pop();
+      // 안전한 파일 이름 생성 (timestamp + 랜덤 문자열)
+      const timestamp = new Date().getTime();
+      const randomString = Math.random().toString(36).substring(2, 15);
+      const safeFileName = `${timestamp}-${randomString}.${fileExtension}`;
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from("videos")
+        .upload(`/${safeFileName}`, data.file, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: data.file.type,
+        });
+
+      if (uploadError) {
+        console.error("파일 업로드 에러:", uploadError);
+        throw uploadError;
+      }
+
+      // 업로드된 파일의 URL 가져오기
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("videos").getPublicUrl(uploadData.path);
+
+      videoUrl = publicUrl;
+    }
+
     // 강의 정보 업데이트
     const { data: updatedLecture, error: lectureError } = await supabase
       .from("Lectures")
       .update({
         name: data.name,
         description: data.description,
-        url: data.url,
+        url: videoUrl,
+        upload_type: data.upload_type,
         updated_at: new Date().toISOString(),
       })
       .eq("id", lectureId)
