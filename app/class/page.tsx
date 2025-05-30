@@ -50,8 +50,12 @@ export default function ClassPage() {
     return null;
   }
 
-  // TODO: 오픈된 강의로 변경 (시작일 확인)
-  const currentLecture = lectures[0];
+  // open_at 기준으로 가장 최근 강의 선택
+  const currentLecture = lectures.reduce((latest, lecture) => {
+    const latestDate = new Date(latest.open_at).getTime();
+    const currentDate = new Date(lecture.open_at).getTime();
+    return currentDate > latestDate ? lecture : latest;
+  }, lectures[0]);
   
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#1A1D29] to-[#252A3C] text-white">
