@@ -1,51 +1,57 @@
 import Image from "next/image";
 import { Lock, Calendar } from "lucide-react";
-
-interface Lecture {
-  id: number;
-  name: string;
-  description: string;
-  url: string;
-  locked: boolean;
-}
+import { getUploadTypeFromUrl, getVideoThumbnailUrl } from '@/lib/utils/videoUtils';
+import { Lecture } from '@/types/lecture';
 
 interface DailyLectureItemProps {
-  video: Lecture;
+  dailyLecture: Lecture;
   onLockedClick: (title: string) => void;
   onVideoSelect: (index: number) => void;
   videoIndex: number;
 }
 
 export default function DailyLectureItem({
-  video,
+  dailyLecture,
   onLockedClick,
   onVideoSelect,
   videoIndex,
 }: DailyLectureItemProps) {
+
+  const upload_type = getUploadTypeFromUrl(dailyLecture.url);
+  const locked = new Date(dailyLecture.open_at) > new Date()
+
   return (
     <div
       className="relative rounded-xl overflow-hidden cursor-pointer transition-all duration-300 shadow-md hover:shadow-xl border border-gray-700/30 hover:border-gray-600/50 group"
       onClick={() =>
-        video.locked
-          ? onLockedClick(video.name)
+        locked
+          ? onLockedClick(dailyLecture.name)
           : onVideoSelect(videoIndex)
       }
     >
       <div className="aspect-video bg-gray-800 relative transform group-hover:-translate-y-1 transition-transform duration-300">
-        <Image
-          src={video.url.includes('youtube.com') 
-            ? `https://img.youtube.com/vi/${video.url.split("watch?v=")[1]?.split(/[&/]/)[0]?.trim() || ""}/hqdefault.jpg`
-            : "https://via.placeholder.com/1280x720?text=Video+Thumbnail"
-          }
-          alt={video.name}
-          fill
-          className={`object-cover transition-all duration-500 ${video.locked ? "opacity-40 blur-[1px]" : "hover:scale-105"}`}
-          onError={(e) => {
-            const target = e.target as HTMLImageElement;
-            target.src = "https://via.placeholder.com/1280x720?text=No+Thumbnail";
-          }}
-        />
-        {video.locked ? (
+        {upload_type === 0 ? (
+          // YouTube 동영상인 경우 Image 태그 사용
+          <Image
+            src={getVideoThumbnailUrl(upload_type, dailyLecture.url) || undefined}
+            alt={dailyLecture.name}
+            fill
+            priority={videoIndex === 0}
+            className={`object-cover transition-all duration-500 ${locked ? "opacity-40 blur-[1px]" : "hover:scale-105"}`}
+          />
+        ) : (
+          // 직접 업로드 동영상인 경우 Video 태그 사용
+          <video
+            src={dailyLecture.url}
+            className={`w-full h-full object-cover ${locked ? "opacity-40 blur-[1px]" : ""}`}
+            preload="metadata"
+            muted
+            playsInline
+            controlsList="no-controls"
+          />
+        )}
+        
+        {locked ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 perspective-0">
             <div className="transform-none will-change-transform flex flex-col items-center justify-center">
               <Lock className="h-10 w-10 text-[#8C7DFF] drop-shadow-md mb-2" />
@@ -60,9 +66,9 @@ export default function DailyLectureItem({
         )}
       </div>
       <div className="p-3 bg-[#1C1F2B]/80 backdrop-blur-sm">
-        <p className="text-sm font-medium truncate">{video.name}</p>
+        <p className="text-sm font-medium truncate">{dailyLecture.name}</p>
         <p className="text-xs text-gray-400 mt-1">
-          {video.locked ? "잠금 상태" : "재생 가능"}
+          {locked ? "잠금 상태" : "재생 가능"}
         </p>
       </div>
     </div>
