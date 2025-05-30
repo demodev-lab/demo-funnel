@@ -43,19 +43,26 @@ export default function DailyLectureSection({
     setIsLockedModalOpen(true);
   };
 
-  if (!mainVideo) return null;
-
   return (
     <>
       {/* Main Video Player */}
       <div className="relative">
-        <LecturePlayer
-          title={mainVideo.title}
-          description={mainVideo.description}
-          videoUrl={mainVideo.videoUrl}
-          isPlaying={isPlaying}
-          onTogglePlay={togglePlay}
-        />
+        {mainVideo ? (
+          <LecturePlayer
+            title={mainVideo.title}
+            description={mainVideo.description}
+            videoUrl={mainVideo.videoUrl}
+            isPlaying={isPlaying}
+            onTogglePlay={togglePlay}
+          />
+        ) : (
+          <div className="aspect-video bg-[#1A1D29] flex items-center justify-center">
+            <div className="text-center text-gray-400">
+              <PlayCircle className="h-12 w-12 mx-auto mb-4 text-gray-600" />
+              <p>아직 강의가 없습니다.</p>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="p-6 space-y-6">
@@ -71,23 +78,29 @@ export default function DailyLectureSection({
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-          {lectures.map((lecture, index) => (
-            <div key={lecture.id} className="group">
-              <DailyLectureItem
-                video={{
-                  id: lecture.id,
-                  name: lecture.name,
-                  description: lecture.description,
-                  url: lecture.url,
-                  locked: new Date(lecture.open_at) > new Date()
-                }}
-                onLockedClick={handleLockedClick}
-                onVideoSelect={handleVideoSelect}
-                videoIndex={index}
-              />
-              <div className={`mt-2 h-1 bg-gradient-to-r from-[#5046E4] to-[#8C7DFF] rounded-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ${index === selectedVideoIdx ? 'scale-x-100' : ''}`}></div>
+          {lectures.length > 0 ? (
+            lectures.map((lecture, index) => (
+              <div key={lecture.id} className="group">
+                <DailyLectureItem
+                  video={{
+                    id: lecture.id,
+                    name: lecture.name,
+                    description: lecture.description,
+                    url: lecture.url,
+                    locked: new Date(lecture.open_at) > new Date()
+                  }}
+                  onLockedClick={handleLockedClick}
+                  onVideoSelect={handleVideoSelect}
+                  videoIndex={index}
+                />
+                <div className={`mt-2 h-1 bg-gradient-to-r from-[#5046E4] to-[#8C7DFF] rounded-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ${index === selectedVideoIdx ? 'scale-x-100' : ''}`}></div>
+              </div>
+            ))
+          ) : (
+            <div className="col-span-full text-center py-8 text-gray-400">
+              아직 강의가 없습니다.
             </div>
-          ))}
+          )}
         </div>
       </div>
 

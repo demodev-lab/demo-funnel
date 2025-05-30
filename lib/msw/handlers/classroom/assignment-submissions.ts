@@ -31,46 +31,46 @@ const assignmentData = {
   ],
 };
 
-// export const assignmentSubmissionHandlers = [
-//   // 과제 제출 목록 조회
-//   http.get("/api/classroom/assignment", ({ request }) => {
-//     const authHeader = request.headers.get('Authorization');
-//     if (!authHeader?.startsWith('Bearer ')) {
-//       return new HttpResponse(null, { status: 401 });
-//     }
+export const assignmentSubmissionHandlers = [
+  // 제출된 과제 목록 조회
+  http.get("/api/classroom/assignment", ({ request }) => {
+    const authHeader = request.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new HttpResponse(null, { status: 401 });
+    }
 
-//     return HttpResponse.json(assignmentData);
-//   }),
+    return HttpResponse.json(assignmentData);
+  }),
 
-//   // 과제 제출
-//   http.post("/api/classroom/assignment", async ({ request }) => {
-//     const authHeader = request.headers.get('Authorization');
-//     if (!authHeader?.startsWith('Bearer ')) {
-//       return new HttpResponse(null, { status: 401 });
-//     }
+  // 과제 제출
+  // http.post("/api/classroom/assignment", async ({ request }) => {
+  //   const authHeader = request.headers.get('Authorization');
+  //   if (!authHeader?.startsWith('Bearer ')) {
+  //     return new HttpResponse(null, { status: 401 });
+  //   }
 
-//     const body = await request.json();
-//     // const { name, email, link, text } = body;
+  //   const body = await request.json();
+  //   // const { name, email, link, text } = body;
 
-//     // 링크 타입 결정
-//     let linkType = "링크";
-//     if (link.includes("github.com")) linkType = "GitHub";
-//     else if (link.includes("codesandbox.io")) linkType = "CodeSandbox";
-//     else if (link.includes("codepen.io")) linkType = "CodePen";
-//     else if (link.includes("replit.com")) linkType = "Replit";
-//     else if (link.includes("stackblitz.com")) linkType = "StackBlitz";
+  //   // 링크 타입 결정
+  //   let linkType = "링크";
+  //   if (link.includes("github.com")) linkType = "GitHub";
+  //   else if (link.includes("codesandbox.io")) linkType = "CodeSandbox";
+  //   else if (link.includes("codepen.io")) linkType = "CodePen";
+  //   else if (link.includes("replit.com")) linkType = "Replit";
+  //   else if (link.includes("stackblitz.com")) linkType = "StackBlitz";
 
-//     const newSubmission = {
-//       id: assignmentData.submissions.length + 1,
-//       user: name,
-//       time: "방금 전",
-//       text,
-//       link,
-//       linkType,
-//     };
+  //   const newSubmission = {
+  //     id: assignmentData.submissions.length + 1,
+  //     user: name,
+  //     time: "방금 전",
+  //     text,
+  //     link,
+  //     linkType,
+  //   };
 
-//     assignmentData.submissions = [newSubmission, ...assignmentData.submissions];
+  //   assignmentData.submissions = [newSubmission, ...assignmentData.submissions];
 
-//     return HttpResponse.json(newSubmission, { status: 201 });
-//   }),
-// ]; 
+  //   return HttpResponse.json(newSubmission, { status: 201 });
+  // }),
+]; 
