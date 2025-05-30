@@ -17,9 +17,14 @@ export default function ClassPage() {
     queryKey: ['daily-lectures', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
-      const data = await getUserLectures(user.id);
-      console.log('강의 데이터:', data);
-      return data as unknown as Lecture[];
+      try {
+        const data = await getUserLectures(user.id);
+        console.log('강의 데이터:', data);
+        return data as unknown as Lecture[];
+      } catch (error) {
+        console.error('강의 데이터 조회 실패:', error);
+        return [];
+      }
     },
     enabled: !!user?.id,
   });
