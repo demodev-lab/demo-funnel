@@ -1,13 +1,27 @@
 "use client";
 
 import { useEffect } from "react";
-import { DemoUI } from "@/components/demo-ui";
 import { useUser } from "@/hooks/auth/use-user";
 import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import DailyLectureSection from '@/components/daily-lecture/daily-lecture-section';
+import { AssignmentSubmissionSection } from '@/components/daily-assignment/assignment-submission-section';
+import { getUserLectures } from '@/apis/lectures';
+import { Lecture } from '@/types/lecture';
 
 export default function ClassPage() {
   const router = useRouter();
   const { data: user, isLoading } = useUser();
+
+  const { data: lectures = [] } = useQuery({
+    queryKey: ['daily-lectures', user?.id],
+    queryFn: async () => {
+      const data = await getUserLectures(user.id);
+      // console.log('강의 데이터:', data);
+      return data as unknown as Lecture[];
+    },
+    enabled: !!user?.id,
+  });
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -16,6 +30,7 @@ export default function ClassPage() {
       return;
     }
 
+    // TODO: 콘솔 제거
     if (user) {
       console.log("사용자 정보:", {
         id: user.id,
@@ -23,7 +38,9 @@ export default function ClassPage() {
         email: user.email,
       });
     }
-  }, [user, isLoading, router]);
+
+    console.log('현재 강의:', lectures[0]);
+  }, [user, isLoading, router, lectures]);
 
   if (isLoading) {
     return <div>로딩 중...</div>;
@@ -33,6 +50,13 @@ export default function ClassPage() {
     return null;
   }
 
+  // open_at 기준으로 가장 최근 강의 선택
+  const currentLecture = lectures.reduce((latest, lecture) => {
+    const latestDate = new Date(latest.open_at).getTime();
+    const currentDate = new Date(lecture.open_at).getTime();
+    return currentDate > latestDate ? lecture : latest;
+  }, lectures[0]);
+  
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#1A1D29] to-[#252A3C] text-white">
       <div className="container mx-auto px-4 py-12">
@@ -54,7 +78,17 @@ export default function ClassPage() {
           {/* FIXME: 애니메이션 추가시, 깜빡임 발생 */}
           {/* <div className="transform transition-all duration-500 hover:scale-[1.01] shadow-xl rounded-2xl overflow-hidden animate-slide-up"> */}
           <div>
-            <DemoUI />
+            <div className="bg-gradient-to-br from-[#252A3C] to-[#2A2F45] rounded-xl overflow-hidden shadow-lg border border-gray-700/50">
+              <div className="transition-all duration-300 hover:brightness-105">
+                <DailyLectureSection lectures={lectures} />
+              </div>
+
+              <AssignmentSubmissionSection 
+                userInfo={user} 
+                lectureId={currentLecture?.id}
+                challengeLectureId={currentLecture?.challenge_lecture_id}
+              />
+            </div>
           </div>
         </div>
       </div>

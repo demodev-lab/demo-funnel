@@ -1,15 +1,16 @@
 import Image from "next/image";
 import { Lock, Calendar } from "lucide-react";
 
-interface Video {
+interface Lecture {
   id: number;
-  title: string;
-  videoUrl: string;
+  name: string;
+  description: string;
+  url: string;
   locked: boolean;
 }
 
 interface DailyLectureItemProps {
-  video: Video;
+  video: Lecture;
   onLockedClick: (title: string) => void;
   onVideoSelect: (index: number) => void;
   videoIndex: number;
@@ -26,18 +27,20 @@ export default function DailyLectureItem({
       className="relative rounded-xl overflow-hidden cursor-pointer transition-all duration-300 shadow-md hover:shadow-xl border border-gray-700/30 hover:border-gray-600/50 group"
       onClick={() =>
         video.locked
-          ? onLockedClick(video.title)
+          ? onLockedClick(video.name)
           : onVideoSelect(videoIndex)
       }
     >
       <div className="aspect-video bg-gray-800 relative transform group-hover:-translate-y-1 transition-transform duration-300">
         <Image
-          src={`https://img.youtube.com/vi/${
-            video.videoUrl.split("v=")[1]
-          }/maxresdefault.jpg`}
-          alt={video.title}
+          src={`https://img.youtube.com/vi/${video.url.split("watch?v=")[1]?.split(/[&/]/)[0]?.trim() || ""}/hqdefault.jpg`}
+          alt={video.name}
           fill
           className={`object-cover transition-all duration-500 ${video.locked ? "opacity-40 blur-[1px]" : "hover:scale-105"}`}
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = "https://via.placeholder.com/1280x720?text=No+Thumbnail";
+          }}
         />
         {video.locked ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 perspective-0">
@@ -54,7 +57,7 @@ export default function DailyLectureItem({
         )}
       </div>
       <div className="p-3 bg-[#1C1F2B]/80 backdrop-blur-sm">
-        <p className="text-sm font-medium truncate">{video.title}</p>
+        <p className="text-sm font-medium truncate">{video.name}</p>
         <p className="text-xs text-gray-400 mt-1">
           {video.locked ? "잠금 상태" : "재생 가능"}
         </p>
