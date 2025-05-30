@@ -46,19 +46,50 @@ export async function createSubmission({
   userId: number;
 }) {
   try {
-    const { data, error } = await supabase.from("Submissions").insert([
-      {
-        user_id: userId,
-        submitted_at: new Date().toISOString(),
-        is_submit: true,
-        assignment_url: link,
-        assignment_comment: text,
-        challenge_lecture_id: challengeLectureId,
-      },
-    ]);
+    // 기존 제출 데이터 확인 (single() 대신 maybeSingle() 사용)
+    const { data: existingSubmission, error: findError } = await supabase
+      .from("Submissions")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("challenge_lecture_id", challengeLectureId)
+      .maybeSingle();
 
-    if (error) throw error;
-    return data;
+    if (findError) throw findError;
+
+    if (existingSubmission) {
+      // 기존 제출이 있으면 업데이트
+      const { data, error } = await supabase
+        .from("Submissions")
+        .update({
+          submitted_at: new Date().toISOString(),
+          is_submit: true,
+          assignment_url: link,
+          assignment_comment: text,
+        })
+        .eq("id", existingSubmission.id)
+        .select();
+
+      if (error) throw error;
+      return data;
+    } else {
+      // 새로운 제출
+      const { data, error } = await supabase
+        .from("Submissions")
+        .insert([
+          {
+            user_id: userId,
+            submitted_at: new Date().toISOString(),
+            is_submit: true,
+            assignment_url: link,
+            assignment_comment: text,
+            challenge_lecture_id: challengeLectureId,
+          },
+        ])
+        .select();
+
+      if (error) throw error;
+      return data;
+    }
   } catch (error) {
     console.error("과제 제출 실패:", error);
     throw new Error(
