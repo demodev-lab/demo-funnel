@@ -33,6 +33,7 @@ import {
 } from "@/apis/lectures";
 import { getChallenges } from "@/apis/challenges";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { createClient } from "@/utils/supabase/client";
 
 interface Challenge {
   id: number;
@@ -75,6 +76,7 @@ export default function LectureForm({
   isDeleting = false,
 }: LectureFormProps) {
   const queryClient = useQueryClient();
+  const supabase = createClient();
   const [title, setTitle] = useState(initialData.title || "");
   const [description, setDescription] = useState(initialData.description || "");
   const [videoUrl, setVideoUrl] = useState(initialData.url || "");
@@ -85,7 +87,58 @@ export default function LectureForm({
   );
   const [assignment, setAssignment] = useState(initialData.assignment || "");
   const [uploadType, setUploadType] = useState("url");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  // 유튜브 비디오 ID 추출 함수
+  const getYouTubeVideoId = (url: string) => {
+    try {
+      // 다양한 유튜브 URL 형식 처리
+      const patterns = [
+        /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+        /youtube\.com\/shorts\/([^&\n?#]+)/,
+      ];
+
+      for (const pattern of patterns) {
+        const match = url.match(pattern);
+        if (match && match[1]) {
+          return match[1];
+        }
+      }
+      return null;
+    } catch (e) {
+      console.error("비디오 ID 추출 실패:", e);
+      return null;
+    }
+  };
+
+  // URL이 유튜브 URL인지 확인
+  const isYouTubeUrl = (url: string) => {
+    return url.includes("youtube.com") || url.includes("youtu.be");
+  };
+
+  // URL이 Supabase Storage URL인지 확인
+  const isSupabaseStorageUrl = (url: string) => {
+    return url.includes("supabase.co/storage/v1");
+  };
+
+  // Supabase Storage URL을 공개 URL로 변환
+  const getPublicUrl = (url: string) => {
+    if (isSupabaseStorageUrl(url)) {
+      // URL에서 파일 경로 추출
+      const pathMatch = url.match(
+        /\/storage\/v1\/object\/public\/videos\/(.+)/,
+      );
+      if (pathMatch && pathMatch[1]) {
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("videos").getPublicUrl(pathMatch[1]);
+        return publicUrl;
+      }
+    }
+    return url;
+  };
 
   // 챌린지 데이터 가져오기
   const { data: challenges = [], isLoading: isLoadingChallenges } = useQuery<
@@ -119,6 +172,7 @@ export default function LectureForm({
       setTitle(lectureDetail.name);
       setDescription(lectureDetail.description);
       setVideoUrl(lectureDetail.url);
+      setUploadType(lectureDetail.upload_type === 0 ? "url" : "file");
 
       // 과제 정보 설정
       if (lectureDetail.Assignments?.[0]) {
@@ -171,6 +225,27 @@ export default function LectureForm({
     return challenge?.lecture_num || 0;
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      setVideoUrl(""); // URL 입력 필드 초기화
+
+      // 비디오 미리보기 URL 생성
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    }
+  };
+
+  // 컴포넌트 언마운트 시 미리보기 URL 해제
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -186,6 +261,8 @@ export default function LectureForm({
           assignmentTitle: assignmentTitle.trim(),
           assignment: assignment.trim(),
           challengeOrders: challengeOrders,
+          file: selectedFile,
+          upload_type: uploadType === "url" ? 0 : 1,
         };
 
         console.log("수정 전송 데이터:", updateData);
@@ -207,8 +284,13 @@ export default function LectureForm({
           return;
         }
 
-        if (!videoUrl.trim()) {
+        if (uploadType === "url" && !videoUrl.trim()) {
           toast.error("영상 URL을 입력해주세요.");
+          return;
+        }
+
+        if (uploadType === "file" && !selectedFile) {
+          toast.error("영상 파일을 선택해주세요.");
           return;
         }
 
@@ -221,6 +303,8 @@ export default function LectureForm({
           assignmentTitle: assignmentTitle.trim(),
           assignment: assignment.trim(),
           challengeOrders: challengeOrders,
+          file: selectedFile,
+          upload_type: uploadType === "url" ? 0 : 1,
         };
 
         console.log("강의 추가 시도:", lectureData);
@@ -237,6 +321,7 @@ export default function LectureForm({
         setSelectedChallenges([]);
         setAssignmentTitle("");
         setAssignment("");
+        setSelectedFile(null);
 
         toast.success("강의가 추가되었습니다.");
       }
@@ -329,9 +414,29 @@ export default function LectureForm({
                   드래그 앤 드롭
                 </p>
                 <p className="text-xs text-gray-500">MP4, MOV (최대 500MB)</p>
+                {selectedFile && (
+                  <p className="mt-2 text-sm text-white">
+                    선택된 파일: {selectedFile.name}
+                  </p>
+                )}
               </div>
-              <input id="video-upload" type="file" className="hidden" />
+              <input
+                id="video-upload"
+                type="file"
+                accept="video/mp4,video/quicktime"
+                onChange={handleFileChange}
+                className="hidden"
+              />
             </label>
+          </div>
+        )}
+        {previewUrl && (
+          <div className="mt-2 aspect-video relative rounded-lg overflow-hidden">
+            <video
+              src={previewUrl}
+              className="w-full h-full object-cover"
+              controls
+            />
           </div>
         )}
       </div>
