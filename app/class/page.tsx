@@ -8,6 +8,7 @@ import DailyLectureSection from "@/components/daily-lecture/daily-lecture-sectio
 import { AssignmentSubmissionSection } from "@/components/daily-assignment/assignment-submission-section";
 import { getUserLectures } from "@/apis/lectures";
 import { Lecture } from "@/types/lecture";
+import { useSelectedLectureStore } from "@/lib/store/useSelectedLectureStore";
 
 export default function ClassPage() {
   const router = useRouter();
@@ -22,6 +23,10 @@ export default function ClassPage() {
     },
     enabled: !!user?.id,
   });
+
+  const onSelectedLecture = useSelectedLectureStore(
+    (state) => state.setSelectedLecture,
+  );
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -39,8 +44,11 @@ export default function ClassPage() {
       });
     }
 
-    console.log("현재 강의:", lectures[0]);
-  }, [user, isLoading, router, lectures]);
+    if (lectures && lectures.length > 0) {
+      onSelectedLecture(lectures[0]);
+      console.log("현재 강의:", lectures[0]);
+    }
+  }, [user, isLoading, router, lectures, onSelectedLecture]);
 
   if (isLoading) {
     return <div>로딩 중...</div>;
@@ -49,13 +57,6 @@ export default function ClassPage() {
   if (!user) {
     return null;
   }
-
-  // open_at 기준으로 가장 최근 강의 선택
-  const currentLecture = lectures.reduce((latest, lecture) => {
-    const latestDate = new Date(latest.open_at).getTime();
-    const currentDate = new Date(lecture.open_at).getTime();
-    return currentDate > latestDate ? lecture : latest;
-  }, lectures[0]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#1A1D29] to-[#252A3C] text-white">
