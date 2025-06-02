@@ -73,11 +73,12 @@ export default function LecturePlayer({
               <div className="absolute inset-0 bg-black/30" />
               {upload_type === 0 ? (
                 getVideoThumbnailUrl(upload_type, lectureUrl) && (
-                  <img
+                  <Image
                     src={
                       getVideoThumbnailUrl(upload_type, lectureUrl) || undefined
                     }
                     alt={title}
+                    fill
                     className="w-full h-full object-cover"
                   />
                 )
