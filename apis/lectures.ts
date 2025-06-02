@@ -687,9 +687,13 @@ export async function getUserLectures(userId: number) {
       throw new Error("사용자가 속한 챌린지를 찾을 수 없습니다.");
     }
 
-    console.log("챌린지 데이터:", JSON.stringify(challengeData, null, 2));
+    // 서버 시간을 사용하여 현재 진행 중인 챌린지 필터링
+    const { data: serverTime, error: timeError } = await supabase.rpc(
+      "get_server_time",
+    );
+    if (timeError) throw timeError;
 
-    const currentDate = new Date().toISOString().split("T")[0]; // 'YYYY-MM-DD' 형식으로 변환
+    const currentDate = serverTime.split("T")[0]; // 'YYYY-MM-DD' 형식으로 변환
 
     // 2. 현재 진행 중인 챌린지 ID만 필터링
     const activeChallengeIds = (challengeData as unknown as ChallengeUser[])
@@ -727,7 +731,7 @@ export async function getUserLectures(userId: number) {
       `,
       )
       .in("challenge_id", activeChallengeIds)
-      .order("created_at", { ascending: true });
+      .order("open_at", { ascending: true });
 
     if (lectureError) throw lectureError;
 
