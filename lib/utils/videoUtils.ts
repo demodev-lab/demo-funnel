@@ -16,6 +16,11 @@ export const getYouTubeVideoId = (url: string) => {
   }
 };
 
+export const getYouTubeEmbedUrl = (url: string) => {
+  const videoId = getYouTubeVideoId(url);
+  return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+};
+
 export const getVideoThumbnailUrl = (upload_type: number, url: string) => {
   if (upload_type === 0) {
     // YouTube 동영상인 경우

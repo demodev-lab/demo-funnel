@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { Play, Pause, Bookmark, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getUploadTypeFromUrl, getVideoThumbnailUrl } from '@/lib/utils/videoUtils';
+import { getUploadTypeFromUrl, getVideoThumbnailUrl, getYouTubeEmbedUrl } from '@/lib/utils/videoUtils';
 
 interface LecturePlayerProps {
   title: string;
@@ -50,7 +50,7 @@ export default function LecturePlayer({
         {isPlaying ? (
           <div className="relative h-full w-full">
             <iframe
-              src={`https://www.youtube.com/embed/${lectureUrl.split("v=")[1]}?autoplay=1`}
+              src={`${getYouTubeEmbedUrl(lectureUrl)}?autoplay=1`}
               className="absolute inset-0 w-full h-full"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
