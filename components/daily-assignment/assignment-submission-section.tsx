@@ -7,18 +7,17 @@ import { useQuery } from '@tanstack/react-query';
 import { getAssignment } from '@/apis/assignments';
 import { userInfo } from '@/types/user';
 import axios from 'axios';
+import { useSelectedLectureStore } from '@/lib/store/useSelectedLectureStore';
 
 interface AssignmentSubmissionSectionProps {
   userInfo: userInfo;
-  lectureId: number;
-  challengeLectureId: number;
 }
 
 export function AssignmentSubmissionSection({
   userInfo,
-  lectureId,
-  challengeLectureId,
 }: AssignmentSubmissionSectionProps) {
+  const {lectureId, challengeLectureId} = useSelectedLectureStore();
+
   const { data: assignmentInfo = [] } = useQuery({
     queryKey: ['assignment-info', lectureId],
     queryFn: async () => {

@@ -4,17 +4,17 @@ import { useEffect } from "react";
 import { useUser } from "@/hooks/auth/use-user";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import DailyLectureSection from '@/components/daily-lecture/daily-lecture-section';
-import { AssignmentSubmissionSection } from '@/components/daily-assignment/assignment-submission-section';
-import { getUserLectures } from '@/apis/lectures';
-import { Lecture } from '@/types/lecture';
+import DailyLectureSection from "@/components/daily-lecture/daily-lecture-section";
+import { AssignmentSubmissionSection } from "@/components/daily-assignment/assignment-submission-section";
+import { getUserLectures } from "@/apis/lectures";
+import { Lecture } from "@/types/lecture";
 
 export default function ClassPage() {
   const router = useRouter();
   const { data: user, isLoading } = useUser();
 
   const { data: lectures = [] } = useQuery({
-    queryKey: ['daily-lectures', user?.id],
+    queryKey: ["daily-lectures", user?.id],
     queryFn: async () => {
       const data = await getUserLectures(user.id);
       // console.log('강의 데이터:', data);
@@ -39,7 +39,7 @@ export default function ClassPage() {
       });
     }
 
-    console.log('현재 강의:', lectures[0]);
+    console.log("현재 강의:", lectures[0]);
   }, [user, isLoading, router, lectures]);
 
   if (isLoading) {
@@ -56,7 +56,7 @@ export default function ClassPage() {
     const currentDate = new Date(lecture.open_at).getTime();
     return currentDate > latestDate ? lecture : latest;
   }, lectures[0]);
-  
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#1A1D29] to-[#252A3C] text-white">
       <div className="container mx-auto px-4 py-12">
@@ -83,11 +83,7 @@ export default function ClassPage() {
                 <DailyLectureSection lectures={lectures} />
               </div>
 
-              <AssignmentSubmissionSection 
-                userInfo={user} 
-                lectureId={currentLecture?.id}
-                challengeLectureId={currentLecture?.challenge_lecture_id}
-              />
+              <AssignmentSubmissionSection userInfo={user} />
             </div>
           </div>
         </div>
