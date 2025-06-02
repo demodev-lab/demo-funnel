@@ -1,282 +1,26 @@
 "use client";
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import Header from "@/components/admin/header";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  getChallenges,
-  createChallenge,
-  deleteChallenge,
-  updateChallenge,
-  ChallengeFormData,
-} from "@/apis/challenges";
-import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
+import { CHALLENGE_COLUMNS } from "@/constants/challenge";
+import { useChallenges } from "@/hooks/admin/useChallenges";
+import { Challenge } from "@/types/challenge";
+import LoadingState from "@/components/admin/challenges/loading-state";
+import ErrorState from "@/components/admin/challenges/error-state";
+import AddChallengeDialog from "@/components/admin/challenges/add-challenge-dialog";
+import EditChallengeDialog from "@/components/admin/challenges/edit-challenge-dialog";
 import InfoTable from "@/components/admin/info-table";
-
-interface Challenge {
-  id: number;
-  name: string;
-  open_date: string;
-  close_date: string;
-  lecture_num: number;
-  created_at?: string;
-  updated_at?: string;
-  startDate?: Date;
-  endDate?: Date;
-  lectureCount?: number;
-}
+import { Button } from "@/components/ui/button";
+import PageTitle from "@/components/ui/page-title";
 
 export default function ChallengesPage() {
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [editingChallenge, setEditingChallenge] = useState<Challenge | null>(
-    null,
-  );
-  const [deletingId, setDeletingId] = useState<number | null>(null);
-  const [newChallenge, setNewChallenge] = useState<ChallengeFormData>({
-    name: "",
-    open_date: new Date().toISOString().split("T")[0],
-    close_date: new Date().toISOString().split("T")[0],
-    lecture_num: 0,
-  });
+  const { state, status, dialog, actions } = useChallenges();
 
-  const queryClient = useQueryClient();
-
-  // 챌린지 목록 조회
-  const {
-    data: challenges = [],
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["challenges"],
-    queryFn: getChallenges,
-  });
-
-  // 챌린지 추가
-  const { mutate: createChallengeMutation, isPending: isCreating } =
-    useMutation({
-      mutationFn: (data: ChallengeFormData) => createChallenge(data),
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["challenges"] });
-        toast.success("챌린지가 성공적으로 추가되었습니다.");
-        setIsAddDialogOpen(false);
-        setNewChallenge({
-          name: "",
-          open_date: new Date().toISOString().split("T")[0],
-          close_date: new Date().toISOString().split("T")[0],
-          lecture_num: 0,
-        });
-      },
-      onError: (error: Error) => {
-        toast.error(error.message || "챌린지 추가 중 오류가 발생했습니다.");
-      },
-    });
-
-  // 챌린지 삭제
-  const { mutate: removeChallenge, isPending: isDeleting } = useMutation({
-    mutationFn: (id: number) => deleteChallenge(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["challenges"] });
-      toast.success("챌린지가 성공적으로 삭제되었습니다.");
-      setDeletingId(null);
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || "챌린지 삭제 중 오류가 발생했습니다.");
-      setDeletingId(null);
-    },
-  });
-
-  // 챌린지 수정
-  const { mutate: modifyChallenge, isPending: isUpdating } = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: Partial<Challenge> }) =>
-      updateChallenge(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["challenges"] });
-      toast.success("챌린지가 성공적으로 수정되었습니다.");
-      setIsEditDialogOpen(false);
-      setEditingChallenge(null);
-    },
-    onError: (error) => {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "챌린지 수정 중 오류가 발생했습니다.",
-      );
-    },
-  });
-
-  // 날짜 차이를 계산하는 함수 추가
-  const calculateLectureCount = (startDate: Date, endDate: Date): number => {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-
-    // 시작일과 종료일을 포함하므로 +1
-    const diffTime = Math.abs(end.getTime() - start.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-
-    return diffDays;
-  };
-
-  // 새 챌린지 추가 시 날짜 변경 핸들러 수정
-  const handleNewChallengeDateChange = (
-    field: "open_date" | "close_date",
-    value: string,
-  ) => {
-    const updatedChallenge = { ...newChallenge, [field]: value };
-    const startDate = new Date(updatedChallenge.open_date);
-    const endDate = new Date(updatedChallenge.close_date);
-
-    if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
-      updatedChallenge.lecture_num = calculateLectureCount(startDate, endDate);
-    }
-
-    setNewChallenge(updatedChallenge);
-  };
-
-  // 챌린지 수정 시 날짜 변경 핸들러 수정
-  const handleEditChallengeDateChange = (
-    field: "startDate" | "endDate",
-    value: string,
-  ) => {
-    if (!editingChallenge) return;
-
-    const updatedChallenge = { ...editingChallenge };
-    updatedChallenge[field] = new Date(value);
-
-    if (updatedChallenge.startDate && updatedChallenge.endDate) {
-      updatedChallenge.lectureCount = calculateLectureCount(
-        updatedChallenge.startDate,
-        updatedChallenge.endDate,
-      );
-    }
-
-    setEditingChallenge(updatedChallenge);
-  };
-
-  const handleAddChallenge = () => {
-    if (
-      !newChallenge.name ||
-      !newChallenge.open_date ||
-      !newChallenge.close_date
-    ) {
-      toast.error("모든 필수 항목을 입력해주세요.");
-      return;
-    }
-
-    // 날짜 유효성 검사
-    const openDate = new Date(newChallenge.open_date);
-    const closeDate = new Date(newChallenge.close_date);
-
-    if (closeDate <= openDate) {
-      toast.error("종료일은 시작일보다 늦어야 합니다.");
-      return;
-    }
-
-    if (newChallenge.lecture_num <= 0) {
-      toast.error("강의 개수는 1개 이상이어야 합니다.");
-      return;
-    }
-
-    createChallengeMutation(newChallenge);
-  };
-
-  const handleDeleteChallenge = (id: number) => {
-    if (window.confirm("정말로 이 챌린지를 삭제하시겠습니까?")) {
-      setDeletingId(id);
-      removeChallenge(id);
-    }
-  };
-
-  const handleEditChallenge = (challenge: Challenge) => {
-    const editChallenge = {
-      ...challenge,
-      startDate: new Date(challenge.open_date),
-      endDate: new Date(challenge.close_date),
-      lectureCount: challenge.lecture_num,
-    };
-    setEditingChallenge(editChallenge);
-    setIsEditDialogOpen(true);
-  };
-
-  const handleUpdateChallenge = () => {
-    if (!editingChallenge) return;
-
-    if (
-      !editingChallenge.name ||
-      !editingChallenge.startDate ||
-      !editingChallenge.endDate
-    ) {
-      toast.error("모든 필수 항목을 입력해주세요.");
-      return;
-    }
-
-    // 날짜 유효성 검사
-    const openDate = editingChallenge.startDate;
-    const closeDate = editingChallenge.endDate;
-
-    if (closeDate <= openDate) {
-      toast.error("종료일은 시작일보다 늦어야 합니다.");
-      return;
-    }
-
-    if (editingChallenge.lectureCount && editingChallenge.lectureCount <= 0) {
-      toast.error("강의 개수는 1개 이상이어야 합니다.");
-      return;
-    }
-
-    modifyChallenge({
-      id: editingChallenge.id,
-      data: {
-        name: editingChallenge.name,
-        open_date: editingChallenge.startDate.toISOString().split("T")[0],
-        close_date: editingChallenge.endDate.toISOString().split("T")[0],
-        lecture_num: editingChallenge.lectureCount || 0,
-      },
-    });
-  };
-
-  const columns = [
-    { header: "기수 이름", accessor: "name" },
-    {
-      header: "시작일",
-      accessor: "open_date",
-      cell: (value: string) => new Date(value).toLocaleDateString("ko-KR"),
-    },
-    {
-      header: "종료일",
-      accessor: "close_date",
-      cell: (value: string) => new Date(value).toLocaleDateString("ko-KR"),
-    },
-    {
-      header: "강의 개수",
-      accessor: "lecture_num",
-      cell: (value: number) => `${value}개`,
-    },
-  ];
+  if (status.isLoading) return <LoadingState />;
+  if (status.error) return <ErrorState error={status.error} />;
 
   const renderActions = (challenge: Challenge) => (
     <>
       <Button
-        onClick={() => handleEditChallenge(challenge)}
+        onClick={() => actions.handleEditChallenge(challenge)}
         variant="ghost"
         className="h-8 w-8 p-0 mr-1 text-gray-400 hover:text-[#8C7DFF] hover:bg-[#1A1D29]/60"
       >
@@ -296,7 +40,7 @@ export default function ChallengesPage() {
         </svg>
       </Button>
       <Button
-        onClick={() => handleDeleteChallenge(challenge.id)}
+        onClick={() => actions.handleDeleteChallenge(challenge.id)}
         variant="ghost"
         className="h-8 w-8 p-0 text-gray-400 hover:text-red-400 hover:bg-[#1A1D29]/60"
       >
@@ -321,225 +65,47 @@ export default function ChallengesPage() {
     </>
   );
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
-        <span className="ml-2 text-gray-500">챌린지 목록을 불러오는 중...</span>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <p className="text-red-500">오류가 발생했습니다</p>
-        <p className="text-sm text-gray-500 mt-2">
-          {error instanceof Error
-            ? error.message
-            : "알 수 없는 오류가 발생했습니다."}
-        </p>
-        <Button
-          onClick={() => window.location.reload()}
-          variant="outline"
-          className="mt-4"
-        >
-          페이지 새로고침
-        </Button>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold">
-        <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#5046E4] to-[#8C7DFF]">
-          챌린지 관리
-        </span>
-      </h1>
+      <PageTitle title="챌린지 관리" />
       <div className="flex justify-end">
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-gradient-to-r from-[#5046E4] to-[#6A5AFF] hover:brightness-110 text-white shadow-md hover:shadow-xl transition-all duration-300">
-              챌린지 추가
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="bg-[#252A3C] border-gray-700/30 text-white">
-            <DialogHeader>
-              <DialogTitle className="text-white">새 챌린지 추가</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="name" className="text-gray-300">
-                  기수 이름
-                </Label>
-                <Input
-                  id="name"
-                  value={newChallenge.name}
-                  className="bg-[#1A1D29]/70 border-gray-700/50 text-white placeholder:text-gray-500 focus:border-[#5046E4] focus:ring-[#5046E4]/20"
-                  onChange={(e) =>
-                    setNewChallenge({
-                      ...newChallenge,
-                      name: e.target.value,
-                    })
-                  }
-                  disabled={isCreating}
-                  placeholder="예: 2024년 1기"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="open_date" className="text-gray-300">
-                  시작일
-                </Label>
-                <Input
-                  id="open_date"
-                  type="date"
-                  className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20"
-                  value={newChallenge.open_date}
-                  onChange={(e) =>
-                    handleNewChallengeDateChange("open_date", e.target.value)
-                  }
-                  disabled={isCreating}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="close_date" className="text-gray-300">
-                  종료일
-                </Label>
-                <Input
-                  id="close_date"
-                  type="date"
-                  className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20"
-                  value={newChallenge.close_date}
-                  onChange={(e) =>
-                    handleNewChallengeDateChange("close_date", e.target.value)
-                  }
-                  disabled={isCreating}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="lecture_num" className="text-gray-300">
-                  강의 개수
-                </Label>
-                <Input
-                  id="lecture_num"
-                  type="number"
-                  className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20"
-                  value={newChallenge.lecture_num}
-                  disabled={true}
-                  readOnly
-                />
-                <p className="text-sm text-gray-400">
-                  강의 개수는 시작일과 종료일을 기준으로 자동 계산됩니다.
-                </p>
-              </div>
-              <Button
-                onClick={handleAddChallenge}
-                className="w-full"
-                disabled={isCreating}
-              >
-                {isCreating ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    추가 중...
-                  </>
-                ) : (
-                  "추가"
-                )}
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <AddChallengeDialog
+          isOpen={dialog.isAddDialogOpen}
+          onOpenChange={dialog.setIsAddDialogOpen}
+          newChallenge={state.newChallenge}
+          onNewChallengeChange={(_, value) =>
+            actions.setNewChallenge({ ...state.newChallenge, name: value })
+          }
+          onDateChange={actions.handleNewChallengeDateChange}
+          onSubmit={actions.handleAddChallenge}
+          isCreating={status.isCreating}
+        />
       </div>
 
       <InfoTable
-        columns={columns}
-        data={challenges}
-        isLoading={isLoading}
-        error={error instanceof Error ? error : null}
+        columns={CHALLENGE_COLUMNS}
+        data={state.challenges}
+        isLoading={status.isLoading}
+        error={status.error instanceof Error ? status.error : null}
         emptyMessage="등록된 챌린지가 없습니다."
         actions={renderActions}
       />
 
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="bg-[#252A3C] border-gray-700/30 text-white">
-          <DialogHeader>
-            <DialogTitle className="text-white">챌린지 수정</DialogTitle>
-          </DialogHeader>
-          {editingChallenge && (
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="edit-name" className="text-gray-300">
-                  기수 이름
-                </Label>
-                <Input
-                  id="edit-name"
-                  value={editingChallenge.name}
-                  className="bg-[#1A1D29]/70 border-gray-700/50 text-white placeholder:text-gray-500 focus:border-[#5046E4] focus:ring-[#5046E4]/20"
-                  onChange={(e) =>
-                    setEditingChallenge({
-                      ...editingChallenge,
-                      name: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-startDate" className="text-gray-300">
-                  시작일
-                </Label>
-                <Input
-                  id="edit-startDate"
-                  type="date"
-                  className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20"
-                  value={
-                    editingChallenge.startDate?.toISOString().split("T")[0]
-                  }
-                  onChange={(e) =>
-                    handleEditChallengeDateChange("startDate", e.target.value)
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-endDate" className="text-gray-300">
-                  종료일
-                </Label>
-                <Input
-                  id="edit-endDate"
-                  type="date"
-                  className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20"
-                  value={editingChallenge.endDate?.toISOString().split("T")[0]}
-                  onChange={(e) =>
-                    handleEditChallengeDateChange("endDate", e.target.value)
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-lectureCount" className="text-gray-300">
-                  강의 개수
-                </Label>
-                <Input
-                  id="edit-lectureCount"
-                  type="number"
-                  className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20"
-                  value={editingChallenge.lectureCount || 0}
-                  disabled={true}
-                  readOnly
-                />
-                <p className="text-sm text-gray-400">
-                  강의 개수는 시작일과 종료일을 기준으로 자동 계산됩니다.
-                </p>
-              </div>
-              <Button
-                onClick={handleUpdateChallenge}
-                className="w-full bg-gradient-to-r from-[#5046E4] to-[#6A5AFF] hover:brightness-110 text-white shadow-md hover:shadow-xl transition-all duration-300"
-              >
-                수정 완료
-              </Button>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      <EditChallengeDialog
+        isOpen={dialog.isEditDialogOpen}
+        onOpenChange={dialog.setIsEditDialogOpen}
+        challenge={state.editingChallenge}
+        onChallengeChange={(_, value) =>
+          actions.setEditingChallenge(
+            state.editingChallenge
+              ? { ...state.editingChallenge, name: value }
+              : state.editingChallenge,
+          )
+        }
+        onDateChange={actions.handleEditChallengeDateChange}
+        onSubmit={actions.handleUpdateChallenge}
+        isUpdating={status.isUpdating}
+      />
     </div>
   );
 }
