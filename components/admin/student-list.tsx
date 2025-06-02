@@ -33,6 +33,7 @@ import {
 import { getChallenges } from "@/apis/challenges";
 import { getUserChallenges } from "@/apis/users";
 import { useChallengeStore } from "@/lib/store/useChallengeStore";
+import InfoTable from "@/components/admin/info-table";
 
 interface ValidationErrors {
   name?: string;
@@ -405,6 +406,62 @@ export default function StudentList() {
       setIsProcessing(false);
     }
   };
+
+  const columns = [
+    { header: "이름", accessor: "name" },
+    { header: "이메일", accessor: "email" },
+    { header: "전화번호", accessor: "phone" },
+  ];
+
+  const renderActions = (student: Student) => (
+    <>
+      <Button
+        onClick={() => handleEditClick(student as Student)}
+        variant="ghost"
+        className="h-8 w-8 p-0 mr-1 text-gray-400 hover:text-[#8C7DFF] hover:bg-[#1A1D29]/60"
+        disabled={updateStudentMutation.isPending}
+      >
+        <span className="sr-only">Edit</span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="h-4 w-4"
+        >
+          <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34" />
+          <polygon points="18 2 22 6 12 16 8 16 8 12 18 2" />
+        </svg>
+      </Button>
+      <Button
+        onClick={() => handleDeleteClick(student.id!)}
+        variant="ghost"
+        className="h-8 w-8 p-0 text-gray-400 hover:text-red-400 hover:bg-[#1A1D29]/60"
+        disabled={deleteStudentMutation.isPending}
+      >
+        <span className="sr-only">Delete</span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="h-4 w-4"
+        >
+          <path d="M3 6h18" />
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+          <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+          <line x1="10" y1="11" x2="10" y2="17" />
+          <line x1="14" y1="11" x2="14" y2="17" />
+        </svg>
+      </Button>
+    </>
+  );
 
   // 로딩 상태
   if (isLoading) {
@@ -819,6 +876,15 @@ export default function StudentList() {
         </div>
       </div>
 
+      <InfoTable
+        columns={columns}
+        data={students}
+        isLoading={isLoading}
+        error={error instanceof Error ? error : null}
+        emptyMessage="등록된 수강생이 없습니다."
+        actions={renderActions}
+      />
+
       {/* 삭제 확인 모달 */}
       <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
         <DialogContent className="bg-[#252A3C] border-gray-700/30 text-white">
@@ -856,61 +922,6 @@ export default function StudentList() {
           </div>
         </DialogContent>
       </Dialog>
-
-      <div className="bg-[#252A3C] border border-gray-700/30 rounded-xl overflow-hidden shadow-lg">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-gray-700/30 bg-[#1A1D29]/60">
-              <th className="px-4 py-2 text-left text-gray-300">이름</th>
-              <th className="px-4 py-2 text-left text-gray-300">이메일</th>
-              <th className="px-4 py-2 text-left text-gray-300">전화번호</th>
-              <th className="px-4 py-2 text-center text-gray-300">관리</th>
-            </tr>
-          </thead>
-          <tbody>
-            {students.length === 0 ? (
-              <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-gray-400">
-                  등록된 수강생이 없습니다.
-                </td>
-              </tr>
-            ) : (
-              students.map((student) => (
-                <tr
-                  key={student.id}
-                  className="border-b border-gray-700/30 hover:bg-[#1C1F2B]/50"
-                >
-                  <td className="px-4 py-2 text-gray-300">{student.name}</td>
-                  <td className="px-4 py-2 text-gray-400">{student.email}</td>
-                  <td className="px-4 py-2 text-gray-400">{student.phone}</td>
-                  <td className="px-4 py-2 text-center">
-                    <div className="flex justify-center space-x-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="border-gray-700/30 bg-[#1A1D29]/50 text-gray-300 hover:bg-[#1A1D29]/70 hover:text-white"
-                        onClick={() => handleEditClick(student as Student)}
-                        disabled={updateStudentMutation.isPending}
-                      >
-                        수정
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300"
-                        onClick={() => handleDeleteClick(student.id!)}
-                        disabled={deleteStudentMutation.isPending}
-                      >
-                        삭제
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
     </>
   );
 }

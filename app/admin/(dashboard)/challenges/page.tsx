@@ -30,6 +30,7 @@ import {
 } from "@/apis/challenges";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import InfoTable from "@/components/admin/info-table";
 
 interface Challenge {
   id: number;
@@ -253,6 +254,73 @@ export default function ChallengesPage() {
     });
   };
 
+  const columns = [
+    { header: "기수 이름", accessor: "name" },
+    {
+      header: "시작일",
+      accessor: "open_date",
+      cell: (value: string) => new Date(value).toLocaleDateString("ko-KR"),
+    },
+    {
+      header: "종료일",
+      accessor: "close_date",
+      cell: (value: string) => new Date(value).toLocaleDateString("ko-KR"),
+    },
+    {
+      header: "강의 개수",
+      accessor: "lecture_num",
+      cell: (value: number) => `${value}개`,
+    },
+  ];
+
+  const renderActions = (challenge: Challenge) => (
+    <>
+      <Button
+        onClick={() => handleEditChallenge(challenge)}
+        variant="ghost"
+        className="h-8 w-8 p-0 mr-1 text-gray-400 hover:text-[#8C7DFF] hover:bg-[#1A1D29]/60"
+      >
+        <span className="sr-only">Edit</span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="h-4 w-4"
+        >
+          <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34" />
+          <polygon points="18 2 22 6 12 16 8 16 8 12 18 2" />
+        </svg>
+      </Button>
+      <Button
+        onClick={() => handleDeleteChallenge(challenge.id)}
+        variant="ghost"
+        className="h-8 w-8 p-0 text-gray-400 hover:text-red-400 hover:bg-[#1A1D29]/60"
+      >
+        <span className="sr-only">Delete</span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="h-4 w-4"
+        >
+          <path d="M3 6h18" />
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+          <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+          <line x1="10" y1="11" x2="10" y2="17" />
+          <line x1="14" y1="11" x2="14" y2="17" />
+        </svg>
+      </Button>
+    </>
+  );
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -384,93 +452,14 @@ export default function ChallengesPage() {
         </Dialog>
       </div>
 
-      <div className="bg-[#252A3C] border border-gray-700/30 rounded-xl overflow-hidden shadow-lg">
-        <Table>
-          <TableHeader className="bg-[#1A1D29]/60">
-            <TableRow className="hover:bg-transparent">
-              <TableHead>기수 이름</TableHead>
-              <TableHead>시작일</TableHead>
-              <TableHead>종료일</TableHead>
-              <TableHead>강의 개수</TableHead>
-              <TableHead className="text-right">관리</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {challenges.length === 0 ? (
-              <TableRow>
-                <TableCell
-                  colSpan={5}
-                  className="text-center text-gray-400 py-8"
-                >
-                  등록된 챌린지가 없습니다.
-                </TableCell>
-              </TableRow>
-            ) : (
-              challenges.map((challenge) => (
-                <TableRow key={challenge.id} className="hover:bg-[#1C1F2B]/50">
-                  <TableCell className="font-medium text-gray-300">
-                    {challenge.name}
-                  </TableCell>
-                  <TableCell className="text-gray-400">
-                    {new Date(challenge.open_date).toLocaleDateString("ko-KR")}
-                  </TableCell>
-                  <TableCell className="text-gray-400">
-                    {new Date(challenge.close_date).toLocaleDateString("ko-KR")}
-                  </TableCell>
-                  <TableCell className="text-gray-300">
-                    {challenge.lecture_num}개
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      onClick={() => handleEditChallenge(challenge)}
-                      variant="ghost"
-                      className="h-8 w-8 p-0 mr-1 text-gray-400 hover:text-[#8C7DFF] hover:bg-[#1A1D29]/60"
-                    >
-                      <span className="sr-only">Edit</span>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="h-4 w-4"
-                      >
-                        <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34" />
-                        <polygon points="18 2 22 6 12 16 8 16 8 12 18 2" />
-                      </svg>
-                    </Button>
-                    <Button
-                      onClick={() => handleDeleteChallenge(challenge.id)}
-                      variant="ghost"
-                      className="h-8 w-8 p-0 text-gray-400 hover:text-red-400 hover:bg-[#1A1D29]/60"
-                    >
-                      <span className="sr-only">Delete</span>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="h-4 w-4"
-                      >
-                        <path d="M3 6h18" />
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
-                        <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                        <line x1="10" y1="11" x2="10" y2="17" />
-                        <line x1="14" y1="11" x2="14" y2="17" />
-                      </svg>
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <InfoTable
+        columns={columns}
+        data={challenges}
+        isLoading={isLoading}
+        error={error instanceof Error ? error : null}
+        emptyMessage="등록된 챌린지가 없습니다."
+        actions={renderActions}
+      />
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="bg-[#252A3C] border-gray-700/30 text-white">
