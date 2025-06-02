@@ -1,7 +1,10 @@
 import Image from "next/image";
 import { Lock, Calendar } from "lucide-react";
-import { getUploadTypeFromUrl, getVideoThumbnailUrl } from '@/lib/utils/videoUtils';
-import { Lecture } from '@/types/lecture';
+import {
+  getUploadTypeFromUrl,
+  getVideoThumbnailUrl,
+} from "@/lib/utils/videoUtils";
+import { Lecture } from "@/types/lecture";
 
 interface DailyLectureItemProps {
   dailyLecture: Lecture;
@@ -16,41 +19,44 @@ export default function DailyLectureItem({
   onVideoSelect,
   videoIndex,
 }: DailyLectureItemProps) {
-
   const upload_type = getUploadTypeFromUrl(dailyLecture.url);
-  const locked = new Date(dailyLecture.open_at) > new Date()
+  const locked = new Date(dailyLecture.open_at) > new Date();
 
   return (
     <div
       className="relative rounded-xl overflow-hidden cursor-pointer transition-all duration-300 shadow-md hover:shadow-xl border border-gray-700/30 hover:border-gray-600/50 group"
       onClick={() =>
-        locked
-          ? onLockedClick(dailyLecture.name)
-          : onVideoSelect(videoIndex)
+        locked ? onLockedClick(dailyLecture.name) : onVideoSelect(videoIndex)
       }
     >
       <div className="aspect-video bg-gray-800 relative transform group-hover:-translate-y-1 transition-transform duration-300">
         {upload_type === 0 ? (
           // YouTube 동영상인 경우 Image 태그 사용
           <Image
-            src={getVideoThumbnailUrl(upload_type, dailyLecture.url) || undefined}
+            src={
+              getVideoThumbnailUrl(upload_type, dailyLecture.url) || undefined
+            }
             alt={dailyLecture.name}
             fill
             priority={videoIndex === 0}
-            className={`object-cover transition-all duration-500 ${locked ? "opacity-40 blur-[1px]" : "hover:scale-105"}`}
+            className={`object-cover transition-all duration-500 ${
+              locked ? "opacity-40 blur-[1px]" : "hover:scale-105"
+            }`}
           />
         ) : (
           // 직접 업로드 동영상인 경우 Video 태그 사용
           <video
             src={dailyLecture.url}
-            className={`w-full h-full object-cover ${locked ? "opacity-40 blur-[1px]" : ""}`}
+            className={`w-full h-full object-cover ${
+              locked ? "opacity-40 blur-[1px]" : ""
+            }`}
             preload="metadata"
             muted
             playsInline
             controlsList="no-controls"
           />
         )}
-        
+
         {locked ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 perspective-0">
             <div className="transform-none will-change-transform flex flex-col items-center justify-center">
