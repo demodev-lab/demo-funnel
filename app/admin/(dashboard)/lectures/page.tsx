@@ -15,7 +15,7 @@ import { getLecturesByChallenge, deleteLecture } from "@/apis/lectures";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useChallengeStore } from "@/lib/store/useChallengeStore";
-import { getVideoThumbnailUrl, getYouTubeVideoId } from '@/lib/utils/videoUtils';
+import { getVideoThumbnailUrl, getYouTubeEmbedUrl, getYouTubeVideoId } from '@/lib/utils/videoUtils';
 
 interface Lecture {
   id: number;
@@ -34,11 +34,6 @@ const getYouTubeThumbnailUrl = (url: string) => {
   const videoId = getYouTubeVideoId(url);
   console.log("URL:", url, "Video ID:", videoId);
   return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : null;
-};
-
-const getYouTubeEmbedUrl = (url: string) => {
-  const videoId = getYouTubeVideoId(url);
-  return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
 };
 
 export default function LecturesPage() {
