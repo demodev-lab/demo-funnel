@@ -11,6 +11,7 @@ interface LecturePlayerProps {
   title: string;
   description: string;
   lectureUrl: string;
+  lectureUrl: string;
   isPlaying: boolean;
   onTogglePlay: () => void;
 }
@@ -18,6 +19,7 @@ interface LecturePlayerProps {
 export default function LecturePlayer({
   title,
   description,
+  lectureUrl,
   lectureUrl,
   isPlaying,
   onTogglePlay,
@@ -53,6 +55,7 @@ export default function LecturePlayer({
         {isPlaying ? (
           <div className="relative h-full w-full">
             <iframe
+              src={`${getYouTubeEmbedUrl(lectureUrl)}?autoplay=1`}
               src={`${getYouTubeEmbedUrl(lectureUrl)}?autoplay=1`}
               className="absolute inset-0 w-full h-full"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
