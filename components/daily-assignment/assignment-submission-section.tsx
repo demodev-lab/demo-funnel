@@ -1,6 +1,6 @@
 "use client";
 
-import { FileText, Clock, CheckCircle } from "lucide-react";
+import { FileText, Clock, CheckCircle, AlertCircle } from "lucide-react";
 import { AssignmentSubmissionItem } from "./assignment-submission-item";
 import { AssignmentSubmissionForm } from "./assignment-submission-form";
 import { useQuery } from "@tanstack/react-query";
@@ -19,6 +19,7 @@ export function AssignmentSubmissionSection({
 }: AssignmentSubmissionSectionProps) {
   const { lectureId, challengeLectureId, open_at } = useSelectedLectureStore();
   const [serverTime, setServerTime] = useState<string>("");
+  const [timeError, setTimeError] = useState<string>("");
 
   // 서버 시간 가져오기
   useEffect(() => {
@@ -26,8 +27,11 @@ export function AssignmentSubmissionSection({
       try {
         const { data } = await axios.get("/api/server-time");
         setServerTime(data.serverTime);
+        setTimeError("");
       } catch (error) {
-        console.error("서버 시간을 가져오는데 실패했습니다:", error);
+        setTimeError(
+          "일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요. 문제가 지속되면 문의해주세요.",
+        );
       }
     };
     getServerTime();
@@ -80,6 +84,15 @@ export function AssignmentSubmissionSection({
           )}
         </div>
 
+        {timeError && (
+          <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg m-4">
+            <div className="flex items-center text-red-400">
+              <AlertCircle className="h-5 w-5 mr-2" />
+              <span>{timeError}</span>
+            </div>
+          </div>
+        )}
+
         <div className="p-6 bg-[#1A1D29]/30 border-b border-gray-700/50">
           <div className="prose prose-invert max-w-none">
             {assignmentInfo?.contents ? (
@@ -92,7 +105,7 @@ export function AssignmentSubmissionSection({
           </div>
         </div>
 
-        {assignmentInfo?.contents && isTodayLecture && (
+        {!timeError && assignmentInfo?.contents && isTodayLecture && (
           <AssignmentSubmissionForm
             userInfo={userInfo}
             challengeLectureId={challengeLectureId}
