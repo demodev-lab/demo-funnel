@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import DailyLectureItem from "./daily-lecture-item";
 import LecturePlayer from "./lecture-player";
 import {
@@ -9,7 +9,8 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { PlayCircle, Lock, Calendar } from "lucide-react";
-import { Lecture } from '@/types/lecture';
+import { Lecture } from "@/types/lecture";
+import { useSelectedLectureStore } from "@/lib/store/useSelectedLectureStore";
 
 interface DailyLectureSectionProps {
   lectures: Lecture[];
@@ -23,11 +24,17 @@ export default function DailyLectureSection({
   const [isLockedModalOpen, setIsLockedModalOpen] = useState(false);
   const [lockedVideoTitle, setLockedVideoTitle] = useState("");
 
-  const mainLecture = lectures[selectedVideoIdx] ? {
-    title: lectures[selectedVideoIdx].name,
-    description: lectures[selectedVideoIdx].description,
-    lectureUrl: lectures[selectedVideoIdx].url,
-  } : null;
+  const mainLecture = lectures[selectedVideoIdx]
+    ? {
+        title: lectures[selectedVideoIdx].name,
+        description: lectures[selectedVideoIdx].description,
+        lectureUrl: lectures[selectedVideoIdx].url,
+      }
+    : null;
+
+  const onSelectedLecture = useSelectedLectureStore(
+    (state) => state.setSelectedLecture,
+  );
 
   const togglePlay = () => {
     setIsPlaying(!isPlaying);
@@ -80,14 +87,22 @@ export default function DailyLectureSection({
         <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
           {lectures.length > 0 ? (
             lectures.map((lecture, index) => (
-              <div key={lecture.id} className="group">
+              <div
+                key={lecture.id}
+                className="group"
+                onClick={() => onSelectedLecture(lecture)}
+              >
                 <DailyLectureItem
                   dailyLecture={lecture}
                   onLockedClick={handleLockedClick}
                   onVideoSelect={handleVideoSelect}
                   videoIndex={index}
                 />
-                <div className={`mt-2 h-1 bg-gradient-to-r from-[#5046E4] to-[#8C7DFF] rounded-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ${index === selectedVideoIdx ? 'scale-x-100' : ''}`}></div>
+                <div
+                  className={`mt-2 h-1 bg-gradient-to-r from-[#5046E4] to-[#8C7DFF] rounded-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ${
+                    index === selectedVideoIdx ? "scale-x-100" : ""
+                  }`}
+                ></div>
               </div>
             ))
           ) : (
@@ -117,7 +132,9 @@ export default function DailyLectureSection({
             <div className="p-3 bg-[#5046E4]/10 rounded-lg border border-[#5046E4]/20">
               <p className="text-sm flex items-start">
                 <Calendar className="h-4 w-4 mr-2 mt-0.5 text-[#8C7DFF]" />
-                <span>추후 업데이트를 기다려주세요. 완료된 과제를 먼저 제출해보세요!</span>
+                <span>
+                  추후 업데이트를 기다려주세요. 완료된 과제를 먼저 제출해보세요!
+                </span>
               </p>
             </div>
           </div>
