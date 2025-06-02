@@ -32,6 +32,10 @@ export default function DailyLectureSection({
       }
     : null;
 
+  const onSelectedLecture = useSelectedLectureStore(
+    (state) => state.setSelectedLecture,
+  );
+
   const togglePlay = () => {
     setIsPlaying(!isPlaying);
   };
@@ -83,7 +87,11 @@ export default function DailyLectureSection({
         <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
           {lectures.length > 0 ? (
             lectures.map((lecture, index) => (
-              <div key={lecture.id} className="group">
+              <div
+                key={lecture.id}
+                className="group"
+                onClick={() => onSelectedLecture(lecture)}
+              >
                 <DailyLectureItem
                   dailyLecture={lecture}
                   onLockedClick={handleLockedClick}
