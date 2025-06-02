@@ -4,7 +4,9 @@ export interface Lecture {
   description: string;
   url: string;
   created_at: string;
-  challenge_lecture_id: number;
-  open_at: string;
-  challenge_id: string;
+  updated_at: string;
+  upload_type: number;
+  sequence: number;
+  assignment_title?: string;
+  assignment?: string;
 }
