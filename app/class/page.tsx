@@ -46,7 +46,7 @@ export default function ClassPage() {
 
     if (lectures && lectures.length > 0) {
       onSelectedLecture(lectures[0]);
-      console.log("현재 강의:", lectures[0]);
+      // console.log("현재 강의:", lectures[0]);
     }
   }, [user, isLoading, router, lectures, onSelectedLecture]);
 
