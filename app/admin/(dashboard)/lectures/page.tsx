@@ -135,6 +135,7 @@ export default function LecturesPage() {
               <div className="aspect-video relative">
                 {lecture.upload_type === 0 ? (
                   getVideoThumbnailUrl(lecture.upload_type, lecture.url) && (
+                  getVideoThumbnailUrl(lecture.upload_type, lecture.url) && (
                     <img
                       src={
                         getVideoThumbnailUrl(
