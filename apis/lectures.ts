@@ -731,7 +731,7 @@ export async function getUserLectures(userId: number) {
       `,
       )
       .in("challenge_id", activeChallengeIds)
-      .order("created_at", { ascending: true });
+      .order("open_at", { ascending: true });
 
     if (lectureError) throw lectureError;
 
