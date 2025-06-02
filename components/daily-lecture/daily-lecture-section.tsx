@@ -29,6 +29,7 @@ export default function DailyLectureSection({
         title: lectures[selectedVideoIdx].name,
         description: lectures[selectedVideoIdx].description,
         lectureUrl: lectures[selectedVideoIdx].url,
+        isLocked: new Date(lectures[selectedVideoIdx].open_at) > new Date(),
       }
     : null;
 
@@ -55,13 +56,23 @@ export default function DailyLectureSection({
       {/* Main Video Player */}
       <div className="relative">
         {mainLecture ? (
-          <LecturePlayer
-            title={mainLecture.title}
-            description={mainLecture.description}
-            lectureUrl={mainLecture.lectureUrl}
-            isPlaying={isPlaying}
-            onTogglePlay={togglePlay}
-          />
+          mainLecture.isLocked ? (
+            <div className="aspect-video bg-[#1A1D29] flex items-center justify-center">
+              <div className="text-center text-gray-400">
+                <Lock className="h-12 w-12 mx-auto mb-4 text-gray-600" />
+                <p>아직 오픈되지 않은 강의입니다.</p>
+                <p className="text-sm mt-2">매일 새로운 강의가 공개됩니다.</p>
+              </div>
+            </div>
+          ) : (
+            <LecturePlayer
+              title={mainLecture.title}
+              description={mainLecture.description}
+              lectureUrl={mainLecture.lectureUrl}
+              isPlaying={isPlaying}
+              onTogglePlay={togglePlay}
+            />
+          )
         ) : (
           <div className="aspect-video bg-[#1A1D29] flex items-center justify-center">
             <div className="text-center text-gray-400">
