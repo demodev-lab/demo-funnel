@@ -55,7 +55,11 @@ export default function DailyLectureSection({
       {/* Main Video Player */}
       <div className="relative">
         {mainLecture ? (
+        {mainLecture ? (
           <LecturePlayer
+            title={mainLecture.title}
+            description={mainLecture.description}
+            lectureUrl={mainLecture.lectureUrl}
             title={mainLecture.title}
             description={mainLecture.description}
             lectureUrl={mainLecture.lectureUrl}
@@ -93,6 +97,7 @@ export default function DailyLectureSection({
                 onClick={() => onSelectedLecture(lecture)}
               >
                 <DailyLectureItem
+                  dailyLecture={lecture}
                   dailyLecture={lecture}
                   onLockedClick={handleLockedClick}
                   onVideoSelect={handleVideoSelect}
