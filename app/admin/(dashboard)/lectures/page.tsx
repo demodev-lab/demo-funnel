@@ -19,7 +19,7 @@ import {
   getVideoThumbnailUrl,
   getYouTubeEmbedUrl,
   getYouTubeVideoId,
-} from "@/lib/utils/videoUtils";
+} from "@/utils/video/videoUtils";
 
 interface Lecture {
   id: number;
