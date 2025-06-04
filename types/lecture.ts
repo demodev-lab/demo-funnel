@@ -8,3 +8,115 @@ export interface Lecture {
   open_at: string;
   challenge_id: string;
 }
+
+export interface LectureData {
+  id?: number;
+  name: string;
+  description: string;
+  url: string;
+  challenges: number[];
+  assignmentTitle?: string;
+  assignment?: string;
+  challengeOrders?: { challengeId: number; order: number }[];
+  file?: File;
+  upload_type: number;
+}
+
+export interface ChallengeResponse {
+  challenge_id: number;
+  Challenges: {
+    id: number;
+    name: string;
+  };
+}
+
+export interface Challenge {
+  id: number;
+  name: string;
+  lecture_num?: number;
+}
+
+export interface ChallengeLectureResponse {
+  lecture_id: number;
+  sequence: number;
+  lecture: {
+    id: number;
+    name: string;
+    description: string;
+    url: string;
+    upload_type: number;
+    created_at: string;
+    updated_at: string;
+    assignments: Array<{
+      title: string;
+      contents: string;
+    }>;
+  };
+}
+
+export interface ChallengeUser {
+  challenge_id: number;
+  Challenges: {
+    id: number;
+    open_date: string;
+    close_date: string;
+  };
+}
+
+export interface LectureDetail {
+  id: number;
+  name: string;
+  description: string;
+  url: string;
+  upload_type: number;
+  created_at: string;
+  updated_at: string;
+  assignments: {
+    id: number;
+    title: string;
+    contents: string;
+  }[];
+  challengeLectures: {
+    id: number;
+    sequence: number;
+    challenge: {
+      id: number;
+      name: string;
+    };
+  }[];
+}
+
+export interface LectureWithSequence {
+  id: number;
+  name: string;
+  description: string;
+  url: string;
+  upload_type: number;
+  created_at: string;
+  updated_at: string;
+  sequence: number;
+  assignment_title: string;
+  assignment: string;
+}
+
+export interface ChallengeOrder {
+  challengeId: number;
+  order: number;
+}
+
+export interface LectureFormInitialData {
+  name: string;
+  description: string;
+  url: string;
+  assignmentTitle: string;
+  assignment: string;
+}
+
+export interface LectureFormProps {
+  onSuccess: () => void;
+  isEdit?: boolean;
+  initialData?: LectureFormInitialData;
+  lectureId?: number;
+  onDelete?: () => void;
+  isDeleting?: boolean;
+}
