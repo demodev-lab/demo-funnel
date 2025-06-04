@@ -33,33 +33,12 @@ import {
 import { getChallenges } from "@/apis/challenges";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/utils/supabase/client";
-import { type LectureDetail } from "@/types/lecture";
-
-interface Challenge {
-  id: number;
-  name: string;
-  lecture_num?: number;
-}
-
-interface ChallengeOrder {
-  challengeId: number;
-  order: number;
-}
-
-interface LectureFormProps {
-  onSuccess: () => void;
-  isEdit?: boolean;
-  initialData?: {
-    name: string;
-    description: string;
-    url: string;
-    assignmentTitle: string;
-    assignment: string;
-  };
-  lectureId?: number;
-  onDelete?: () => void;
-  isDeleting?: boolean;
-}
+import {
+  type LectureDetail,
+  type Challenge,
+  type ChallengeOrder,
+  type LectureFormProps,
+} from "@/types/lecture";
 
 export default function LectureForm({
   onSuccess,
@@ -176,20 +155,20 @@ export default function LectureForm({
       setUploadType(lectureDetail.upload_type === 0 ? "url" : "file");
 
       // 과제 정보 설정
-      if (lectureDetail.assignments?.[0]) {
-        setAssignmentTitle(lectureDetail.assignments[0].title);
-        setAssignment(lectureDetail.assignments[0].contents);
+      if (lectureDetail.Assignments?.[0]) {
+        setAssignmentTitle(lectureDetail.Assignments[0].title);
+        setAssignment(lectureDetail.Assignments[0].contents);
       }
 
       // 챌린지 정보 설정
-      if (lectureDetail.challengeLectures?.length > 0) {
-        const challenges = lectureDetail.challengeLectures.map((cl) =>
-          cl.challenge.id.toString(),
+      if (lectureDetail.ChallengeLectures?.length > 0) {
+        const challenges = lectureDetail.ChallengeLectures.map((cl) =>
+          cl.Challenges.id.toString(),
         );
         setSelectedChallenges(challenges.map(Number));
 
-        const orders = lectureDetail.challengeLectures.map((cl) => ({
-          challengeId: cl.challenge.id.toString(),
+        const orders = lectureDetail.ChallengeLectures.map((cl) => ({
+          challengeId: cl.Challenges.id.toString(),
           order: cl.sequence,
         }));
         setChallengeOrders(

@@ -46,12 +46,6 @@ const getYouTubeVideoId = (url: string) => {
   }
 };
 
-const getYouTubeThumbnailUrl = (url: string) => {
-  const videoId = getYouTubeVideoId(url);
-  console.log("URL:", url, "Video ID:", videoId);
-  return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : null;
-};
-
 const getYouTubeEmbedUrl = (url: string) => {
   const videoId = getYouTubeVideoId(url);
   return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
@@ -237,7 +231,7 @@ export default function LecturesPage() {
                 <LectureForm
                   isEdit
                   initialData={{
-                    title: selectedLecture.name,
+                    name: selectedLecture.name,
                     description: selectedLecture.description || "",
                     url: selectedLecture.url || "",
                     assignmentTitle: selectedLecture.assignment_title || "",

@@ -360,7 +360,7 @@ export async function getLectureDetail(
           contents
         ),
         ChallengeLectures (
-          challenge_id,
+          id,
           sequence,
           Challenges (
             id,

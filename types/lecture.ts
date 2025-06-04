@@ -76,7 +76,7 @@ export interface LectureDetail {
     title: string;
     contents: string;
   }[];
-  challengeLectures: {
+  ChallengeLectures: {
     id: number;
     sequence: number;
     Challenges: {
