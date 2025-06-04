@@ -29,43 +29,22 @@ import {
   createLecture,
   updateLecture,
   getLectureDetail,
-  type LectureDetail,
 } from "@/apis/lectures";
 import { getChallenges } from "@/apis/challenges";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/utils/supabase/client";
-
-interface Challenge {
-  id: number;
-  name: string;
-  lecture_num?: number;
-}
-
-interface ChallengeOrder {
-  challengeId: number;
-  order: number;
-}
-
-interface LectureFormProps {
-  onSuccess: () => void;
-  isEdit?: boolean;
-  initialData?: {
-    title: string;
-    description: string;
-    url: string;
-    assignmentTitle: string;
-    assignment: string;
-  };
-  lectureId?: number;
-  onDelete?: () => void;
-  isDeleting?: boolean;
-}
+import {
+  type LectureDetail,
+  type Challenge,
+  type ChallengeOrder,
+  type LectureFormProps,
+} from "@/types/lecture";
 
 export default function LectureForm({
   onSuccess,
   isEdit = false,
   initialData = {
-    title: "",
+    name: "",
     description: "",
     url: "",
     assignmentTitle: "",
@@ -77,7 +56,7 @@ export default function LectureForm({
 }: LectureFormProps) {
   const queryClient = useQueryClient();
   const supabase = createClient();
-  const [title, setTitle] = useState(initialData.title || "");
+  const [name, setName] = useState(initialData.name || "");
   const [description, setDescription] = useState(initialData.description || "");
   const [videoUrl, setVideoUrl] = useState(initialData.url || "");
   const [selectedChallenges, setSelectedChallenges] = useState<number[]>([]);
@@ -169,7 +148,8 @@ export default function LectureForm({
   // 상세 정보가 로드되면 폼 데이터 설정
   useEffect(() => {
     if (lectureDetail) {
-      setTitle(lectureDetail.name);
+      console.log(lectureDetail);
+      setName(lectureDetail.name);
       setDescription(lectureDetail.description);
       setVideoUrl(lectureDetail.url);
       setUploadType(lectureDetail.upload_type === 0 ? "url" : "file");
@@ -183,12 +163,12 @@ export default function LectureForm({
       // 챌린지 정보 설정
       if (lectureDetail.ChallengeLectures?.length > 0) {
         const challenges = lectureDetail.ChallengeLectures.map((cl) =>
-          cl.challenge_id.toString(),
+          cl.Challenges.id.toString(),
         );
         setSelectedChallenges(challenges.map(Number));
 
         const orders = lectureDetail.ChallengeLectures.map((cl) => ({
-          challengeId: cl.challenge_id.toString(),
+          challengeId: cl.Challenges.id.toString(),
           order: cl.sequence,
         }));
         setChallengeOrders(
@@ -254,7 +234,7 @@ export default function LectureForm({
       if (isEdit && lectureId) {
         // 강의 수정 로직
         const updateData = {
-          name: title,
+          name: name,
           description,
           url: videoUrl,
           challenges: selectedChallenges,
@@ -279,7 +259,7 @@ export default function LectureForm({
         toast.success("강의가 수정되었습니다.");
       } else {
         // 필수 필드 검증
-        if (!title.trim()) {
+        if (!name.trim()) {
           toast.error("강의 제목을 입력해주세요.");
           return;
         }
@@ -296,7 +276,7 @@ export default function LectureForm({
 
         // 강의 추가 로직
         const lectureData = {
-          title: title.trim(),
+          name: name.trim(),
           description: description.trim(),
           url: videoUrl.trim(),
           challenges: selectedChallenges,
@@ -315,7 +295,7 @@ export default function LectureForm({
         await queryClient.invalidateQueries({ queryKey: ["lectures"] });
 
         // 폼 초기화
-        setTitle("");
+        setName("");
         setDescription("");
         setVideoUrl("");
         setSelectedChallenges([]);
@@ -353,8 +333,8 @@ export default function LectureForm({
         <Label htmlFor="title">강의 제목</Label>
         <Input
           id="title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
           className="bg-[#1A1D29] border-gray-700/30 text-white placeholder:text-gray-500"
         />
       </div>

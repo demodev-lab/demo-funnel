@@ -15,19 +15,7 @@ import { getLecturesByChallenge, deleteLecture } from "@/apis/lectures";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useChallengeStore } from "@/lib/store/useChallengeStore";
-
-interface Lecture {
-  id: number;
-  name: string;
-  description: string;
-  url: string;
-  created_at: string;
-  updated_at: string;
-  upload_type: number;
-  sequence: number;
-  assignment_title?: string;
-  assignment?: string;
-}
+import { LectureWithSequence } from "@/types/lecture";
 
 const getYouTubeVideoId = (url: string) => {
   try {
@@ -46,18 +34,12 @@ const getYouTubeVideoId = (url: string) => {
   }
 };
 
-const getYouTubeThumbnailUrl = (url: string) => {
-  const videoId = getYouTubeVideoId(url);
-  console.log("URL:", url, "Video ID:", videoId);
-  return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : null;
-};
-
 const getYouTubeEmbedUrl = (url: string) => {
   const videoId = getYouTubeVideoId(url);
   return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
 };
 
-const getVideoThumbnailUrl = (lecture: Lecture) => {
+const getVideoThumbnailUrl = (lecture: LectureWithSequence) => {
   if (lecture.upload_type === 0) {
     // YouTube 동영상인 경우
     const videoId = getYouTubeVideoId(lecture.url);
@@ -72,7 +54,8 @@ const getVideoThumbnailUrl = (lecture: Lecture) => {
 
 export default function LecturesPage() {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedLecture, setSelectedLecture] = useState<Lecture | null>(null);
+  const [selectedLecture, setSelectedLecture] =
+    useState<LectureWithSequence | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const queryClient = useQueryClient();
   const { selectedChallengeId } = useChallengeStore();
@@ -237,7 +220,7 @@ export default function LecturesPage() {
                 <LectureForm
                   isEdit
                   initialData={{
-                    title: selectedLecture.name,
+                    name: selectedLecture.name,
                     description: selectedLecture.description || "",
                     url: selectedLecture.url || "",
                     assignmentTitle: selectedLecture.assignment_title || "",
