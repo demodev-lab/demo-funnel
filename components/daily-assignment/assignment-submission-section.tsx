@@ -9,6 +9,7 @@ import { userInfo } from "@/types/user";
 import axios from "axios";
 import { useSelectedLectureStore } from "@/lib/store/useSelectedLectureStore";
 import { useEffect, useState } from "react";
+import { SubmittedAssignment } from "@/types/submittedAssignment";
 
 interface AssignmentSubmissionSectionProps {
   userInfo: userInfo;
@@ -55,16 +56,20 @@ export function AssignmentSubmissionSection({
         new Date(open_at.split("T")[0]).getTime()
       : false;
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const data = await getUserSubmission({
-        userId: userInfo.id,
-        challengeLectureId,
-      });
-      console.log(data);
-    };
-    fetchData();
-  }, [userInfo.id, challengeLectureId]);
+  // 제출된 과제 정보 가져오기
+  const { data: submittedAssignment, isLoading: isSubmissionLoading } =
+    useQuery<SubmittedAssignment | null>({
+      queryKey: ["submitted-assignment", userInfo.id, challengeLectureId],
+      queryFn: async () => {
+        if (!userInfo.id || !challengeLectureId) return null;
+        const data = await getUserSubmission({
+          userId: userInfo.id,
+          challengeLectureId,
+        });
+        return data;
+      },
+      enabled: !!userInfo.id && !!challengeLectureId,
+    });
 
   return (
     <div className="border-t border-gray-700/50 mt-6">
@@ -103,22 +108,31 @@ export function AssignmentSubmissionSection({
           </div>
         </div>
 
-        {!timeError && assignmentInfo?.contents && isTodayLecture && (
-          <AssignmentSubmissionForm
-            userInfo={userInfo}
-            challengeLectureId={challengeLectureId}
-          />
-        )}
+        {/* 제출 폼 (제출되지 않았고, 과제 내용 있고, 오늘 강의이며, 시간 에러 없을 때 표시) */}
+        {!timeError &&
+          assignmentInfo?.contents &&
+          isTodayLecture &&
+          !submittedAssignment?.is_submit && (
+            <AssignmentSubmissionForm
+              userInfo={userInfo}
+              challengeLectureId={challengeLectureId}
+            />
+          )}
 
         <div className="p-6 bg-[#1A1D29]/30">
           <h3 className="text-lg font-semibold mb-4 flex items-center">
             <CheckCircle className="h-5 w-5 mr-2 text-[#8C7DFF]" />
             제출된 과제
           </h3>
-          <AssignmentSubmissionItem
-            userInfo={userInfo}
-            challengeLectureId={challengeLectureId}
-          />
+          {isSubmissionLoading && (
+            <p className="text-gray-400">제출 정보 로딩 중...</p>
+          )}
+          {!isSubmissionLoading && (
+            <AssignmentSubmissionItem
+              userInfo={userInfo}
+              submittedAssignment={submittedAssignment}
+            />
+          )}
         </div>
       </div>
     </div>
