@@ -1,11 +1,11 @@
 import { supabase } from "./supabase";
 import {
-  ChallengeLectureResponse,
-  ChallengeUser,
+  ChallengeLectures,
   LectureData,
   LectureDetail,
   LectureWithSequence,
 } from "@/types/lecture";
+import { ChallengeUser } from "@/types/challenge";
 import { UPLOAD_TYPE } from "@/constants/uploadTypes";
 import { uploadFileToStorage, deleteStorageFile } from "@/utils/files";
 import { validateAuth } from "@/utils/auth";
@@ -495,7 +495,7 @@ export async function getLecturesByChallenge(
       )
       .eq("challenge_id", challengeId)
       .order("sequence", { ascending: true })
-      .returns<ChallengeLectureResponse[]>();
+      .returns<ChallengeLectures[]>();
 
     if (error) throw error;
 
