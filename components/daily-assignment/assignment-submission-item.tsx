@@ -17,9 +17,7 @@ export function AssignmentSubmissionItem({
   userInfo,
   challengeLectureId,
 }: AssignmentSubmissionItemProps) {
-  const { data: submittedAssignment } = useQuery<
-    SubmittedAssignment | undefined
-  >({
+  const { data: submittedAssignment } = useQuery<SubmittedAssignment | null>({
     queryKey: ["submitted-assignment", userInfo.id, challengeLectureId],
     queryFn: async () => {
       try {
@@ -27,15 +25,19 @@ export function AssignmentSubmissionItem({
           userId: userInfo.id,
           challengeLectureId,
         });
-        return data || undefined;
+        return data || null;
       } catch (error) {
-        return undefined;
+        return null;
       }
     },
     enabled: !!userInfo.id && !!challengeLectureId,
   });
 
-  return (
+  return submittedAssignment === null ? (
+    <div className="bg-[#1C1F2B]/60 p-4 rounded-xl border border-gray-700/30 hover:border-gray-600/50 shadow-sm hover:shadow-md transition-all duration-300 text-center text-gray-400">
+      제출된 과제가 없습니다.
+    </div>
+  ) : (
     <div className="bg-[#1C1F2B]/60 p-4 rounded-xl border border-gray-700/30 hover:border-gray-600/50 shadow-sm hover:shadow-md transition-all duration-300">
       <div className="flex items-center mb-3">
         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#5046E4] to-[#8C7DFF] mr-3 flex items-center justify-center text-white font-bold shadow-md">

@@ -219,13 +219,16 @@ export async function getUserSubmission({
       .select("*")
       .eq("user_id", userId)
       .eq("challenge_lecture_id", challengeLectureId)
-      .single();
+      .maybeSingle();
 
-    if (error) throw error;
+    if (error) {
+      console.error("Supabase 조회 중 에러:", error);
+      throw error;
+    }
 
     console.log("제출된 과제:", submission);
 
-    return submission;
+    return submission || null;
   } catch (error) {
     console.error("제출된 과제 조회 실패:", error);
     throw new Error(
