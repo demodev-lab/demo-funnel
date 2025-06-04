@@ -1,13 +1,5 @@
 import { supabase } from "./supabase";
-
-interface ChallengeLecture {
-  id: number;
-  lecture_id: number;
-  Lectures: {
-    id: number;
-    name: string;
-  };
-}
+import { ChallengeLecture } from "@/types/lecture";
 
 export async function getAssignment(lectureId: number) {
   try {

@@ -11,9 +11,23 @@ export interface Challenge {
   lectureCount?: number;
 }
 
-export interface ChallengeFormData {
-  name: string;
-  open_date: string;
-  close_date: string;
-  lecture_num: number;
+export type ChallengeFormData = Pick<
+  Challenge,
+  "name" | "open_date" | "close_date" | "lecture_num"
+>;
+
+export type UserChallenges = Pick<Challenge, "id" | "name">;
+
+export interface ChallengeUser {
+  challenge_id: number;
+  Challenges: {
+    id: number;
+    open_date: string;
+    close_date: string;
+  };
+}
+
+export interface ChallengeOrder {
+  challengeId: number;
+  order: number;
 }

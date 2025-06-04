@@ -1,19 +1,7 @@
 import { supabase } from "./supabase";
+import { UserChallenges } from "@/types/challenge";
 
 // TODO 인터페이스 파일 분리 필요
-
-interface Challenge {
-  id: number;
-  name: string;
-}
-
-interface ChallengeResponse {
-  challenge_id: number;
-  Challenges: {
-    id: number;
-    name: string;
-  };
-}
 
 export interface UserData {
   id?: number;
@@ -34,15 +22,6 @@ interface SubmissionStatus {
     url: string;
     comment: string;
   }[];
-}
-
-interface ChallengeUserResponse {
-  user_id: string;
-  Users: {
-    id: string;
-    name: string;
-    email: string;
-  };
 }
 
 interface ChallengeLecture {
@@ -195,13 +174,15 @@ export async function deleteUser(userId: number) {
   }
 }
 
-export async function getUserChallenges(userId: number): Promise<Challenge[]> {
+export async function getUserChallenges(
+  userId: number,
+): Promise<UserChallenges[]> {
   try {
     const { data, error } = await supabase
       .from("ChallengeUsers")
       .select(
         `
-        challenge_id,
+        id,
         Challenges (
           id,
           name
@@ -212,7 +193,7 @@ export async function getUserChallenges(userId: number): Promise<Challenge[]> {
 
     if (error) throw error;
 
-    return (data as unknown as ChallengeResponse[]).map((item) => ({
+    return data.map((item: any) => ({
       id: item.Challenges.id,
       name: item.Challenges.name,
     }));

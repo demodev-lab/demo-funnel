@@ -1,11 +1,5 @@
 import { supabase } from "./supabase";
-
-export interface ChallengeFormData {
-  name: string;
-  open_date: string;
-  close_date: string;
-  lecture_num: number;
-}
+import type { ChallengeFormData } from "@/types/challenge";
 
 export async function getChallenges() {
   try {

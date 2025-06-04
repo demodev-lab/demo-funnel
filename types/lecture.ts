@@ -35,21 +35,7 @@ export interface LectureData {
   upload_type: number;
 }
 
-export interface ChallengeResponse {
-  challenge_id: number;
-  Challenges: {
-    id: number;
-    name: string;
-  };
-}
-
-export interface Challenge {
-  id: number;
-  name: string;
-  lecture_num?: number;
-}
-
-export interface ChallengeLectureResponse {
+export interface ChallengeLectures {
   lecture_id: number;
   sequence: number;
   Lectures: {
@@ -64,15 +50,6 @@ export interface ChallengeLectureResponse {
       title: string;
       contents: string;
     }>;
-  };
-}
-
-export interface ChallengeUser {
-  challenge_id: number;
-  Challenges: {
-    id: number;
-    open_date: string;
-    close_date: string;
   };
 }
 
@@ -112,11 +89,6 @@ export interface LectureWithSequence {
   assignment: string;
 }
 
-export interface ChallengeOrder {
-  challengeId: number;
-  order: number;
-}
-
 export interface LectureFormInitialData {
   name: string;
   description: string;
@@ -132,4 +104,13 @@ export interface LectureFormProps {
   lectureId?: number;
   onDelete?: () => void;
   isDeleting?: boolean;
+}
+
+export interface ChallengeLecture {
+  id: number;
+  lecture_id: number;
+  Lectures: {
+    id: number;
+    name: string;
+  };
 }
