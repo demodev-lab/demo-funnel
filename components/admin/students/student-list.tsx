@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Plus, Upload, Loader2 } from "lucide-react";
+import { Plus } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -27,7 +27,6 @@ import {
   validateStudentForm,
   type ValidationErrors,
 } from "@/utils/validations/student";
-import { parseExcelFile } from "@/utils/excel/student";
 import { StudentListState } from "./student-list-state";
 
 export default function StudentList() {
@@ -196,40 +195,15 @@ export default function StudentList() {
       <div className="py-4 flex justify-end">
         <div className="space-x-2">
           {/* 엑셀 업로드 다이얼로그 */}
-          <Dialog
-            open={isExcelDialogOpen}
+          <ExcelUploadDialog
+            isOpen={isExcelDialogOpen}
             onOpenChange={handleExcelDialogClose}
-          >
-            <DialogTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsExcelDialogOpen(true)}
-                disabled={isExcelUploading || isExcelAdding}
-              >
-                {isExcelUploading || isExcelAdding ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <Upload className="w-4 h-4 mr-2" />
-                )}
-                엑셀 파일 업로드
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>엑셀 파일 업로드</DialogTitle>
-              </DialogHeader>
-              <ExcelUploadDialog
-                isOpen={isExcelDialogOpen}
-                onOpenChange={handleExcelDialogClose}
-                onSave={handleExcelConfirm}
-                isProcessing={isExcelUploading || isExcelAdding}
-                selectedChallengeId={1}
-                challenges={[]}
-                validateStudent={() => []}
-              />
-            </DialogContent>
-          </Dialog>
+            onSave={handleExcelConfirm}
+            isProcessing={isExcelUploading || isExcelAdding}
+            selectedChallengeId={1}
+            challenges={[]}
+            validateStudent={() => []}
+          />
 
           {/* 학생 추가/수정 다이얼로그 */}
           <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
