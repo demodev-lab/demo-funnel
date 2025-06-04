@@ -486,7 +486,7 @@ export async function getLecturesByChallenge(
           upload_type,
           created_at,
           updated_at,
-          assignments (
+          Assignments (
             title,
             contents
           )
@@ -501,16 +501,16 @@ export async function getLecturesByChallenge(
 
     const lectures =
       data?.map((item) => ({
-        id: item.lecture.id,
-        name: item.lecture.name,
-        description: item.lecture.description,
-        url: item.lecture.url,
-        upload_type: item.lecture.upload_type,
-        created_at: item.lecture.created_at,
-        updated_at: item.lecture.updated_at,
+        id: item.Lectures.id,
+        name: item.Lectures.name,
+        description: item.Lectures.description,
+        url: item.Lectures.url,
+        upload_type: item.Lectures.upload_type,
+        created_at: item.Lectures.created_at,
+        updated_at: item.Lectures.updated_at,
         sequence: item.sequence,
-        assignment_title: item.lecture.assignments?.[0]?.title || "",
-        assignment: item.lecture.assignments?.[0]?.contents || "",
+        assignment_title: item.Lectures.Assignments?.[0]?.title || "",
+        assignment: item.Lectures.Assignments?.[0]?.contents || "",
       })) || [];
 
     return lectures;

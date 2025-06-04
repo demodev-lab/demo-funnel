@@ -39,7 +39,7 @@ export interface Challenge {
 export interface ChallengeLectureResponse {
   lecture_id: number;
   sequence: number;
-  lecture: {
+  Lectures: {
     id: number;
     name: string;
     description: string;
@@ -47,7 +47,7 @@ export interface ChallengeLectureResponse {
     upload_type: number;
     created_at: string;
     updated_at: string;
-    assignments: Array<{
+    Assignments: Array<{
       title: string;
       contents: string;
     }>;
@@ -71,7 +71,7 @@ export interface LectureDetail {
   upload_type: number;
   created_at: string;
   updated_at: string;
-  assignments: {
+  Assignments: {
     id: number;
     title: string;
     contents: string;
@@ -79,7 +79,7 @@ export interface LectureDetail {
   challengeLectures: {
     id: number;
     sequence: number;
-    challenge: {
+    Challenges: {
       id: number;
       name: string;
     };
