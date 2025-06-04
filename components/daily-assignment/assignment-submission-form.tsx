@@ -7,15 +7,18 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { createSubmission } from '@/apis/assignments';
-import { userInfo } from '@/types/user';
+import { createSubmission } from "@/apis/assignments";
+import { userInfo } from "@/types/user";
 
 interface AssignmentSubmissionFormProps {
   userInfo: userInfo;
   challengeLectureId: number;
 }
 
-export function AssignmentSubmissionForm({ userInfo, challengeLectureId }: AssignmentSubmissionFormProps) {
+export function AssignmentSubmissionForm({
+  userInfo,
+  challengeLectureId,
+}: AssignmentSubmissionFormProps) {
   const queryClient = useQueryClient();
   const [submissionLink, setSubmissionLink] = useState("");
   const [newSubmission, setNewSubmission] = useState("");
@@ -26,30 +29,30 @@ export function AssignmentSubmissionForm({ userInfo, challengeLectureId }: Assig
       email: string;
       link: string;
       text: string;
-    }) => createSubmission({
-      ...data,
-      challengeLectureId,
-      userId: userInfo.id,
-    }),
+    }) =>
+      createSubmission({
+        ...data,
+        challengeLectureId,
+        userId: userInfo.id,
+      }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['assignment-submissions'] });
+      queryClient.invalidateQueries({
+        queryKey: ["submitted-assignment", userInfo.id, challengeLectureId],
+      });
       setNewSubmission("");
       setSubmissionLink("");
       toast.success("과제가 성공적으로 제출되었습니다.");
     },
     onError: (error) => {
-      console.error("과제 제출 실패:", error);
-      toast.error("과제 제출에 실패했습니다.");
+      setNewSubmission("");
+      setSubmissionLink("");
+      toast.error(error.message || "과제 제출에 실패했습니다.");
     },
   });
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (
-      !newSubmission.trim() ||
-      !submissionLink.trim()
-    )
-      return;
+    if (!newSubmission.trim() || !submissionLink.trim()) return;
 
     handleSubmit({
       name: userInfo.name,
@@ -92,4 +95,4 @@ export function AssignmentSubmissionForm({ userInfo, challengeLectureId }: Assig
       </div>
     </form>
   );
-} 
+}
