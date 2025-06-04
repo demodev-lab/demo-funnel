@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Plus, Upload, Loader2 } from "lucide-react";
+import { Plus } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -21,13 +21,12 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { StudentTable } from "./student-table";
 import { StudentForm } from "./student-form";
-import { ExcelUploadDialogContent } from "./excel-upload-dialog";
+import { ExcelUploadDialog } from "./excel-upload-dialog";
 import { DeleteDialogContent } from "./delete-dialog";
 import {
   validateStudentForm,
   type ValidationErrors,
 } from "@/utils/validations/student";
-import { parseExcelFile } from "@/utils/excel/student";
 import { StudentListState } from "./student-list-state";
 
 export default function StudentList() {
@@ -62,23 +61,6 @@ export default function StudentList() {
   const [isExcelAdding, setIsExcelAdding] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    setIsExcelUploading(true);
-    try {
-      const studentsToAdd = await parseExcelFile(file);
-      setParsedStudents(studentsToAdd);
-    } catch (err: any) {
-      toast.error(err?.message || "엑셀 업로드 중 오류가 발생했습니다.");
-    } finally {
-      setIsExcelUploading(false);
-    }
-  };
-
   const handleExcelDialogClose = (open: boolean) => {
     setIsExcelDialogOpen(open);
     if (!open) {
@@ -88,15 +70,6 @@ export default function StudentList() {
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
-
-  const handleExcelCancel = () => {
-    setParsedStudents([]);
-    setIsExcelDialogOpen(false);
-    setIsExcelUploading(false);
-    setIsExcelAdding(false);
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  };
-
   const handleExcelConfirm = async () => {
     if (!parsedStudents.length) return;
 
@@ -139,7 +112,7 @@ export default function StudentList() {
     try {
       if (isEditMode && editingStudentId) {
         await updateStudentMutation.mutateAsync({
-          id: editingStudentId,
+          id: Number(editingStudentId),
           ...currentStudent,
         });
         toast.success("학생 정보가 성공적으로 수정되었습니다.");
@@ -166,7 +139,7 @@ export default function StudentList() {
       email: student.email,
       phone: student.phone,
     });
-    setEditingStudentId(student.id);
+    setEditingStudentId(student.id.toString());
     setIsEditMode(true);
     setValidationErrors({});
     setIsFormOpen(true);
@@ -181,7 +154,7 @@ export default function StudentList() {
     if (!studentToDelete) return;
 
     try {
-      await deleteStudentMutation.mutateAsync(studentToDelete);
+      await deleteStudentMutation.mutateAsync(Number(studentToDelete));
       toast.success("학생이 성공적으로 삭제되었습니다.");
       setStudentToDelete(null);
       setIsDeleteOpen(false);
@@ -222,40 +195,15 @@ export default function StudentList() {
       <div className="py-4 flex justify-end">
         <div className="space-x-2">
           {/* 엑셀 업로드 다이얼로그 */}
-          <Dialog
-            open={isExcelDialogOpen}
+          <ExcelUploadDialog
+            isOpen={isExcelDialogOpen}
             onOpenChange={handleExcelDialogClose}
-          >
-            <DialogTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsExcelDialogOpen(true)}
-                disabled={isExcelUploading || isExcelAdding}
-              >
-                {isExcelUploading || isExcelAdding ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <Upload className="w-4 h-4 mr-2" />
-                )}
-                엑셀 파일 업로드
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>엑셀 파일 업로드</DialogTitle>
-              </DialogHeader>
-              <ExcelUploadDialogContent
-                parsedStudents={parsedStudents}
-                isUploading={isExcelUploading}
-                isAdding={isExcelAdding}
-                onFileChange={handleFileUpload}
-                onCancel={handleExcelCancel}
-                onConfirm={handleExcelConfirm}
-                fileInputRef={fileInputRef}
-              />
-            </DialogContent>
-          </Dialog>
+            onSave={handleExcelConfirm}
+            isProcessing={isExcelUploading || isExcelAdding}
+            selectedChallengeId={1}
+            challenges={[]}
+            validateStudent={() => []}
+          />
 
           {/* 학생 추가/수정 다이얼로그 */}
           <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>

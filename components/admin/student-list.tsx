@@ -11,18 +11,16 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import {
-  useStudents,
   useCreateStudent,
   useUpdateStudent,
   useDeleteStudent,
   type Student,
   useStudentsByChallenge,
 } from "@/hooks/useStudents";
-import { useQueryClient, useQuery } from "@tanstack/react-query";
-import { read, utils } from "xlsx";
+import { useQuery } from "@tanstack/react-query";
 import {
   Select,
   SelectContent,
@@ -33,16 +31,14 @@ import {
 import { getChallenges } from "@/apis/challenges";
 import { getUserChallenges } from "@/apis/users";
 import { useChallengeStore } from "@/lib/store/useChallengeStore";
+import InfoTable from "@/components/admin/info-table";
+import { ExcelUploadDialog } from "@/components/admin/students/excel-upload-dialog";
+import { ExcelStudent } from "@/types/excel";
 
 interface ValidationErrors {
   name?: string;
   email?: string;
   phone?: string;
-}
-
-interface ExcelStudent extends Omit<Student, "id"> {
-  isValid: boolean;
-  errors: string[];
 }
 
 export default function StudentList() {
@@ -58,7 +54,6 @@ export default function StudentList() {
   const createStudentMutation = useCreateStudent();
   const updateStudentMutation = useUpdateStudent();
   const deleteStudentMutation = useDeleteStudent();
-  const queryClient = useQueryClient();
 
   // 상태 관리
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -74,18 +69,9 @@ export default function StudentList() {
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
     {},
   );
-  // 엑셀 업로드 모달 상태 - 더미 상태로 변경
-  const [isExcelDialogOpen, setIsExcelDialogOpen] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // 엑셀 관련 상태 추가
-  const [excelData, setExcelData] = useState<ExcelStudent[]>([]);
+  const [selectedChallenges, setSelectedChallenges] = useState<number[]>([]);
   const [isExcelPreviewOpen, setIsExcelPreviewOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [selectedFileName, setSelectedFileName] = useState<string>("");
-
-  // 챌린지 관련 상태 추가
-  const [selectedChallenges, setSelectedChallenges] = useState<number[]>([]);
 
   // 챌린지 목록 조회
   const { data: challenges = [] } = useQuery({
@@ -189,6 +175,72 @@ export default function StudentList() {
     return Object.keys(errors).length === 0;
   };
 
+  // 엑셀 데이터 저장 함수
+  const handleSaveExcelData = async (validStudents: ExcelStudent[]) => {
+    if (validStudents.length === 0) {
+      toast.error("추가할 수 있는 유효한 데이터가 없습니다.");
+      return;
+    }
+
+    if (!selectedChallengeId) {
+      toast.error("챌린지를 선택해주세요.");
+      return;
+    }
+
+    try {
+      setIsProcessing(true);
+
+      for (const student of validStudents) {
+        if (student.isValid) {
+          const { isValid, errors, ...studentData } = student;
+          await createStudentMutation.mutateAsync({
+            ...studentData,
+            challenges: [selectedChallengeId],
+          });
+        }
+      }
+
+      toast.success(
+        `${validStudents.length}명의 수강생이 성공적으로 추가되었습니다.`,
+      );
+      setIsExcelPreviewOpen(false);
+    } catch (error) {
+      toast.error("데이터 저장 중 오류가 발생했습니다.");
+      console.error(error);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // 학생 데이터 검증 함수
+  const validateStudent = (student: Omit<Student, "id">): string[] => {
+    const errors: string[] = [];
+
+    // 이름 검증
+    const nameError = validateName(student.name);
+    if (nameError) errors.push(nameError);
+
+    // 이메일 검증
+    const emailError = validateEmail(student.email);
+    if (emailError) {
+      errors.push(emailError);
+    } else {
+      const duplicateEmailError = checkDuplicateEmail(student.email);
+      if (duplicateEmailError) errors.push(duplicateEmailError);
+    }
+
+    // 전화번호 검증
+    const phoneError = validatePhone(student.phone);
+    if (phoneError) {
+      errors.push(phoneError);
+    } else {
+      const duplicatePhoneError = checkDuplicatePhone(student.phone);
+      if (duplicatePhoneError) errors.push(duplicatePhoneError);
+    }
+
+    return errors;
+  };
+
   const handleAddStudent = async () => {
     if (!validateForm()) return;
 
@@ -285,126 +337,61 @@ export default function StudentList() {
     setEditingStudentId(null);
   };
 
-  // 엑셀 파일 처리 함수
-  const handleExcelFileChange = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const columns = [
+    { header: "이름", accessor: "name" },
+    { header: "이메일", accessor: "email" },
+    { header: "전화번호", accessor: "phone" },
+  ];
 
-    setSelectedFileName(file.name);
-
-    try {
-      setIsProcessing(true);
-      const data = await file.arrayBuffer();
-      const workbook = read(data);
-      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonData = utils.sheet_to_json(worksheet) as Record<string, any>[];
-
-      // 데이터 유효성 검사 및 형식 변환
-      const processedData: ExcelStudent[] = jsonData.map((row) => {
-        const student: ExcelStudent = {
-          name: String(row.name || ""),
-          email: String(row.email || ""),
-          phone: String(row.phone || ""),
-          isValid: true,
-          errors: [],
-        };
-
-        // 필수 필드 검사
-        if (!student.name) student.errors.push("이름이 누락되었습니다.");
-        if (!student.email) student.errors.push("이메일이 누락되었습니다.");
-        if (!student.phone) student.errors.push("전화번호가 누락되었습니다.");
-
-        // 이메일 형식 검사
-        const emailError = validateEmail(student.email);
-        if (emailError) student.errors.push(emailError);
-
-        // 전화번호 형식 검사
-        const phoneError = validatePhone(student.phone);
-        if (phoneError) student.errors.push(phoneError);
-
-        return student;
-      });
-
-      // 중복 검사 (엑셀 파일 내부 + 기존 데이터)
-      processedData.forEach((student, index) => {
-        // 엑셀 파일 내부 중복 검사
-        const duplicatesInExcel = processedData.filter(
-          (s, i) =>
-            i !== index &&
-            (s.email === student.email || s.phone === student.phone),
-        );
-
-        // 엑셀 내부 중복이 있거나 기존 데이터와 중복이 있는 경우
-        if (
-          duplicatesInExcel.some((s) => s.email === student.email) ||
-          checkDuplicateEmail(student.email)
-        ) {
-          student.errors.push("중복된 이메일입니다.");
-        }
-        if (
-          duplicatesInExcel.some((s) => s.phone === student.phone) ||
-          checkDuplicatePhone(student.phone)
-        ) {
-          student.errors.push("중복된 전화번호입니다.");
-        }
-
-        // 유효성 상태 업데이트
-        student.isValid = student.errors.length === 0;
-      });
-
-      setExcelData(processedData);
-      setIsExcelPreviewOpen(true);
-    } catch (error) {
-      toast.error("엑셀 파일 처리 중 오류가 발생했습니다.");
-      console.error(error);
-    } finally {
-      setIsProcessing(false);
-      if (e.target) e.target.value = ""; // 파일 input 초기화
-    }
-  };
-
-  // 엑셀 데이터 저장 함수
-  const handleSaveExcelData = async () => {
-    const validStudents = excelData.filter((student) => student.isValid);
-
-    if (validStudents.length === 0) {
-      toast.error("추가할 수 있는 유효한 데이터가 없습니다.");
-      return;
-    }
-
-    if (!selectedChallengeId) {
-      toast.error("챌린지를 선택해주세요.");
-      return;
-    }
-
-    try {
-      setIsProcessing(true);
-
-      for (const student of validStudents) {
-        const { isValid, errors, ...studentData } = student;
-        await createStudentMutation.mutateAsync({
-          ...studentData,
-          challenges: [selectedChallengeId],
-        });
-      }
-
-      toast.success(
-        `${validStudents.length}명의 수강생이 성공적으로 추가되었습니다.`,
-      );
-
-      setIsExcelPreviewOpen(false);
-      setExcelData([]);
-      setSelectedFileName("");
-      setIsProcessing(false);
-    } catch (error) {
-      toast.error("데이터 저장 중 오류가 발생했습니다.");
-      console.error(error);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
+  const renderActions = (student: Student) => (
+    <>
+      <Button
+        onClick={() => handleEditClick(student as Student)}
+        variant="ghost"
+        className="h-8 w-8 p-0 mr-1 text-gray-400 hover:text-[#8C7DFF] hover:bg-[#1A1D29]/60"
+        disabled={updateStudentMutation.isPending}
+      >
+        <span className="sr-only">Edit</span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="h-4 w-4"
+        >
+          <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34" />
+          <polygon points="18 2 22 6 12 16 8 16 8 12 18 2" />
+        </svg>
+      </Button>
+      <Button
+        onClick={() => handleDeleteClick(student.id!)}
+        variant="ghost"
+        className="h-8 w-8 p-0 text-gray-400 hover:text-red-400 hover:bg-[#1A1D29]/60"
+        disabled={deleteStudentMutation.isPending}
+      >
+        <span className="sr-only">Delete</span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="h-4 w-4"
+        >
+          <path d="M3 6h18" />
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+          <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+          <line x1="10" y1="11" x2="10" y2="17" />
+          <line x1="14" y1="11" x2="14" y2="17" />
+        </svg>
+      </Button>
+    </>
+  );
 
   // 로딩 상태
   if (isLoading) {
@@ -493,166 +480,24 @@ export default function StudentList() {
     <>
       <div className="flex justify-end">
         <div className="space-x-2">
-          {/* 엑셀 업로드 다이얼로그 */}
-          <Dialog
-            open={isExcelPreviewOpen}
-            onOpenChange={(open) => {
-              setIsExcelPreviewOpen(open);
-              if (!open) {
-                setExcelData([]);
-                setSelectedFileName("");
-              }
-            }}
+          <ExcelUploadDialog
+            isOpen={isExcelPreviewOpen}
+            onOpenChange={setIsExcelPreviewOpen}
+            onSave={handleSaveExcelData}
+            isProcessing={isProcessing}
+            selectedChallengeId={selectedChallengeId}
+            challenges={challenges}
+            validateStudent={validateStudent}
+          />
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-gray-700/30 bg-[#1A1D29]/50 text-gray-300 hover:bg-[#1A1D29]/70 hover:text-white"
+            onClick={() => setIsExcelPreviewOpen(true)}
           >
-            <DialogTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="border-gray-700/30 bg-[#1A1D29]/50 text-gray-300 hover:bg-[#1A1D29]/70 hover:text-white"
-              >
-                <Upload className="w-4 h-4 mr-2" />
-                엑셀 파일 업로드
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="bg-[#252A3C] border-gray-700/30 text-white max-w-4xl">
-              <DialogHeader>
-                <DialogTitle className="text-white">
-                  엑셀 파일 업로드
-                  {selectedChallengeId && (
-                    <span className="ml-2 text-sm text-gray-400">
-                      {
-                        challenges.find((c) => c.id === selectedChallengeId)
-                          ?.name
-                      }{" "}
-                      수강생 추가
-                    </span>
-                  )}
-                </DialogTitle>
-              </DialogHeader>
-              {!selectedChallengeId ? (
-                <div className="py-4 text-yellow-400">
-                  ⚠️ 먼저 상단에서 챌린지를 선택해주세요.
-                </div>
-              ) : (
-                <div className="space-y-4 py-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="excel-file" className="text-gray-300">
-                      엑셀 파일 선택
-                    </Label>
-                    <div className="flex items-center gap-2">
-                      <Input
-                        id="excel-file"
-                        type="file"
-                        accept=".xlsx,.xls"
-                        onChange={handleExcelFileChange}
-                        disabled={isProcessing}
-                        className="hidden"
-                      />
-                      <Button
-                        onClick={() =>
-                          document.getElementById("excel-file")?.click()
-                        }
-                        variant="outline"
-                        disabled={isProcessing}
-                        className="bg-[#1A1D29]/70 border-gray-700/50 text-white hover:bg-[#1A1D29] hover:text-white w-full justify-start"
-                      >
-                        <Upload className="w-4 h-4 mr-2" />
-                        {selectedFileName || "파일을 선택해주세요"}
-                      </Button>
-                    </div>
-                  </div>
-
-                  {excelData.length > 0 && (
-                    <>
-                      <div className="max-h-[400px] overflow-y-auto">
-                        <table className="w-full">
-                          <thead>
-                            <tr className="border-b border-gray-700/30">
-                              <th className="sticky top-0 px-4 py-2 text-left text-gray-300 bg-[#1A1D29] min-w-[120px] z-10">
-                                이름
-                              </th>
-                              <th className="sticky top-0 px-4 py-2 text-left text-gray-300 bg-[#1A1D29] min-w-[200px] z-10">
-                                이메일
-                              </th>
-                              <th className="sticky top-0 px-4 py-2 text-left text-gray-300 bg-[#1A1D29] min-w-[150px] z-10">
-                                전화번호
-                              </th>
-                              <th className="sticky top-0 px-4 py-2 text-left text-gray-300 bg-[#1A1D29] z-10">
-                                비고
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {excelData.map((student, index) => (
-                              <tr
-                                key={index}
-                                className="border-b border-gray-700/30 hover:bg-[#1C1F2B]/50"
-                              >
-                                <td className="px-4 py-2 text-gray-300 whitespace-nowrap">
-                                  {student.name}
-                                </td>
-                                <td className="px-4 py-2 text-gray-400 whitespace-nowrap font-mono text-sm">
-                                  {student.email}
-                                </td>
-                                <td className="px-4 py-2 text-gray-400 whitespace-nowrap font-mono text-sm">
-                                  {student.phone}
-                                </td>
-                                <td className="px-4 py-2 text-red-400">
-                                  {!student.isValid && (
-                                    <div className="max-w-[400px]">
-                                      <ul className="list-disc list-inside space-y-1">
-                                        {student.errors.map((error, idx) => (
-                                          <li key={idx} className="text-sm">
-                                            {error}
-                                          </li>
-                                        ))}
-                                      </ul>
-                                    </div>
-                                  )}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-
-                      <div className="flex justify-end space-x-2 pt-4">
-                        <Button
-                          variant="outline"
-                          onClick={() => {
-                            setIsExcelPreviewOpen(false);
-                            setExcelData([]);
-                            setSelectedFileName("");
-                          }}
-                          disabled={isProcessing}
-                          className="border-gray-700/30 bg-[#1A1D29]/50 text-gray-300 hover:bg-[#1A1D29]/70 hover:text-white"
-                        >
-                          취소
-                        </Button>
-                        <Button
-                          onClick={handleSaveExcelData}
-                          disabled={
-                            isProcessing ||
-                            !excelData.some((student) => student.isValid)
-                          }
-                          className="bg-gradient-to-r from-[#5046E4] to-[#6A5AFF] hover:brightness-110 text-white shadow-md hover:shadow-xl transition-all duration-300"
-                        >
-                          {isProcessing ? (
-                            <>
-                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                              처리 중...
-                            </>
-                          ) : (
-                            "유효한 데이터 저장"
-                          )}
-                        </Button>
-                      </div>
-                    </>
-                  )}
-                </div>
-              )}
-            </DialogContent>
-          </Dialog>
+            <Upload className="w-4 h-4 mr-2" />
+            엑셀 파일 업로드
+          </Button>
 
           <Dialog
             open={isFormOpen}
@@ -819,6 +664,15 @@ export default function StudentList() {
         </div>
       </div>
 
+      <InfoTable
+        columns={columns}
+        data={students}
+        isLoading={isLoading}
+        error={error instanceof Error ? error : null}
+        emptyMessage="등록된 수강생이 없습니다."
+        actions={renderActions}
+      />
+
       {/* 삭제 확인 모달 */}
       <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
         <DialogContent className="bg-[#252A3C] border-gray-700/30 text-white">
@@ -856,61 +710,6 @@ export default function StudentList() {
           </div>
         </DialogContent>
       </Dialog>
-
-      <div className="bg-[#252A3C] border border-gray-700/30 rounded-xl overflow-hidden shadow-lg">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-gray-700/30 bg-[#1A1D29]/60">
-              <th className="px-4 py-2 text-left text-gray-300">이름</th>
-              <th className="px-4 py-2 text-left text-gray-300">이메일</th>
-              <th className="px-4 py-2 text-left text-gray-300">전화번호</th>
-              <th className="px-4 py-2 text-center text-gray-300">관리</th>
-            </tr>
-          </thead>
-          <tbody>
-            {students.length === 0 ? (
-              <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-gray-400">
-                  등록된 수강생이 없습니다.
-                </td>
-              </tr>
-            ) : (
-              students.map((student) => (
-                <tr
-                  key={student.id}
-                  className="border-b border-gray-700/30 hover:bg-[#1C1F2B]/50"
-                >
-                  <td className="px-4 py-2 text-gray-300">{student.name}</td>
-                  <td className="px-4 py-2 text-gray-400">{student.email}</td>
-                  <td className="px-4 py-2 text-gray-400">{student.phone}</td>
-                  <td className="px-4 py-2 text-center">
-                    <div className="flex justify-center space-x-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="border-gray-700/30 bg-[#1A1D29]/50 text-gray-300 hover:bg-[#1A1D29]/70 hover:text-white"
-                        onClick={() => handleEditClick(student as Student)}
-                        disabled={updateStudentMutation.isPending}
-                      >
-                        수정
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300"
-                        onClick={() => handleDeleteClick(student.id!)}
-                        disabled={deleteStudentMutation.isPending}
-                      >
-                        삭제
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
     </>
   );
 }
