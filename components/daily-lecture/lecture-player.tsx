@@ -5,7 +5,7 @@ import {
   getUploadTypeFromUrl,
   getVideoThumbnailUrl,
   getYouTubeEmbedUrl,
-} from "@/utils/video/videoUtils";
+} from "@/utils/youtube";
 
 interface LecturePlayerProps {
   title: string;

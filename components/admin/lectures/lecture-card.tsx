@@ -1,22 +1,24 @@
-import { Lecture } from "@/types/lecture";
-import { getVideoThumbnailUrl } from "@/utils/youtube";
+import { AdminLecture } from "@/types/lecture";
+import { getUploadTypeFromUrl, getVideoThumbnailUrl } from "@/utils/youtube";
 
 interface LectureCardProps {
-  lecture: Lecture;
+  lecture: AdminLecture;
   onClick: () => void;
 }
 
 export default function LectureCard({ lecture, onClick }: LectureCardProps) {
+  const upload_type = getUploadTypeFromUrl(lecture.url);
+
   return (
     <div
       className="bg-[#252A3C] border border-gray-700/30 rounded-xl overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
       onClick={onClick}
     >
       <div className="aspect-video relative">
-        {lecture.upload_type === 0 ? (
-          getVideoThumbnailUrl(lecture) && (
+        {upload_type === 0 ? (
+          getVideoThumbnailUrl(upload_type, lecture.url) && (
             <img
-              src={getVideoThumbnailUrl(lecture) || undefined}
+              src={getVideoThumbnailUrl(upload_type, lecture.url) || undefined}
               alt={lecture.name}
               className="w-full h-full object-cover"
             />
@@ -43,7 +45,7 @@ export default function LectureCard({ lecture, onClick }: LectureCardProps) {
         </p>
         <div className="flex justify-between items-center text-sm text-gray-500 mt-2 pt-2 border-t border-gray-700/30">
           <span>
-            업로드 타입: {lecture.upload_type === 0 ? "유튜브" : "직접 업로드"}
+            업로드 타입: {upload_type === 0 ? "유튜브" : "직접 업로드"}
           </span>
           <span>
             생성일: {new Date(lecture.created_at).toLocaleDateString()}
