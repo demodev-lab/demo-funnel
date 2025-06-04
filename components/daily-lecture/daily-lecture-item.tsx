@@ -3,7 +3,7 @@ import { Lock, Calendar } from "lucide-react";
 import {
   getUploadTypeFromUrl,
   getVideoThumbnailUrl,
-} from "@/lib/utils/videoUtils";
+} from "@/utils/video/videoUtils";
 import { Lecture } from "@/types/lecture";
 
 interface DailyLectureItemProps {

@@ -4,7 +4,7 @@ import { FileText, Clock, CheckCircle, AlertCircle } from "lucide-react";
 import { AssignmentSubmissionItem } from "./assignment-submission-item";
 import { AssignmentSubmissionForm } from "./assignment-submission-form";
 import { useQuery } from "@tanstack/react-query";
-import { getAssignment } from "@/apis/assignments";
+import { getAssignment, getUserSubmission } from "@/apis/assignments";
 import { userInfo } from "@/types/user";
 import axios from "axios";
 import { useSelectedLectureStore } from "@/lib/store/useSelectedLectureStore";
@@ -48,25 +48,23 @@ export function AssignmentSubmissionSection({
     enabled: !!lectureId,
   });
 
-  const { data: submittedAssignments } = useQuery({
-    queryKey: ["submitted-assignments"],
-    queryFn: async () => {
-      // TODO: api 로직 완성 후 함수 수정
-      const { data } = await axios.get("/api/classroom/assignment", {
-        headers: {
-          Authorization: "Bearer mock-token",
-        },
-      });
-      return data.submissions;
-    },
-  });
-
   // 현재 강의가 오늘 오픈된 강의인지 확인
   const isTodayLecture =
     serverTime && open_at
       ? new Date(serverTime.split("T")[0]).getTime() ===
         new Date(open_at.split("T")[0]).getTime()
       : false;
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await getUserSubmission({
+        userId: userInfo.id,
+        challengeLectureId,
+      });
+      console.log(data);
+    };
+    fetchData();
+  }, [userInfo.id, challengeLectureId]);
 
   return (
     <div className="border-t border-gray-700/50 mt-6">
@@ -117,25 +115,10 @@ export function AssignmentSubmissionSection({
             <CheckCircle className="h-5 w-5 mr-2 text-[#8C7DFF]" />
             제출된 과제
           </h3>
-          <div className="space-y-4">
-            {submittedAssignments?.length > 0 ? (
-              submittedAssignments.map((submission) => (
-                <AssignmentSubmissionItem
-                  key={submission.id}
-                  id={submission.id}
-                  user={submission.user}
-                  time={submission.time}
-                  text={submission.text}
-                  link={submission.link}
-                  linkType={submission.linkType}
-                />
-              ))
-            ) : (
-              <div className="text-center py-8 text-gray-400">
-                아직 제출된 과제가 없습니다.
-              </div>
-            )}
-          </div>
+          <AssignmentSubmissionItem
+            userInfo={userInfo}
+            challengeLectureId={challengeLectureId}
+          />
         </div>
       </div>
     </div>
