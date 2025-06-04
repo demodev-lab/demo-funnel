@@ -21,7 +21,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { StudentTable } from "./student-table";
 import { StudentForm } from "./student-form";
-import { ExcelUploadDialogContent } from "./excel-upload-dialog";
+import { ExcelUploadDialog } from "./excel-upload-dialog";
 import { DeleteDialogContent } from "./delete-dialog";
 import {
   validateStudentForm,
@@ -62,23 +62,6 @@ export default function StudentList() {
   const [isExcelAdding, setIsExcelAdding] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    setIsExcelUploading(true);
-    try {
-      const studentsToAdd = await parseExcelFile(file);
-      setParsedStudents(studentsToAdd);
-    } catch (err: any) {
-      toast.error(err?.message || "엑셀 업로드 중 오류가 발생했습니다.");
-    } finally {
-      setIsExcelUploading(false);
-    }
-  };
-
   const handleExcelDialogClose = (open: boolean) => {
     setIsExcelDialogOpen(open);
     if (!open) {
@@ -88,15 +71,6 @@ export default function StudentList() {
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
-
-  const handleExcelCancel = () => {
-    setParsedStudents([]);
-    setIsExcelDialogOpen(false);
-    setIsExcelUploading(false);
-    setIsExcelAdding(false);
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  };
-
   const handleExcelConfirm = async () => {
     if (!parsedStudents.length) return;
 
@@ -139,7 +113,7 @@ export default function StudentList() {
     try {
       if (isEditMode && editingStudentId) {
         await updateStudentMutation.mutateAsync({
-          id: editingStudentId,
+          id: Number(editingStudentId),
           ...currentStudent,
         });
         toast.success("학생 정보가 성공적으로 수정되었습니다.");
@@ -166,7 +140,7 @@ export default function StudentList() {
       email: student.email,
       phone: student.phone,
     });
-    setEditingStudentId(student.id);
+    setEditingStudentId(student.id.toString());
     setIsEditMode(true);
     setValidationErrors({});
     setIsFormOpen(true);
@@ -181,7 +155,7 @@ export default function StudentList() {
     if (!studentToDelete) return;
 
     try {
-      await deleteStudentMutation.mutateAsync(studentToDelete);
+      await deleteStudentMutation.mutateAsync(Number(studentToDelete));
       toast.success("학생이 성공적으로 삭제되었습니다.");
       setStudentToDelete(null);
       setIsDeleteOpen(false);
@@ -245,14 +219,14 @@ export default function StudentList() {
               <DialogHeader>
                 <DialogTitle>엑셀 파일 업로드</DialogTitle>
               </DialogHeader>
-              <ExcelUploadDialogContent
-                parsedStudents={parsedStudents}
-                isUploading={isExcelUploading}
-                isAdding={isExcelAdding}
-                onFileChange={handleFileUpload}
-                onCancel={handleExcelCancel}
-                onConfirm={handleExcelConfirm}
-                fileInputRef={fileInputRef}
+              <ExcelUploadDialog
+                isOpen={isExcelDialogOpen}
+                onOpenChange={handleExcelDialogClose}
+                onSave={handleExcelConfirm}
+                isProcessing={isExcelUploading || isExcelAdding}
+                selectedChallengeId={1}
+                challenges={[]}
+                validateStudent={() => []}
               />
             </DialogContent>
           </Dialog>
