@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/apis/supabase';
+import { createClient } from '@/utils/supabase/server';
 
 export async function GET() {
   try {
+    const supabase = await createClient();
     const { data, error } = await supabase.rpc('get_server_time');
     
     if (error) {
