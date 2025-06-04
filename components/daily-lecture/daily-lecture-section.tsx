@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import DailyLectureItem from "./daily-lecture-item";
 import LecturePlayer from "./lecture-player";
 import {
@@ -9,7 +9,8 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { PlayCircle, Lock, Calendar } from "lucide-react";
-import { Lecture } from '@/types/lecture';
+import { Lecture } from "@/types/lecture";
+import { useSelectedLectureStore } from "@/lib/store/useSelectedLectureStore";
 
 interface DailyLectureSectionProps {
   lectures: Lecture[];
@@ -23,11 +24,18 @@ export default function DailyLectureSection({
   const [isLockedModalOpen, setIsLockedModalOpen] = useState(false);
   const [lockedVideoTitle, setLockedVideoTitle] = useState("");
 
-  const mainVideo = lectures[selectedVideoIdx] ? {
-    title: lectures[selectedVideoIdx].name,
-    description: lectures[selectedVideoIdx].description,
-    videoUrl: lectures[selectedVideoIdx].url,
-  } : null;
+  const mainLecture = lectures[selectedVideoIdx]
+    ? {
+        title: lectures[selectedVideoIdx].name,
+        description: lectures[selectedVideoIdx].description,
+        lectureUrl: lectures[selectedVideoIdx].url,
+        isLocked: new Date(lectures[selectedVideoIdx].open_at) > new Date(),
+      }
+    : null;
+
+  const onSelectedLecture = useSelectedLectureStore(
+    (state) => state.setSelectedLecture,
+  );
 
   const togglePlay = () => {
     setIsPlaying(!isPlaying);
@@ -47,14 +55,24 @@ export default function DailyLectureSection({
     <>
       {/* Main Video Player */}
       <div className="relative">
-        {mainVideo ? (
-          <LecturePlayer
-            title={mainVideo.title}
-            description={mainVideo.description}
-            videoUrl={mainVideo.videoUrl}
-            isPlaying={isPlaying}
-            onTogglePlay={togglePlay}
-          />
+        {mainLecture ? (
+          mainLecture.isLocked ? (
+            <div className="aspect-video bg-[#1A1D29] flex items-center justify-center">
+              <div className="text-center text-gray-400">
+                <Lock className="h-12 w-12 mx-auto mb-4 text-gray-600" />
+                <p>아직 오픈되지 않은 강의입니다.</p>
+                <p className="text-sm mt-2">매일 새로운 강의가 공개됩니다.</p>
+              </div>
+            </div>
+          ) : (
+            <LecturePlayer
+              title={mainLecture.title}
+              description={mainLecture.description}
+              lectureUrl={mainLecture.lectureUrl}
+              isPlaying={isPlaying}
+              onTogglePlay={togglePlay}
+            />
+          )
         ) : (
           <div className="aspect-video bg-[#1A1D29] flex items-center justify-center">
             <div className="text-center text-gray-400">
@@ -80,20 +98,22 @@ export default function DailyLectureSection({
         <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
           {lectures.length > 0 ? (
             lectures.map((lecture, index) => (
-              <div key={lecture.id} className="group">
+              <div
+                key={lecture.id}
+                className="group"
+                onClick={() => onSelectedLecture(lecture)}
+              >
                 <DailyLectureItem
-                  video={{
-                    id: lecture.id,
-                    name: lecture.name,
-                    description: lecture.description,
-                    url: lecture.url,
-                    locked: new Date(lecture.open_at) > new Date()
-                  }}
+                  dailyLecture={lecture}
                   onLockedClick={handleLockedClick}
                   onVideoSelect={handleVideoSelect}
                   videoIndex={index}
                 />
-                <div className={`mt-2 h-1 bg-gradient-to-r from-[#5046E4] to-[#8C7DFF] rounded-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ${index === selectedVideoIdx ? 'scale-x-100' : ''}`}></div>
+                <div
+                  className={`mt-2 h-1 bg-gradient-to-r from-[#5046E4] to-[#8C7DFF] rounded-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ${
+                    index === selectedVideoIdx ? "scale-x-100" : ""
+                  }`}
+                ></div>
               </div>
             ))
           ) : (
@@ -123,7 +143,9 @@ export default function DailyLectureSection({
             <div className="p-3 bg-[#5046E4]/10 rounded-lg border border-[#5046E4]/20">
               <p className="text-sm flex items-start">
                 <Calendar className="h-4 w-4 mr-2 mt-0.5 text-[#8C7DFF]" />
-                <span>추후 업데이트를 기다려주세요. 완료된 과제를 먼저 제출해보세요!</span>
+                <span>
+                  추후 업데이트를 기다려주세요. 완료된 과제를 먼저 제출해보세요!
+                </span>
               </p>
             </div>
           </div>

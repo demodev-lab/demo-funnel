@@ -1,15 +1,4 @@
-interface Lecture {
-  id: number;
-  name: string;
-  description: string;
-  url: string;
-  created_at: string;
-  updated_at: string;
-  upload_type: number;
-  sequence: number;
-  assignment_title?: string;
-  assignment?: string;
-}
+
 
 export const getYouTubeVideoId = (url: string) => {
   try {
@@ -35,13 +24,18 @@ export const getYouTubeEmbedUrl = (url: string) => {
   return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
 };
 
-export const getVideoThumbnailUrl = (lecture: Lecture) => {
-  if (lecture.upload_type === 0) {
-    const videoId = getYouTubeVideoId(lecture.url);
+export const getVideoThumbnailUrl = (upload_type: number, url: string) => {
+  if (upload_type === 0) {
+    const videoId = getYouTubeVideoId(url);
     return videoId
       ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
       : null;
   } else {
-    return lecture.url;
+    return "https://placehold.co/1280x720/1A1D29/8C7DFF?text=No+Thumbnail";
   }
+};
+
+// URL에서 업로드 타입 (0: YouTube, 1: 직접 업로드)을 가져오는 함수
+export const getUploadTypeFromUrl = (url: string): number => {
+  return url.includes('youtube.com') ? 0 : 1;
 };
