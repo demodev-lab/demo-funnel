@@ -124,14 +124,17 @@ export function AssignmentSubmissionSection({
             <CheckCircle className="h-5 w-5 mr-2 text-[#8C7DFF]" />
             제출된 과제
           </h3>
-          {isSubmissionLoading && (
+          {isSubmissionLoading ? (
             <p className="text-gray-400">제출 정보 로딩 중...</p>
-          )}
-          {!isSubmissionLoading && (
+          ) : submittedAssignment && submittedAssignment.is_submit ? (
             <AssignmentSubmissionItem
               userInfo={userInfo}
               submittedAssignment={submittedAssignment}
             />
+          ) : (
+            <div className="text-gray-400 text-center py-6">
+              제출된 과제가 없습니다.
+            </div>
           )}
         </div>
       </div>
