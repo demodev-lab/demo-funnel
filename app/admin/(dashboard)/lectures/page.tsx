@@ -16,41 +16,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useChallengeStore } from "@/lib/store/useChallengeStore";
 import { LectureWithSequence } from "@/types/lecture";
-
-const getYouTubeVideoId = (url: string) => {
-  try {
-    // URL에서 마지막 v= 파라미터를 찾습니다
-    const parts = url.split("watch?v=");
-    if (parts.length > 1) {
-      // 마지막 부분을 가져옵니다
-      const lastPart = parts[parts.length - 1];
-      // 추가 파라미터가 있다면 제거
-      return lastPart.split("/")[0].split("&")[0];
-    }
-    return null;
-  } catch (e) {
-    console.error("비디오 ID 추출 실패:", e);
-    return null;
-  }
-};
-
-const getYouTubeEmbedUrl = (url: string) => {
-  const videoId = getYouTubeVideoId(url);
-  return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
-};
-
-const getVideoThumbnailUrl = (lecture: LectureWithSequence) => {
-  if (lecture.upload_type === 0) {
-    // YouTube 동영상인 경우
-    const videoId = getYouTubeVideoId(lecture.url);
-    return videoId
-      ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
-      : null;
-  } else {
-    // Supabase Storage 동영상인 경우
-    return lecture.url;
-  }
-};
+import { getVideoThumbnailUrl, getYouTubeEmbedUrl } from '@/utils/video/videoUtils';
 
 export default function LecturesPage() {
   const [isOpen, setIsOpen] = useState(false);
@@ -148,14 +114,7 @@ export default function LecturesPage() {
               <div className="aspect-video relative">
                 {lecture.upload_type === 0 ? (
                   getVideoThumbnailUrl(lecture.upload_type, lecture.url) && (
-                  getVideoThumbnailUrl(lecture.upload_type, lecture.url) && (
                     <img
-                      src={
-                        getVideoThumbnailUrl(
-                          lecture.upload_type,
-                          lecture.url,
-                        ) || undefined
-                      }
                       src={
                         getVideoThumbnailUrl(
                           lecture.upload_type,
