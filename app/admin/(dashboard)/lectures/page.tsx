@@ -13,14 +13,49 @@ import { getLecturesByChallenge, deleteLecture } from "@/apis/lectures";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useChallengeStore } from "@/lib/store/useChallengeStore";
-import { Lecture } from "@/types/lecture";
-import LectureCard from "@/components/admin/lectures/lecture-card";
-import LectureDetailModal from "@/components/admin/lectures/lecture-detail-modal";
+import { Lecture, LectureWithSequence } from "@/types/lecture";
 import LectureForm from "@/components/admin/lecture-form";
+import LectureCard from "@/components/admin/lectures/lecture-card";
+
+const getYouTubeVideoId = (url: string) => {
+  try {
+    // URL에서 마지막 v= 파라미터를 찾습니다
+    const parts = url.split("watch?v=");
+    if (parts.length > 1) {
+      // 마지막 부분을 가져옵니다
+      const lastPart = parts[parts.length - 1];
+      // 추가 파라미터가 있다면 제거
+      return lastPart.split("/")[0].split("&")[0];
+    }
+    return null;
+  } catch (e) {
+    console.error("비디오 ID 추출 실패:", e);
+    return null;
+  }
+};
+
+const getYouTubeEmbedUrl = (url: string) => {
+  const videoId = getYouTubeVideoId(url);
+  return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+};
+
+const getVideoThumbnailUrl = (lecture: LectureWithSequence) => {
+  if (lecture.upload_type === 0) {
+    // YouTube 동영상인 경우
+    const videoId = getYouTubeVideoId(lecture.url);
+    return videoId
+      ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
+      : null;
+  } else {
+    // Supabase Storage 동영상인 경우
+    return lecture.url;
+  }
+};
 
 export default function LecturesPage() {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedLecture, setSelectedLecture] = useState<Lecture | null>(null);
+  const [selectedLecture, setSelectedLecture] =
+    useState<LectureWithSequence | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const queryClient = useQueryClient();
   const { selectedChallengeId } = useChallengeStore();
@@ -102,21 +137,63 @@ export default function LecturesPage() {
           lectures.map((lecture) => (
             <LectureCard
               key={lecture.id}
-              lecture={lecture}
+              lecture={lecture as unknown as Lecture}
               onClick={() => setSelectedLecture(lecture)}
             />
           ))
         )}
       </div>
 
-      <LectureDetailModal
-        lecture={selectedLecture}
-        isOpen={!!selectedLecture}
-        onClose={handleCloseModal}
-        onDelete={handleDelete}
-        isDeleting={isDeleting}
-        onSuccess={handleCloseModal}
-      />
+      <Dialog open={!!selectedLecture} onOpenChange={handleCloseModal}>
+        <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto bg-[#252A3C] border-gray-700/30 text-white">
+          <DialogHeader>
+            <DialogTitle className="text-white">
+              {selectedLecture?.name}
+            </DialogTitle>
+          </DialogHeader>
+          {selectedLecture && (
+            <div className="space-y-4">
+              <div className="aspect-video">
+                {selectedLecture.upload_type === 0 ? (
+                  getYouTubeEmbedUrl(selectedLecture.url) && (
+                    <iframe
+                      src={getYouTubeEmbedUrl(selectedLecture.url) || undefined}
+                      className="w-full h-full rounded-lg border border-gray-700/30"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  )
+                ) : (
+                  <video
+                    src={selectedLecture.url}
+                    className="w-full h-full rounded-lg border border-gray-700/30"
+                    controls
+                  />
+                )}
+              </div>
+              <div className="pt-4">
+                <LectureForm
+                  isEdit
+                  initialData={{
+                    name: selectedLecture.name,
+                    description: selectedLecture.description || "",
+                    url: selectedLecture.url || "",
+                    assignmentTitle: selectedLecture.assignment_title || "",
+                    assignment: selectedLecture.assignment || "",
+                  }}
+                  lectureId={selectedLecture.id}
+                  onSuccess={() => {
+                    handleCloseModal();
+                    queryClient.invalidateQueries({ queryKey: ["lectures"] });
+                  }}
+                  onDelete={handleDelete}
+                  isDeleting={isDeleting}
+                />
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

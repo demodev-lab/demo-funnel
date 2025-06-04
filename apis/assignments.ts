@@ -160,7 +160,7 @@ export async function getAssignmentStats(challengeId: number) {
 
     // 3. 각 강의별 제출 현황과 과제 정보 조회
     const submissionRates = await Promise.all(
-      challengeLectures.map(async (lecture) => {
+      (challengeLectures || []).map(async (lecture) => {
         // 과제 정보 조회
         const { data: assignment, error: assignmentError } = await supabase
           .from("Assignments")
@@ -202,6 +202,36 @@ export async function getAssignmentStats(challengeId: number) {
       error instanceof Error
         ? error.message
         : "과제 제출률 계산 중 오류가 발생했습니다.",
+    );
+  }
+}
+
+export async function getUserSubmission({
+  userId,
+  challengeLectureId,
+}: {
+  userId: number;
+  challengeLectureId: number;
+}) {
+  try {
+    const { data: submission, error } = await supabase
+      .from("Submissions")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("challenge_lecture_id", challengeLectureId)
+      .single();
+
+    if (error) throw error;
+
+    console.log("제출된 과제:", submission);
+
+    return submission;
+  } catch (error) {
+    console.error("제출된 과제 조회 실패:", error);
+    throw new Error(
+      error instanceof Error
+        ? error.message
+        : "제출된 과제 조회 중 오류가 발생했습니다.",
     );
   }
 }
