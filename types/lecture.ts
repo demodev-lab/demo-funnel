@@ -105,3 +105,12 @@ export interface LectureFormProps {
   onDelete?: () => void;
   isDeleting?: boolean;
 }
+
+export interface ChallengeLecture {
+  id: number;
+  lecture_id: number;
+  Lectures: {
+    id: number;
+    name: string;
+  };
+}
