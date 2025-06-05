@@ -20,7 +20,7 @@ export default function SummaryCards({
     <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 animate-slide-up">
       <SummaryCard
         title="총 수강생"
-        value={totalStudent !== undefined ? `${totalStudent}` : "-"}
+        value={totalStudent !== undefined ? `${totalStudent}명` : "-"}
         icon={Users}
         change={
           !isFirstPeriod && totalStudentChange ? totalStudentChange : undefined
