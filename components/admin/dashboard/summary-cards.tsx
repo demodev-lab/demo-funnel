@@ -1,0 +1,27 @@
+import { Users, CheckCircle2, PlayCircle } from "lucide-react";
+import SummaryCard from './summary-card';
+
+export default function SummaryCards() {
+  return (
+    <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 animate-slide-up">
+      <SummaryCard
+        title="총 수강생"
+        value="120명"
+        icon={Users}
+        change={{ value: "+5명", isPositive: true }}
+      />
+      <SummaryCard
+        title="평균 과제 제출률"
+        value="78%"
+        icon={CheckCircle2}
+        change={{ value: "+2%", isPositive: true }}
+      />
+      <SummaryCard
+        title="평균 강의 수강률"
+        value="85%"
+        icon={PlayCircle}
+        change={{ value: "-1%", isPositive: false }}
+      />
+    </div>
+  );
+}
