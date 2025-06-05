@@ -1,5 +1,32 @@
 export interface userInfo {
-  id: number,
-  name: string,
-  email: string,
+  id: number;
+  name: string;
+  email: string;
+}
+
+export interface User {
+  id?: number;
+  name: string;
+  email: string;
+  phone: string;
+}
+
+export interface UserWithChallenges extends User {
+  challenges?: number[];
+}
+
+export interface SubmissionStatus {
+  lectureId: number;
+  isSubmitted: boolean;
+  assignments?: {
+    url: string;
+    comment: string;
+  }[];
+}
+
+export interface StudentSubmission {
+  userId: string;
+  userName: string;
+  userEmail: string;
+  submissions: SubmissionStatus[];
 }
