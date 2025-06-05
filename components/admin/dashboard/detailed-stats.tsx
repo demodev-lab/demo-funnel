@@ -1,7 +1,12 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import EnrollmentRateDashboard from "@/components/admin/enrollment-rate-dashboard";
+import { DashboardAssignmentStat } from "@/types/assignment";
 
-export default function DetailedStats() {
+interface DetailedStatsProps {
+  assignmentStats: DashboardAssignmentStat[];
+}
+
+export default function DetailedStats({ assignmentStats }: DetailedStatsProps) {
   return (
     <div className="bg-[#252A3C] border border-gray-700/30 rounded-xl overflow-hidden shadow-lg animate-slide-up">
       <Tabs defaultValue="submission" className="w-full">
@@ -23,7 +28,7 @@ export default function DetailedStats() {
         </div>
         <div className="p-6">
           <TabsContent value="submission">
-            <EnrollmentRateDashboard type="submission" />
+            <EnrollmentRateDashboard type="submission" data={assignmentStats} />
           </TabsContent>
           <TabsContent value="lecture">
             <EnrollmentRateDashboard type="lecture" />
