@@ -5,7 +5,7 @@ import SummaryCards from "./summary-cards";
 import DetailedStats from "./detailed-stats";
 import { useQuery } from "@tanstack/react-query";
 import { useChallengeStore } from "@/lib/store/useChallengeStore";
-import { getChallengeUsers } from "@/apis/users";
+import { getAssignmentStats } from "@/apis/assignments";
 
 export default function DashboardPage() {
   const { selectedChallengeId } = useChallengeStore();
@@ -13,7 +13,8 @@ export default function DashboardPage() {
   const { data: totalStudent, isLoading } = useQuery({
     queryKey: ["challengeUsers", selectedChallengeId],
     queryFn: async () => {
-      const data = await getChallengeUsers(selectedChallengeId);
+      const data = await getAssignmentStats(selectedChallengeId);
+      console.log("제출 인원: ", data);
       return data.length;
     },
     enabled: !!selectedChallengeId,
