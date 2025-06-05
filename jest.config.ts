@@ -1,8 +1,4 @@
 import type { Config } from "jest";
-import dotenv from "dotenv";
-
-// .env.test 파일 로드
-dotenv.config({ path: ".env.test" });
 
 const config: Config = {
   preset: "ts-jest",
