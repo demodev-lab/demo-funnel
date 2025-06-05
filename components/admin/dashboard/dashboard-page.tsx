@@ -17,7 +17,7 @@ export default function DashboardPage() {
       queryKey: ["challengeUsers", selectedChallengeId],
       queryFn: async () => {
         const data = await getAssignmentStats(selectedChallengeId);
-        console.log("현재 기수 제출 인원 (API response): ", data);
+        // console.log("현재 기수 제출 인원 (API response): ", data);
         return data;
       },
       enabled: !!selectedChallengeId,
@@ -43,6 +43,7 @@ export default function DashboardPage() {
   const {
     currentValue: currentTotalStudent,
     formattedChange: totalStudentChange,
+    lastUpdated,
   } = usePeriodComparison(
     currentAssignmentState,
     previousAssignmentState,
@@ -74,7 +75,7 @@ export default function DashboardPage() {
           </h1>
           <div className="text-sm text-gray-400 bg-[#252A3C] px-3 py-1.5 rounded-lg border border-gray-700/30 inline-flex items-center">
             <BarChart3 className="h-4 w-4 mr-2 text-[#8C7DFF]" />
-            최근 업데이트: 2024년 6월 15일
+            최근 업데이트: {lastUpdated}
           </div>
         </div>
 
