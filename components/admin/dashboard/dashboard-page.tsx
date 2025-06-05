@@ -6,19 +6,62 @@ import DetailedStats from "./detailed-stats";
 import { useQuery } from "@tanstack/react-query";
 import { useChallengeStore } from "@/lib/store/useChallengeStore";
 import { getAssignmentStats } from "@/apis/assignments";
+import { DashboardAssignmentStat } from "@/types/assignment";
+import { usePeriodComparison } from "@/hooks/admin/usePeriodComparison";
 
 export default function DashboardPage() {
   const { selectedChallengeId } = useChallengeStore();
 
-  const { data: assignmentState = [], isLoading } = useQuery({
-    queryKey: ["challengeUsers", selectedChallengeId],
-    queryFn: async () => {
-      const data = await getAssignmentStats(selectedChallengeId);
-      console.log("제출 인원: ", data);
-      return data;
-    },
-    enabled: !!selectedChallengeId,
-  });
+  const { data: currentAssignmentState = [], isLoading: isLoadingCurrent } =
+    useQuery<DashboardAssignmentStat[]>({
+      queryKey: ["challengeUsers", selectedChallengeId],
+      queryFn: async () => {
+        const data = await getAssignmentStats(selectedChallengeId);
+        console.log("현재 기수 제출 인원 (API response): ", data);
+        return data;
+      },
+      enabled: !!selectedChallengeId,
+    });
+
+  const previousChallengeId =
+    selectedChallengeId && selectedChallengeId > 1
+      ? selectedChallengeId - 1
+      : undefined;
+  const isFirstPeriod = selectedChallengeId === 1;
+
+  const { data: previousAssignmentState = [], isLoading: isLoadingPrevious } =
+    useQuery<DashboardAssignmentStat[]>({
+      queryKey: ["challengeUsers", previousChallengeId],
+      queryFn: async () => {
+        const data = await getAssignmentStats(previousChallengeId);
+        console.log("이전 기수 제출 인원 (API response): ", data);
+        return data;
+      },
+      enabled: !!previousChallengeId,
+    });
+
+  const {
+    currentValue: currentTotalStudent,
+    formattedChange: totalStudentChange,
+  } = usePeriodComparison(
+    currentAssignmentState,
+    previousAssignmentState,
+    isFirstPeriod,
+    "totalStudents",
+  );
+
+  const {
+    currentValue: averageSubmissionRate,
+    formattedChange: submissionRateChange,
+  } = usePeriodComparison(
+    currentAssignmentState,
+    previousAssignmentState,
+    isFirstPeriod,
+    "submissionRate",
+  );
+
+  const isLoading =
+    isLoadingCurrent || (!!previousChallengeId && isLoadingPrevious);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -40,9 +83,15 @@ export default function DashboardPage() {
             <Loader2 className="h-8 w-8 animate-spin text-[#8C7DFF]" />
           </div>
         ) : (
-          <SummaryCards assignmentState={assignmentState} />
+          <SummaryCards
+            totalStudent={currentTotalStudent}
+            averageSubmissionRate={averageSubmissionRate?.toString()}
+            totalStudentChange={totalStudentChange}
+            isFirstPeriod={isFirstPeriod}
+            submissionRateChange={submissionRateChange}
+          />
         )}
-        <DetailedStats assignmentStats={assignmentState} />
+        <DetailedStats assignmentStats={currentAssignmentState} />
       </div>
     </div>
   );

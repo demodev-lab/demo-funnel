@@ -38,7 +38,7 @@ export default function SummaryCard({
             >
               {change.value}
             </span>
-            <span className="text-xs text-gray-400">전주 대비</span>
+            <span className="text-xs text-gray-400">이전 기수 대비</span>
           </div>
         )}
       </CardContent>
