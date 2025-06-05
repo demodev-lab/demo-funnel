@@ -23,11 +23,11 @@ interface EnrollmentRateDashboardProps {
 }
 
 interface DisplayItem {
-  id: number; 
-  title: string; 
-  rate: number; 
-  count: number; 
-  total: number; 
+  id: number;
+  title: string;
+  rate: number;
+  count: number;
+  total: number;
 }
 
 export default function EnrollmentRateDashboard({
@@ -125,9 +125,8 @@ export default function EnrollmentRateDashboard({
               >
                 <TableCell className="font-medium text-gray-300">
                   {type === "submission"
-                    ? `${index + 1}. ${item.title}` 
+                    ? `${index + 1}. ${item.title}`
                     : `${index + 1}강: ${item.title}`}{" "}
-                  // Lecture: n강: Lecture Title
                 </TableCell>
                 <TableCell className="text-right">
                   <span
