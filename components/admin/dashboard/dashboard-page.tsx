@@ -10,15 +10,17 @@ import { getAssignmentStats } from "@/apis/assignments";
 export default function DashboardPage() {
   const { selectedChallengeId } = useChallengeStore();
 
-  const { data: totalStudent, isLoading } = useQuery({
+  const { data: assignmentState = [], isLoading } = useQuery({
     queryKey: ["challengeUsers", selectedChallengeId],
     queryFn: async () => {
       const data = await getAssignmentStats(selectedChallengeId);
       console.log("제출 인원: ", data);
-      return data.length;
+      return data;
     },
     enabled: !!selectedChallengeId,
   });
+
+  const totalStudent = assignmentState?.[0]?.totalParticipants;
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -42,7 +44,7 @@ export default function DashboardPage() {
         ) : (
           <SummaryCards totalStudent={totalStudent} />
         )}
-        <DetailedStats />
+        <DetailedStats assignmentStats={assignmentState} />
       </div>
     </div>
   );
