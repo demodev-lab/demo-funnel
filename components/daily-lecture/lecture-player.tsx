@@ -52,12 +52,21 @@ export default function LecturePlayer({
       <div className="relative aspect-video w-full bg-black">
         {isPlaying ? (
           <div className="relative h-full w-full">
-            <iframe
-              src={`${getYouTubeEmbedUrl(lectureUrl)}?autoplay=1`}
-              className="absolute inset-0 w-full h-full"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
+            {upload_type === 0 ? (
+              <iframe
+                src={`${getYouTubeEmbedUrl(lectureUrl)}?autoplay=1`}
+                className="absolute inset-0 w-full h-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            ) : (
+              <video
+                src={lectureUrl}
+                className="absolute inset-0 w-full h-full"
+                autoPlay
+                controls
+              />
+            )}
             <Button
               variant="outline"
               size="icon"
