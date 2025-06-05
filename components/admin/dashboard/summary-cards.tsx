@@ -1,12 +1,16 @@
 import { Users, CheckCircle2, PlayCircle } from "lucide-react";
-import SummaryCard from './summary-card';
+import SummaryCard from "./summary-card";
 
-export default function SummaryCards() {
+interface SummaryCardsProps {
+  totalStudent: number | undefined;
+}
+
+export default function SummaryCards({ totalStudent }: SummaryCardsProps) {
   return (
     <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 animate-slide-up">
       <SummaryCard
         title="총 수강생"
-        value="120명"
+        value={totalStudent !== undefined ? `${totalStudent}` : "-"}
         icon={Users}
         change={{ value: "+5명", isPositive: true }}
       />
