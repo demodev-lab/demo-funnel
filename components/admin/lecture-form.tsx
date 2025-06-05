@@ -33,12 +33,8 @@ import {
 import { getChallenges } from "@/apis/challenges";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/utils/supabase/client";
-import {
-  type LectureDetail,
-  type Challenge,
-  type ChallengeOrder,
-  type LectureFormProps,
-} from "@/types/lecture";
+import { type LectureDetail, type LectureFormProps } from "@/types/lecture";
+import { Challenge, ChallengeOrder } from "@/types/challenge";
 
 export default function LectureForm({
   onSuccess,
