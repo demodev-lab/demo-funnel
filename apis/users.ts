@@ -1,40 +1,7 @@
 import { supabase } from "./supabase";
 import { UserChallenges } from "@/types/challenge";
-
-// TODO 인터페이스 파일 분리 필요
-
-export interface UserData {
-  id?: number;
-  name: string;
-  email: string;
-  phone: string;
-  [key: string]: any;
-}
-
-interface UserWithChallenges extends UserData {
-  challenges?: number[];
-}
-
-interface SubmissionStatus {
-  lectureId: number;
-  isSubmitted: boolean;
-  assignments?: {
-    url: string;
-    comment: string;
-  }[];
-}
-
-interface ChallengeLecture {
-  id: number;
-  lecture_id: number;
-}
-
-interface StudentSubmission {
-  userId: string;
-  userName: string;
-  userEmail: string;
-  submissions: SubmissionStatus[];
-}
+import { User, UserWithChallenges, StudentSubmission } from "@/types/user";
+import { ChallengeLecture } from "@/types/lecture";
 
 export async function getUsers() {
   try {
@@ -203,9 +170,7 @@ export async function getUserChallenges(
   }
 }
 
-export async function getChallengeUsers(
-  challengeId: number,
-): Promise<UserData[]> {
+export async function getChallengeUsers(challengeId: number): Promise<User[]> {
   try {
     if (!challengeId) {
       return [];

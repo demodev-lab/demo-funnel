@@ -5,8 +5,8 @@ import {
   updateUser,
   deleteUser,
   getChallengeUsers,
-  UserData,
 } from "@/apis/users";
+import { User } from "@/types/user";
 
 // 공통 데이터 모듈에서 타입 가져오기
 export interface Student {
@@ -104,7 +104,7 @@ export const useStudents = () => {
 };
 
 export const useStudentsByChallenge = (selectedChallengeId: number) => {
-  return useQuery<UserData[]>({
+  return useQuery<User[]>({
     queryKey: ["students", selectedChallengeId],
     queryFn: () => getChallengeUsers(selectedChallengeId),
   });
