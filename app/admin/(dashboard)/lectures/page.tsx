@@ -16,7 +16,7 @@ import { useChallengeStore } from "@/lib/store/useChallengeStore";
 import { AdminLecture, LectureWithSequence } from "@/types/lecture";
 import LectureForm from "@/components/admin/lecture-form";
 import LectureCard from "@/components/admin/lectures/lecture-card";
-import { getYouTubeEmbedUrl } from '@/utils/youtube';
+import { getYouTubeEmbedUrl } from "@/utils/youtube";
 
 export default function LecturesPage() {
   const [isOpen, setIsOpen] = useState(false);
@@ -62,7 +62,10 @@ export default function LecturesPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white"></div>
+        <div
+          data-testid="spinner"
+          className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white"
+        ></div>
       </div>
     );
   }
