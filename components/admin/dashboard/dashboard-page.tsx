@@ -20,8 +20,6 @@ export default function DashboardPage() {
     enabled: !!selectedChallengeId,
   });
 
-  const totalStudent = assignmentState?.[0]?.totalParticipants;
-
   return (
     <div className="flex flex-col min-h-screen">
       <div className="p-6 md:p-8 space-y-6 animate-fade-in">
@@ -42,7 +40,7 @@ export default function DashboardPage() {
             <Loader2 className="h-8 w-8 animate-spin text-[#8C7DFF]" />
           </div>
         ) : (
-          <SummaryCards totalStudent={totalStudent} />
+          <SummaryCards assignmentState={assignmentState} />
         )}
         <DetailedStats assignmentStats={assignmentState} />
       </div>
