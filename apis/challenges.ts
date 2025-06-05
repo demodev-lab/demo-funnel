@@ -1,5 +1,6 @@
 import { supabase } from "./supabase";
 import type { ChallengeFormData } from "@/types/challenge";
+import { handleError } from "@/utils/errorHandler";
 
 export async function getChallenges() {
   try {
@@ -13,8 +14,7 @@ export async function getChallenges() {
     console.log("챌린지 목록: ", data);
     return data;
   } catch (error) {
-    console.error("데이터 패칭 실패", error);
-    throw error;
+    handleError(error, "챌린지 목록 조회 중 오류가 발생했습니다.");
   }
 }
 
@@ -29,11 +29,7 @@ export async function createChallenge(data: ChallengeFormData) {
     if (error) throw error;
     return newChallenge;
   } catch (error) {
-    throw new Error(
-      error instanceof Error
-        ? error.message
-        : "챌린지 추가 중 오류가 발생했습니다.",
-    );
+    handleError(error, "챌린지 추가 중 오류가 발생했습니다.");
   }
 }
 
@@ -54,11 +50,7 @@ export async function updateChallenge(
 
     return updatedChallenge;
   } catch (error) {
-    throw new Error(
-      error instanceof Error
-        ? error.message
-        : "챌린지 수정 중 오류가 발생했습니다.",
-    );
+    handleError(error, "챌린지 수정 중 오류가 발생했습니다.");
   }
 }
 
@@ -82,10 +74,6 @@ export async function deleteChallenge(id: number) {
 
     return true;
   } catch (error) {
-    throw new Error(
-      error instanceof Error
-        ? error.message
-        : "챌린지 삭제 중 오류가 발생했습니다.",
-    );
+    handleError(error, "챌린지 삭제 중 오류가 발생했습니다.");
   }
 }
