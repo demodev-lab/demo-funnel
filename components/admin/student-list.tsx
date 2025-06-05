@@ -1,13 +1,14 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Plus, Upload, Loader2 } from "lucide-react";
+import { Plus, Upload, Loader2, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -285,7 +286,10 @@ export default function StudentList() {
 
     // 챌린지 정보 가져오기
     const userChallenges = await getUserChallenges(student.id);
-    setSelectedChallenges(userChallenges.map((challenge) => challenge.id));
+    console.log("User challenges:", userChallenges);
+    const challengeIds = userChallenges.map((challenge) => challenge.id);
+    console.log("Challenge IDs:", challengeIds);
+    setSelectedChallenges(challengeIds);
 
     setEditingStudentId(student.id);
     setIsEditMode(true);
@@ -418,7 +422,10 @@ export default function StudentList() {
             </Button>
           </div>
         </div>
-        <div className="bg-[#252A3C] border border-gray-700/30 rounded-xl overflow-hidden shadow-lg">
+        <div
+          data-testid="loader"
+          className="bg-[#252A3C] border border-gray-700/30 rounded-xl overflow-hidden shadow-lg"
+        >
           <div className="flex justify-center items-center py-20">
             <Loader2 className="w-8 h-8 animate-spin text-[#8C7DFF]" />
             <span className="ml-2 text-gray-400">
@@ -507,6 +514,7 @@ export default function StudentList() {
                 resetFormState();
               }
             }}
+            data-testid="student-form-dialog"
           >
             <DialogTrigger asChild>
               <Button
@@ -517,11 +525,16 @@ export default function StudentList() {
                 수강생 추가
               </Button>
             </DialogTrigger>
-            <DialogContent className="bg-[#252A3C] border-gray-700/30 text-white">
+            <DialogContent className="sm:max-w-[425px] bg-[#252A3C] border-gray-700/30 text-white">
               <DialogHeader>
-                <DialogTitle className="text-white">
+                <DialogTitle>
                   {isEditMode ? "수강생 수정" : "수강생 추가"}
                 </DialogTitle>
+                <DialogDescription>
+                  {isEditMode
+                    ? "수강생 정보를 수정합니다."
+                    : "새로운 수강생을 추가합니다."}
+                </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
@@ -587,7 +600,10 @@ export default function StudentList() {
                   <Select
                     onValueChange={(value) => {
                       const numValue = parseInt(value, 10);
-                      if (!selectedChallenges.includes(numValue)) {
+                      if (
+                        !isNaN(numValue) &&
+                        !selectedChallenges.includes(numValue)
+                      ) {
                         setSelectedChallenges([
                           ...selectedChallenges,
                           numValue,
@@ -614,17 +630,21 @@ export default function StudentList() {
                     <div className="mt-2 space-y-2">
                       <div className="flex flex-wrap gap-2">
                         {selectedChallenges.map((challengeId) => {
-                          const challenge = challenges.find(
-                            (c) => c.id === challengeId,
-                          );
+                          const challenge = challenges.find((c) => {
+                            return c.id === challengeId;
+                          });
                           return (
                             <div
                               key={challengeId}
-                              className="flex items-center gap-2 bg-[#DCD9FF] px-3 py-1 rounded-full text-sm"
+                              className="flex items-center gap-2"
                             >
-                              <span>{challenge?.name}</span>
-                              <button
-                                type="button"
+                              <span className="text-sm text-gray-500">
+                                {challenge?.name}
+                              </span>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-4 w-4"
                                 onClick={() => {
                                   setSelectedChallenges(
                                     selectedChallenges.filter(
@@ -632,10 +652,9 @@ export default function StudentList() {
                                     ),
                                   );
                                 }}
-                                className="text-gray-500 hover:text-gray-700"
                               >
-                                ×
-                              </button>
+                                <X className="h-3 w-3" />
+                              </Button>
                             </div>
                           );
                         })}
@@ -674,7 +693,11 @@ export default function StudentList() {
       />
 
       {/* 삭제 확인 모달 */}
-      <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+      <Dialog
+        open={isDeleteOpen}
+        onOpenChange={setIsDeleteOpen}
+        data-testid="delete-confirm-dialog"
+      >
         <DialogContent className="bg-[#252A3C] border-gray-700/30 text-white">
           <DialogHeader>
             <DialogTitle className="text-white">수강생 삭제</DialogTitle>
