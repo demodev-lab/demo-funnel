@@ -18,7 +18,7 @@ export const metadata: Metadata = {
       "매일 하나의 강의를 듣고 과제를 제출하는 학습 플랫폼입니다. 꾸준한 학습을 통해 실력을 키워보세요.",
     images: [
       {
-        url: "/og-image.jpg",
+        url: "/og-image.png",
         width: 1200,
         height: 630,
         alt: "데모 퍼널 OG 이미지",
