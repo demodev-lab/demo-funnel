@@ -25,15 +25,11 @@ export async function getAssignment(lectureId: number) {
 }
 
 export async function createSubmission({
-  name,
-  email,
   link,
   text,
   challengeLectureId,
   userId,
 }: {
-  name: string;
-  email: string;
   link: string;
   text: string;
   challengeLectureId: number;
