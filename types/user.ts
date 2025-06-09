@@ -30,3 +30,12 @@ export interface StudentSubmission {
   userEmail: string;
   submissions: SubmissionStatus[];
 }
+
+export interface Student {
+  id?: number;
+  name: string;
+  email: string;
+  phone: string;
+  created_at?: string;
+  updated_at?: string;
+}
