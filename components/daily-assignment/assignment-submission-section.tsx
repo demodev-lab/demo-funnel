@@ -6,10 +6,10 @@ import { AssignmentSubmissionForm } from "./assignment-submission-form";
 import { useQuery } from "@tanstack/react-query";
 import { getAssignment, getUserSubmission } from "@/apis/assignments";
 import { userInfo } from "@/types/user";
-import axios from "axios";
 import { useSelectedLectureStore } from "@/lib/store/useSelectedLectureStore";
 import { useEffect, useState } from "react";
 import { SubmittedAssignment } from "@/types/assignment";
+import { checkIsTodayLecture } from "@/utils/date/serverTime";
 
 interface AssignmentSubmissionSectionProps {
   userInfo: userInfo;
@@ -19,31 +19,22 @@ export function AssignmentSubmissionSection({
   userInfo,
 }: AssignmentSubmissionSectionProps) {
   const { lectureId, challengeLectureId, open_at } = useSelectedLectureStore();
-  const [serverTime, setServerTime] = useState<string>("");
-  const [timeError, setTimeError] = useState<string>("");
+  const [isTodayLecture, setIsTodayLecture] = useState(false);
 
-  // 서버 시간 가져오기
   useEffect(() => {
-    const getServerTime = async () => {
-      try {
-        const { data } = await axios.get("/api/server-time");
-        setServerTime(data.serverTime);
-        setTimeError("");
-      } catch (error) {
-        setTimeError(
-          "일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요. 문제가 지속되면 문의해주세요.",
-        );
+    const checkTodayLecture = async () => {
+      if (open_at) {
+        const isToday = await checkIsTodayLecture(open_at);
+        setIsTodayLecture(isToday);
       }
     };
-    getServerTime();
-  }, []);
+    checkTodayLecture();
+  }, [open_at]);
 
   // 마감 기한이 지나지 않았는지 확인 (마감 기한 전에만 수정 가능) TODO: open_at이 아닌 due_at으로 변경할 지 논의 필
   const isBeforeDeadline =
-    serverTime && open_at
-      ? new Date(serverTime) <=
-        new Date(new Date(open_at).getTime() + 24 * 60 * 60 * 1000)
-      : false;
+    open_at &&
+    new Date(open_at).getTime() + 24 * 60 * 60 * 1000 > new Date().getTime();
 
   // 선택한 강의에 대한 과제 정보 가져오기
   const { data: assignmentInfo = [] } = useQuery({
@@ -51,17 +42,10 @@ export function AssignmentSubmissionSection({
     queryFn: async () => {
       if (!lectureId) return null;
       const data = await getAssignment(lectureId);
-      return data[0]; // 하나의 강의에 하나의 과제만 있으므로 첫 번째 요소만 반환
+      return data[0]; // NOTE: 하나의 강의에 하나의 과제만 존재
     },
     enabled: !!lectureId,
   });
-
-  // 현재 강의가 오늘 오픈된 강의인지 확인
-  const isTodayLecture =
-    serverTime && open_at
-      ? new Date(serverTime.split("T")[0]).getTime() ===
-        new Date(open_at.split("T")[0]).getTime()
-      : false;
 
   // 제출된 과제 정보 가져오기
   const { data: submittedAssignment, isLoading: isSubmissionLoading } =
@@ -94,15 +78,6 @@ export function AssignmentSubmissionSection({
           )}
         </div>
 
-        {timeError && (
-          <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg m-4">
-            <div className="flex items-center text-red-400">
-              <AlertCircle className="h-5 w-5 mr-2" />
-              <span>{timeError}</span>
-            </div>
-          </div>
-        )}
-
         <div className="p-6 bg-[#1A1D29]/30 border-b border-gray-700/50">
           <div className="prose prose-invert max-w-none">
             {assignmentInfo?.contents ? (
@@ -115,10 +90,9 @@ export function AssignmentSubmissionSection({
           </div>
         </div>
 
-        {/* 제출 폼 (제출되지 않았고, 과제 내용 있고, 오늘 강의이며, 시간 에러 없을 때 표시) */}
-        {!timeError &&
+        {/* 제출 폼 (제출되지 않았고, 과제 내용 있고, 오늘 강의일 때 표시) */}
+        {isTodayLecture &&
           assignmentInfo?.contents &&
-          isTodayLecture &&
           !submittedAssignment?.is_submit && (
             <AssignmentSubmissionForm
               userInfo={userInfo}
