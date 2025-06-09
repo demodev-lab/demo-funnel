@@ -11,7 +11,7 @@ export async function getChallenges() {
 
     if (error) throw error;
 
-    console.log("챌린지 목록: ", data);
+    // console.log("챌린지 목록: ", data);
     return data;
   } catch (error) {
     handleError(error, "챌린지 목록 조회 중 오류가 발생했습니다.");

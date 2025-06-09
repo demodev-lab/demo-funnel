@@ -17,7 +17,6 @@ export default function DashboardPage() {
       queryKey: ["challengeUsers", selectedChallengeId],
       queryFn: async () => {
         const data = await getAssignmentStats(selectedChallengeId);
-        // console.log("현재 기수 제출 인원 (API response): ", data);
         return data;
         // TEST: MSW로 확인
         // const response = await fetch(
@@ -42,7 +41,6 @@ export default function DashboardPage() {
       queryKey: ["challengeUsers", previousChallengeId],
       queryFn: async () => {
         const data = await getAssignmentStats(previousChallengeId);
-        console.log("이전 기수 제출 인원 (API response): ", data);
         return data;
         // TEST: MSW로 확인
         //   const response = await fetch(
