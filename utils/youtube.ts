@@ -1,7 +1,14 @@
-
-
 export const getYouTubeVideoId = (url: string) => {
   try {
+    // youtu.be 형식 처리
+    if (url.includes("youtu.be")) {
+      const parts = url.split("youtu.be/");
+      if (parts.length > 1) {
+        return parts[1].split("?")[0];
+      }
+    }
+
+    // watch?v= 형식 처리
     const parts = url.split("watch?v=");
     if (parts.length > 1) {
       const lastPart = parts[parts.length - 1];
@@ -37,5 +44,5 @@ export const getVideoThumbnailUrl = (upload_type: number, url: string) => {
 
 // URL에서 업로드 타입 (0: YouTube, 1: 직접 업로드)을 가져오는 함수
 export const getUploadTypeFromUrl = (url: string): number => {
-  return url.includes('youtube.com') ? 0 : 1;
+  return url.includes("youtube.com") || url.includes("youtu.be") ? 0 : 1;
 };
