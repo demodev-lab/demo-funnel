@@ -144,7 +144,7 @@ export default function LectureForm({
   // 상세 정보가 로드되면 폼 데이터 설정
   useEffect(() => {
     if (lectureDetail) {
-      console.log(lectureDetail);
+      // console.log(lectureDetail);
       setName(lectureDetail.name);
       setDescription(lectureDetail.description);
       setVideoUrl(lectureDetail.url);
@@ -241,7 +241,7 @@ export default function LectureForm({
           upload_type: uploadType === "url" ? 0 : 1,
         };
 
-        console.log("수정 전송 데이터:", updateData);
+        // console.log("수정 전송 데이터:", updateData);
 
         await updateLecture(lectureId, updateData);
 
@@ -283,7 +283,7 @@ export default function LectureForm({
           upload_type: uploadType === "url" ? 0 : 1,
         };
 
-        console.log("강의 추가 시도:", lectureData);
+        // console.log("강의 추가 시도:", lectureData);
 
         await createLecture(lectureData);
 
