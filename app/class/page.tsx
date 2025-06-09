@@ -71,9 +71,6 @@ export default function ClassPage() {
               </span>
               <span className="absolute -bottom-2 left-0 right-0 h-3 bg-gradient-to-r from-[#5046E4]/20 to-[#8C7DFF]/20 rounded-full blur-sm"></span>
             </h1>
-            <p className="text-lg text-gray-300 max-w-2xl mx-auto animate-slide-up">
-              개발 챌린지를 깨우는 매일의 잠금 해제 서비스
-            </p>
           </div>
 
           {/* FIXME: 애니메이션 추가시, 깜빡임 발생 */}
