@@ -70,7 +70,7 @@ export default function DailyLectureItem({
               <Lock className="h-10 w-10 text-[#8C7DFF] drop-shadow-md mb-2" />
               <span className="text-xs font-medium text-white/90 bg-[#5046E4]/30 px-2 py-1 rounded-full backdrop-blur-sm flex items-center">
                 <Calendar className="h-3 w-3 mr-1" />
-                Coming Soon
+                {dailyLecture.open_at}
               </span>
             </div>
           </div>
