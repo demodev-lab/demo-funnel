@@ -13,7 +13,10 @@ export function StudentListState({
   onRetry,
 }: StudentListStateProps) {
   const content = isLoading ? (
-    <div className="flex justify-center items-center py-20">
+    <div
+      data-testid="loader"
+      className="flex justify-center items-center py-20"
+    >
       <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
       <span className="ml-2 text-gray-500">학생 목록을 불러오는 중...</span>
     </div>

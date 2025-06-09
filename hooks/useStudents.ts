@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  useInfiniteQuery,
+} from "@tanstack/react-query";
 import {
   getUsers,
   createUser,
@@ -103,12 +108,21 @@ export const useStudents = () => {
   });
 };
 
-export const useStudentsByChallenge = (selectedChallengeId: number) => {
-  return useQuery<User[]>({
-    queryKey: ["students", selectedChallengeId],
-    queryFn: () => getChallengeUsers(selectedChallengeId),
+export function useStudentsByChallenge(challengeId: number | null) {
+  return useInfiniteQuery({
+    queryKey: ["students", challengeId],
+    queryFn: async ({ pageParam = 0 }) => {
+      if (!challengeId) return { data: [], total: 0 };
+      return getChallengeUsers(challengeId, pageParam, 10);
+    },
+    getNextPageParam: (lastPage, allPages) => {
+      if (!lastPage.data || lastPage.data.length < 10) return undefined;
+      return allPages.length;
+    },
+    initialPageParam: 0,
+    enabled: !!challengeId,
   });
-};
+}
 
 export const useCreateStudent = () => {
   const queryClient = useQueryClient();

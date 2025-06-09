@@ -16,9 +16,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { getStudentSubmissions } from "@/apis/users";
 import { useChallengeStore } from "@/lib/store/useChallengeStore";
+import { StudentSubmission } from "@/types/user";
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 
 interface SubmissionDialogProps {
   studentName: string;
@@ -36,6 +38,8 @@ interface CourseInfoTableProps {
   showUnsubmittedOnly: boolean;
 }
 
+const PAGE_SIZE = 10;
+
 export default function CourseInfoTable({
   searchQuery,
   showUnsubmittedOnly,
@@ -44,14 +48,33 @@ export default function CourseInfoTable({
     useState<SubmissionDialogProps | null>(null);
   const { selectedChallengeId } = useChallengeStore();
 
-  const { data: studentSubmissions = [], isLoading } = useQuery({
-    queryKey: ["student-submissions", selectedChallengeId],
-    queryFn: () => getStudentSubmissions(selectedChallengeId),
-    enabled: !!selectedChallengeId,
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+    useInfiniteQuery({
+      queryKey: ["student-submissions", selectedChallengeId],
+      queryFn: async ({ pageParam = 0 }) => {
+        if (!selectedChallengeId) return { data: [], total: 0 };
+        return getStudentSubmissions(selectedChallengeId, pageParam, PAGE_SIZE);
+      },
+      getNextPageParam: (lastPage, allPages) => {
+        if (!lastPage.data || lastPage.data.length < PAGE_SIZE)
+          return undefined;
+        return allPages.length;
+      },
+      initialPageParam: 0,
+      enabled: !!selectedChallengeId,
+    });
+
+  const observerRef = useInfiniteScroll({
+    onIntersect: () => fetchNextPage(),
+    enabled: hasNextPage && !isFetchingNextPage,
   });
 
   const filteredStudents = useMemo(() => {
-    return studentSubmissions.filter((student) => {
+    if (!data?.pages) return [];
+
+    const allStudents = data.pages.flatMap((page) => page.data);
+
+    return allStudents.filter((student) => {
       // 검색어 필터링
       const searchMatch =
         searchQuery.toLowerCase().trim() === "" ||
@@ -65,7 +88,7 @@ export default function CourseInfoTable({
 
       return searchMatch && unsubmittedMatch;
     });
-  }, [studentSubmissions, searchQuery, showUnsubmittedOnly]);
+  }, [data?.pages, searchQuery, showUnsubmittedOnly]);
 
   if (isLoading) {
     return (
@@ -89,6 +112,7 @@ export default function CourseInfoTable({
         <Table>
           <TableHeader className="bg-[#1A1D29]/60">
             <TableRow className="hover:bg-transparent">
+              <TableHead className="w-16">No.</TableHead>
               <TableHead>수강생 이름</TableHead>
               <TableHead>이메일</TableHead>
               {filteredStudents[0]?.submissions.map((_, index) => (
@@ -99,8 +123,11 @@ export default function CourseInfoTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredStudents.map((student) => (
+            {filteredStudents.map((student, index) => (
               <TableRow key={student.userId} className="hover:bg-[#1C1F2B]/50">
+                <TableCell className="font-medium text-gray-300">
+                  {index + 1}
+                </TableCell>
                 <TableCell className="font-medium text-gray-300">
                   {student.userName}
                 </TableCell>
@@ -140,6 +167,16 @@ export default function CourseInfoTable({
             ))}
           </TableBody>
         </Table>
+
+        {/* 무한 스크롤 옵저버 타겟 */}
+        <div
+          ref={observerRef}
+          className="w-full h-4 flex items-center justify-center p-4"
+        >
+          {isFetchingNextPage && (
+            <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          )}
+        </div>
       </div>
 
       <Dialog
