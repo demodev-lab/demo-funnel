@@ -89,6 +89,7 @@ export default function CourseInfoTable({
         <Table>
           <TableHeader className="bg-[#1A1D29]/60">
             <TableRow className="hover:bg-transparent">
+              <TableHead className="w-16">No.</TableHead>
               <TableHead>수강생 이름</TableHead>
               <TableHead>이메일</TableHead>
               {filteredStudents[0]?.submissions.map((_, index) => (
@@ -99,8 +100,11 @@ export default function CourseInfoTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredStudents.map((student) => (
+            {filteredStudents.map((student, index) => (
               <TableRow key={student.userId} className="hover:bg-[#1C1F2B]/50">
+                <TableCell className="font-medium text-gray-300">
+                  {index + 1}
+                </TableCell>
                 <TableCell className="font-medium text-gray-300">
                   {student.userName}
                 </TableCell>
