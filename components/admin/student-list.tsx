@@ -53,7 +53,7 @@ export default function StudentList() {
   });
 
   // 모든 페이지의 데이터를 하나의 배열로 병합
-  const students = data?.pages.flatMap((page) => page.data) || [];
+  const students = data?.pages?.flatMap((page) => page?.data ?? []) ?? [];
 
   // 엑셀 데이터 저장 핸들러
   const handleSaveExcelData = async (validStudents: Student[]) => {
