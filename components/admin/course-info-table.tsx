@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo } from "react";
 import {
   Table,
   TableBody,
@@ -20,6 +20,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { getStudentSubmissions } from "@/apis/users";
 import { useChallengeStore } from "@/lib/store/useChallengeStore";
 import { StudentSubmission } from "@/types/user";
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 
 interface SubmissionDialogProps {
   studentName: string;
@@ -46,7 +47,6 @@ export default function CourseInfoTable({
   const [selectedSubmission, setSelectedSubmission] =
     useState<SubmissionDialogProps | null>(null);
   const { selectedChallengeId } = useChallengeStore();
-  const observerTarget = useRef<HTMLDivElement>(null);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useInfiniteQuery({
@@ -64,22 +64,10 @@ export default function CourseInfoTable({
       enabled: !!selectedChallengeId,
     });
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
-        }
-      },
-      { threshold: 0.1 },
-    );
-
-    if (observerTarget.current) {
-      observer.observe(observerTarget.current);
-    }
-
-    return () => observer.disconnect();
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+  const observerRef = useInfiniteScroll({
+    onIntersect: () => fetchNextPage(),
+    enabled: hasNextPage && !isFetchingNextPage,
+  });
 
   const filteredStudents = useMemo(() => {
     if (!data?.pages) return [];
@@ -182,7 +170,7 @@ export default function CourseInfoTable({
 
         {/* 무한 스크롤 옵저버 타겟 */}
         <div
-          ref={observerTarget}
+          ref={observerRef}
           className="w-full h-4 flex items-center justify-center p-4"
         >
           {isFetchingNextPage && (
