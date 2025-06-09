@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import {
   useCreateStudent,
@@ -44,10 +44,14 @@ interface ValidationErrors {
 
 export default function StudentList() {
   const { selectedChallengeId } = useChallengeStore();
+  const observerTarget = useRef<HTMLDivElement>(null);
 
   // React Query 훅들
   const {
-    data: students = [],
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
     isLoading,
     error,
     isError,
@@ -79,6 +83,27 @@ export default function StudentList() {
     queryKey: ["challenges"],
     queryFn: getChallenges,
   });
+
+  // Intersection Observer 설정
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 0.1 },
+    );
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => observer.disconnect();
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+
+  // 모든 페이지의 데이터를 하나의 배열로 병합
+  const students = data?.pages.flatMap((page) => page.data) || [];
 
   // 입력 검증 함수들
   const validateEmail = (email: string): string | undefined => {
@@ -695,6 +720,16 @@ export default function StudentList() {
         emptyMessage="등록된 수강생이 없습니다."
         actions={renderActions}
       />
+
+      {/* 무한 스크롤 옵저버 타겟 */}
+      <div
+        ref={observerTarget}
+        className="w-full h-4 flex items-center justify-center p-4"
+      >
+        {isFetchingNextPage && (
+          <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        )}
+      </div>
 
       {/* 삭제 확인 모달 */}
       <Dialog

@@ -170,12 +170,28 @@ export async function getUserChallenges(
   }
 }
 
-export async function getChallengeUsers(challengeId: number): Promise<User[]> {
+export async function getChallengeUsers(
+  challengeId: number,
+  page: number = 0,
+  pageSize: number = 10,
+): Promise<{ data: User[]; total: number }> {
   try {
     if (!challengeId) {
-      return [];
+      return { data: [], total: 0 };
     }
 
+    // 전체 수강생 수 조회
+    const { count: totalUsers, error: countError } = await supabase
+      .from("ChallengeUsers")
+      .select("*", { count: "exact", head: true })
+      .eq("challenge_id", challengeId);
+
+    if (countError) throw countError;
+
+    const start = page * pageSize;
+    const end = start + pageSize - 1;
+
+    // 페이지네이션된 수강생 목록 조회
     const { data, error } = await supabase
       .from("ChallengeUsers")
       .select(
@@ -191,19 +207,25 @@ export async function getChallengeUsers(challengeId: number): Promise<User[]> {
       `,
       )
       .eq("challenge_id", challengeId)
+      .range(start, end)
       .order("Users(created_at)", { ascending: true });
 
     if (error) throw error;
 
-    return data.map((item: any) => ({
+    const users = data.map((item: any) => ({
       id: item.Users.id,
       name: item.Users.name,
       email: item.Users.email,
       phone: item.Users.phone || "",
     }));
+
+    return {
+      data: users,
+      total: totalUsers || 0,
+    };
   } catch (error) {
     console.error("챌린지 수강생 정보 조회 실패", error);
-    return [];
+    return { data: [], total: 0 };
   }
 }
 
