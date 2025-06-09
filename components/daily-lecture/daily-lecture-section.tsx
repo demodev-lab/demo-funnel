@@ -11,7 +11,7 @@ import {
 import { PlayCircle, Lock, Calendar } from "lucide-react";
 import { Lecture } from "@/types/lecture";
 import { useSelectedLectureStore } from "@/lib/store/useSelectedLectureStore";
-import { isOpen } from "@/utils/date/serverTime";
+import { isLectureOpen } from "@/utils/date/serverTime";
 
 interface DailyLectureSectionProps {
   lectures: Lecture[];
@@ -34,7 +34,9 @@ export default function DailyLectureSection({
   useEffect(() => {
     const updateMainLecture = async () => {
       if (lectures[selectedVideoIdx]) {
-        const isLocked = !(await isOpen(lectures[selectedVideoIdx].open_at));
+        const isLocked = !(await isLectureOpen(
+          lectures[selectedVideoIdx].open_at,
+        ));
         setMainLecture({
           title: lectures[selectedVideoIdx].name,
           description: lectures[selectedVideoIdx].description,

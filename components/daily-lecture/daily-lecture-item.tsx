@@ -3,7 +3,7 @@ import Image from "next/image";
 import { Lock, Calendar } from "lucide-react";
 import { getUploadTypeFromUrl, getVideoThumbnailUrl } from "@/utils/youtube";
 import { Lecture } from "@/types/lecture";
-import { isOpen } from "@/utils/date/serverTime";
+import { isLectureOpen } from "@/utils/date/serverTime";
 
 interface DailyLectureItemProps {
   dailyLecture: Lecture;
@@ -23,7 +23,7 @@ export default function DailyLectureItem({
 
   useEffect(() => {
     const checkLockStatus = async () => {
-      const isLocked = !(await isOpen(dailyLecture.open_at));
+      const isLocked = !(await isLectureOpen(dailyLecture.open_at));
       setLocked(isLocked);
     };
     checkLockStatus();

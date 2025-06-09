@@ -39,26 +39,15 @@ export const getServerTime = async (): Promise<string> => {
 };
 
 /**
- * open_at을 비교하여 오늘 오픈된 강의/과제인지 확인
+ * 강의/과제의 오픈 상태를 확인
+ * 서버 시간과 open_at을 비교하여 현재 시점에 오픈되었는지 확인합니다
+ * 예: 
+ * - 서버 시간이 "2024-03-20 15:00:00"이고 강의 오픈 시간이 "2024-03-20 16:00:00"이면 false 반환 (아직 오픈되지 않음)
+ * - 서버 시간이 "2024-03-20 15:00:00"이고 강의 오픈 시간이 "2024-03-20 09:00:00"이면 true 반환 (오픈됨)
  * @param openAt 오픈 시간 (ISO 문자열)
  * @returns boolean
  */
-export const isTodayOpen = async (openAt: string): Promise<boolean> => {
-  if (!openAt) return false;
-  
-  const serverTime = await getServerTime();
-  const serverDate = new Date(serverTime.split("T")[0]);
-  const openDate = new Date(openAt.split("T")[0]);
-  
-  return serverDate.getTime() === openDate.getTime();
-};
-
-/**
- * open_at을 비교하여 강의/과제가 오픈되었는지 확인
- * @param openAt 오픈 시간 (ISO 문자열)
- * @returns boolean
- */
-export const isOpen = async (openAt: string): Promise<boolean> => {
+export const isLectureOpen = async (openAt: string): Promise<boolean> => {
   if (!openAt) return false;
   
   const serverTime = await getServerTime();
