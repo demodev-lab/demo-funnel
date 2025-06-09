@@ -40,7 +40,7 @@ export async function createSubmission({
   userId: number;
 }) {
   try {
-    // 먼저 강의 정보와 마감 기한을 조회
+    // 마감 기한 체크 로직
     const { data: lectureInfo, error: lectureError } = await supabase
       .from("ChallengeLectures")
       .select("due_at")
@@ -50,7 +50,6 @@ export async function createSubmission({
     if (lectureError) throw lectureError;
     if (!lectureInfo) throw new Error("강의 정보를 찾을 수 없습니다.");
 
-    // 서버 시간 기준으로 마감 기한 체크
     const { data: serverTime, error: timeError } = await supabase.rpc(
       "get_server_time",
     );
@@ -64,39 +63,13 @@ export async function createSubmission({
       throw new Error("과제 제출 마감 기한이 지났습니다.");
     }
 
-    // 기존 제출 데이터 확인
-    const { data: existingSubmission, error: findError } = await supabase
+    // 새로운 제출 생성
+    const { data, error } = await supabase
       .from("Submissions")
-      .select("id")
-      .eq("user_id", userId)
-      .eq("challenge_lecture_id", challengeLectureId)
-      .maybeSingle();
-
-    if (findError) throw findError;
-
-    if (existingSubmission) {
-      // 기존 제출이 있으면 업데이트
-      const { data, error } = await supabase
-        .from("Submissions")
-        .update({
-          submitted_at: new Date().toISOString(),
-          is_submit: true,
-          assignment_url: link,
-          assignment_comment: text,
-        })
-        .eq("id", existingSubmission.id)
-        .select();
-
-      if (error) throw error;
-      return data;
-    } else {
-      // 새로운 제출
-      const { data, error } = await supabase
-        .from("Submissions")
-        .insert([
-          {
-            user_id: userId,
-            submitted_at: new Date().toISOString(),
+      .insert([
+        {
+          user_id: userId,
+          submitted_at: currentServerTime.toISOString(),
             is_submit: true,
             assignment_url: link,
             assignment_comment: text,
@@ -107,13 +80,78 @@ export async function createSubmission({
 
       if (error) throw error;
       return data;
-    }
   } catch (error) {
     console.error("과제 제출 실패:", error);
     throw new Error(
       error instanceof Error
         ? error.message
         : "과제 제출 중 오류가 발생했습니다.",
+    );
+  }
+}
+
+export async function updateSubmission({
+  submissionId,
+  link,
+  text,
+}: {
+  submissionId: number;
+  link: string;
+  text: string;
+}) {
+  try {
+    // 제출 정보 조회하여 challenge_lecture_id 가져오기
+    const { data: submission, error: submissionError } = await supabase
+      .from("Submissions")
+      .select("challenge_lecture_id")
+      .eq("id", submissionId)
+      .single();
+
+    if (submissionError) throw submissionError;
+    if (!submission) throw new Error("제출 정보를 찾을 수 없습니다.");
+
+    // 마감 기한 체크 로직
+    const { data: lectureInfo, error: lectureError } = await supabase
+      .from("ChallengeLectures")
+      .select("due_at")
+      .eq("id", submission.challenge_lecture_id)
+      .single();
+
+    if (lectureError) throw lectureError;
+    if (!lectureInfo) throw new Error("강의 정보를 찾을 수 없습니다.");
+
+    const { data: serverTime, error: timeError } = await supabase.rpc(
+      "get_server_time",
+    );
+
+    if (timeError) throw timeError;
+
+    const deadline = new Date(lectureInfo.due_at);
+    const currentServerTime = new Date(serverTime);
+
+    if (currentServerTime > deadline) {
+      throw new Error("과제 제출 마감 기한이 지났습니다.");
+    }
+
+    const { data, error } = await supabase
+      .from("Submissions")
+      .update({
+        submitted_at: currentServerTime.toISOString(),
+        is_submit: true,
+        assignment_url: link,
+        assignment_comment: text,
+      })
+      .eq("id", submissionId)
+      .select();
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error("과제 수정 실패:", error);
+    throw new Error(
+      error instanceof Error
+        ? error.message
+        : "과제 수정 중 오류가 발생했습니다.",
     );
   }
 }
