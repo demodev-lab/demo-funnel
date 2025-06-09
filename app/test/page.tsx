@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   setTestServerTime,
   getServerTime,
@@ -8,8 +9,21 @@ import {
 } from "@/utils/date/serverTime";
 
 export default function TestPage() {
+  const router = useRouter();
   const [testTime, setTestTime] = useState<string>("");
   const [result, setResult] = useState<string>("");
+
+  useEffect(() => {
+    // 개발 모드가 아니면 메인 페이지로 리다이렉트
+    if (process.env.NODE_ENV === "production") {
+      router.push("/");
+    }
+  }, [router]);
+
+  // 개발 모드가 아니면 아무것도 렌더링하지 않음
+  if (process.env.NODE_ENV === "production") {
+    return null;
+  }
 
   const handleTest = async () => {
     try {
