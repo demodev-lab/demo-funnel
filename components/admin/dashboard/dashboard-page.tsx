@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useChallengeStore } from "@/lib/store/useChallengeStore";
 import { DashboardAssignmentStat } from "@/types/assignment";
 import { usePeriodComparison } from "@/hooks/admin/usePeriodComparison";
+import { getAssignmentStats } from "@/apis/assignments";
 
 export default function DashboardPage() {
   const { selectedChallengeId } = useChallengeStore();
@@ -15,16 +16,17 @@ export default function DashboardPage() {
     useQuery<DashboardAssignmentStat[]>({
       queryKey: ["challengeUsers", selectedChallengeId],
       queryFn: async () => {
-        // const data = await getAssignmentStats(selectedChallengeId);
+        const data = await getAssignmentStats(selectedChallengeId);
         // console.log("현재 기수 제출 인원 (API response): ", data);
-        // return data;
-        const response = await fetch(
-          `/api/admin/assignments/stats/${selectedChallengeId}`,
-        );
-        if (!response.ok) {
-          throw new Error("과제 통계 조회에 실패했습니다.");
-        }
-        return response.json();
+        return data;
+        // TEST: MSW로 확인
+        // const response = await fetch(
+        //   `/api/admin/assignments/stats/${selectedChallengeId}`,
+        // );
+        // if (!response.ok) {
+        //   throw new Error("과제 통계 조회에 실패했습니다.");
+        // }
+        // return response.json();
       },
       enabled: !!selectedChallengeId,
     });
@@ -39,16 +41,17 @@ export default function DashboardPage() {
     useQuery<DashboardAssignmentStat[]>({
       queryKey: ["challengeUsers", previousChallengeId],
       queryFn: async () => {
-        // const data = await getAssignmentStats(previousChallengeId);
-        // console.log("이전 기수 제출 인원 (API response): ", data);
-        // return data;
-        const response = await fetch(
-          `/api/admin/assignments/stats/${previousChallengeId}`,
-        );
-        if (!response.ok) {
-          throw new Error("과제 통계 조회에 실패했습니다.");
-        }
-        return response.json();
+        const data = await getAssignmentStats(previousChallengeId);
+        console.log("이전 기수 제출 인원 (API response): ", data);
+        return data;
+        // TEST: MSW로 확인
+        //   const response = await fetch(
+        //     `/api/admin/assignments/stats/${previousChallengeId}`,
+        //   );
+        //   if (!response.ok) {
+        //     throw new Error("과제 통계 조회에 실패했습니다.");
+        //   }
+        //   return response.json();
       },
       enabled: !!previousChallengeId,
     });
