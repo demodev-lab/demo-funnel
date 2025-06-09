@@ -342,6 +342,7 @@ export default function StudentList() {
   };
 
   const columns = [
+    { header: "No.", accessor: "index" },
     { header: "이름", accessor: "name" },
     { header: "이메일", accessor: "email" },
     { header: "전화번호", accessor: "phone" },
@@ -685,7 +686,10 @@ export default function StudentList() {
 
       <InfoTable
         columns={columns}
-        data={students}
+        data={students.map((student, index) => ({
+          ...student,
+          index: index + 1,
+        }))}
         isLoading={isLoading}
         error={error instanceof Error ? error : null}
         emptyMessage="등록된 수강생이 없습니다."
