@@ -213,16 +213,20 @@ export async function getChallengeUsers(
           id,
           name,
           email,
-          phone
+          phone,
+          created_at
         )
       `,
       )
       .eq("challenge_id", challengeId)
       .range(start, end);
 
-    // 정렬 옵션이 있을 때만 정렬 적용
-    if (sortOrder) {
+    // 정렬 옵션 적용
+    if (sortOrder && sortBy === "name") {
       query = query.order("Users(name)", { ascending: sortOrder === "asc" });
+    } else {
+      // 기본적으로 created_at 오름차순 정렬
+      query = query.order("Users(created_at)", { ascending: true });
     }
 
     // 쿼리 실행
