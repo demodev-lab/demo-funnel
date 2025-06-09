@@ -3,7 +3,7 @@
 import { ExternalLink, Clock } from "lucide-react";
 import { userInfo } from "@/types/user";
 import { timeAgo } from "@/utils/date/timeAgo";
-import { SubmittedAssignment } from "@/types/submittedAssignment";
+import { SubmittedAssignment } from "@/types/assignment";
 import { getLinkIcon } from "@/utils/link/linkUtils";
 
 interface AssignmentSubmissionItemProps {
@@ -15,7 +15,6 @@ export function AssignmentSubmissionItem({
   userInfo,
   submittedAssignment,
 }: AssignmentSubmissionItemProps) {
-
   return (
     <div className="bg-[#1C1F2B]/60 p-4 rounded-xl border border-gray-700/30 hover:border-gray-600/50 shadow-sm hover:shadow-md transition-all duration-300">
       <div className="flex items-center mb-3">

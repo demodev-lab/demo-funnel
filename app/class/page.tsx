@@ -36,13 +36,13 @@ export default function ClassPage() {
     }
 
     // TODO: 콘솔 제거
-    if (user) {
-      console.log("사용자 정보:", {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-      });
-    }
+    // if (user) {
+    //   console.log("사용자 정보:", {
+    //     id: user.id,
+    //     name: user.name,
+    //     email: user.email,
+    //   });
+    // }
 
     if (lectures && lectures.length > 0) {
       onSelectedLecture(lectures[0]);

@@ -9,7 +9,7 @@ import { userInfo } from "@/types/user";
 import axios from "axios";
 import { useSelectedLectureStore } from "@/lib/store/useSelectedLectureStore";
 import { useEffect, useState } from "react";
-import { SubmittedAssignment } from "@/types/submittedAssignment";
+import { SubmittedAssignment } from "@/types/assignment";
 
 interface AssignmentSubmissionSectionProps {
   userInfo: userInfo;
