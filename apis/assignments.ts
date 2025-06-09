@@ -70,16 +70,16 @@ export async function createSubmission({
         {
           user_id: userId,
           submitted_at: currentServerTime.toISOString(),
-            is_submit: true,
-            assignment_url: link,
-            assignment_comment: text,
-            challenge_lecture_id: challengeLectureId,
-          },
-        ])
-        .select();
+          is_submit: true,
+          assignment_url: link,
+          assignment_comment: text,
+          challenge_lecture_id: challengeLectureId,
+        },
+      ])
+      .select();
 
-      if (error) throw error;
-      return data;
+    if (error) throw error;
+    return data;
   } catch (error) {
     console.error("과제 제출 실패:", error);
     throw new Error(
@@ -172,7 +172,8 @@ export async function getAssignmentStats(challengeId: number) {
         )
       `,
       )
-      .eq("challenge_id", challengeId)) as {
+      .eq("challenge_id", challengeId)
+      .order("sequence", { ascending: true })) as {
       data: ChallengeLecture[] | null;
       error: any;
     };
@@ -252,7 +253,7 @@ export async function getUserSubmission({
       .maybeSingle();
 
     if (error) {
-      console.error("Supabase 조회 중 에러:", error);
+      // console.error("Supabase 조회 중 에러:", error);
       throw error;
     }
 
