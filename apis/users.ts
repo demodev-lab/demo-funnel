@@ -209,9 +209,19 @@ export async function getChallengeUsers(challengeId: number): Promise<User[]> {
 
 export async function getStudentSubmissions(
   challengeId: number,
-): Promise<StudentSubmission[]> {
+  page: number = 0,
+  pageSize: number = 10,
+): Promise<{ data: StudentSubmission[]; total: number }> {
   try {
-    // 1. ChallengeUsers 조회하여 해당 챌린지의 수강생 목록 가져오기
+    // 1. 전체 수강생 수 조회
+    const { count: totalUsers, error: countError } = await supabase
+      .from("ChallengeUsers")
+      .select("*", { count: "exact", head: true })
+      .eq("challenge_id", challengeId);
+
+    if (countError) throw countError;
+
+    // 2. 페이지네이션된 수강생 목록 조회
     const { data: challengeUsers, error: challengeUsersError } = await supabase
       .from("ChallengeUsers")
       .select(
@@ -224,11 +234,13 @@ export async function getStudentSubmissions(
         )
       `,
       )
-      .eq("challenge_id", challengeId);
+      .eq("challenge_id", challengeId)
+      .range(page * pageSize, (page + 1) * pageSize - 1)
+      .order("user_id", { ascending: true });
 
     if (challengeUsersError) throw challengeUsersError;
 
-    // 2. ChallengeLectures 조회하여 해당 챌린지의 강의 목록 가져오기
+    // 3. ChallengeLectures 조회하여 해당 챌린지의 강의 목록 가져오기
     const { data: challengeLectures, error: challengeLecturesError } =
       await supabase
         .from("ChallengeLectures")
@@ -238,7 +250,7 @@ export async function getStudentSubmissions(
 
     if (challengeLecturesError) throw challengeLecturesError;
 
-    // 3. 각 수강생별로 제출 여부 확인
+    // 4. 각 수강생별로 제출 여부 확인
     const studentSubmissions = await Promise.all(
       (challengeUsers || []).map(async (user: any) => {
         // 각 강의별 제출 여부 조회
@@ -279,7 +291,10 @@ export async function getStudentSubmissions(
       }),
     );
 
-    return studentSubmissions;
+    return {
+      data: studentSubmissions,
+      total: totalUsers || 0,
+    };
   } catch (error) {
     console.error("수강생 제출 현황 조회 실패:", error);
     throw error;

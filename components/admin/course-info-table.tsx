@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import {
   Table,
   TableBody,
@@ -16,9 +16,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { getStudentSubmissions } from "@/apis/users";
 import { useChallengeStore } from "@/lib/store/useChallengeStore";
+import { StudentSubmission } from "@/types/user";
 
 interface SubmissionDialogProps {
   studentName: string;
@@ -36,6 +37,8 @@ interface CourseInfoTableProps {
   showUnsubmittedOnly: boolean;
 }
 
+const PAGE_SIZE = 10;
+
 export default function CourseInfoTable({
   searchQuery,
   showUnsubmittedOnly,
@@ -43,15 +46,47 @@ export default function CourseInfoTable({
   const [selectedSubmission, setSelectedSubmission] =
     useState<SubmissionDialogProps | null>(null);
   const { selectedChallengeId } = useChallengeStore();
+  const observerTarget = useRef<HTMLDivElement>(null);
 
-  const { data: studentSubmissions = [], isLoading } = useQuery({
-    queryKey: ["student-submissions", selectedChallengeId],
-    queryFn: () => getStudentSubmissions(selectedChallengeId),
-    enabled: !!selectedChallengeId,
-  });
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+    useInfiniteQuery({
+      queryKey: ["student-submissions", selectedChallengeId],
+      queryFn: async ({ pageParam = 0 }) => {
+        if (!selectedChallengeId) return { data: [], total: 0 };
+        return getStudentSubmissions(selectedChallengeId, pageParam, PAGE_SIZE);
+      },
+      getNextPageParam: (lastPage, allPages) => {
+        if (!lastPage.data || lastPage.data.length < PAGE_SIZE)
+          return undefined;
+        return allPages.length;
+      },
+      initialPageParam: 0,
+      enabled: !!selectedChallengeId,
+    });
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 0.1 },
+    );
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => observer.disconnect();
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   const filteredStudents = useMemo(() => {
-    return studentSubmissions.filter((student) => {
+    if (!data?.pages) return [];
+
+    const allStudents = data.pages.flatMap((page) => page.data);
+
+    return allStudents.filter((student) => {
       // 검색어 필터링
       const searchMatch =
         searchQuery.toLowerCase().trim() === "" ||
@@ -65,7 +100,7 @@ export default function CourseInfoTable({
 
       return searchMatch && unsubmittedMatch;
     });
-  }, [studentSubmissions, searchQuery, showUnsubmittedOnly]);
+  }, [data?.pages, searchQuery, showUnsubmittedOnly]);
 
   if (isLoading) {
     return (
@@ -144,6 +179,16 @@ export default function CourseInfoTable({
             ))}
           </TableBody>
         </Table>
+
+        {/* 무한 스크롤 옵저버 타겟 */}
+        <div
+          ref={observerTarget}
+          className="w-full h-4 flex items-center justify-center p-4"
+        >
+          {isFetchingNextPage && (
+            <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          )}
+        </div>
       </div>
 
       <Dialog
