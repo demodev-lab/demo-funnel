@@ -71,10 +71,20 @@ describe("StudentList 컴포넌트", () => {
 
     // useStudentsByChallenge: 기본적으로 정상적으로 학생 목록 반환
     mockUseStudentsByChallenge.mockReturnValue({
-      data: dummyStudents,
+      data: {
+        pages: [
+          {
+            data: dummyStudents,
+            total: dummyStudents.length,
+          },
+        ],
+      },
       isLoading: false,
       isError: false,
       error: null,
+      hasNextPage: false,
+      isFetchingNextPage: false,
+      fetchNextPage: jest.fn(),
     });
 
     // create/update/delete 훅: mutateAsync은 jest.fn()
@@ -115,10 +125,13 @@ describe("StudentList 컴포넌트", () => {
 
   it("로딩 상태인 경우 로더와 메시지가 보입니다", () => {
     mockUseStudentsByChallenge.mockReturnValue({
-      data: [],
+      data: { pages: [] },
       isLoading: true,
       isError: false,
       error: null,
+      hasNextPage: false,
+      isFetchingNextPage: false,
+      fetchNextPage: jest.fn(),
     });
 
     renderWithClient();
@@ -129,10 +142,13 @@ describe("StudentList 컴포넌트", () => {
 
   it("에러 상태인 경우 에러 메시지와 새로고침 버튼이 보입니다", () => {
     mockUseStudentsByChallenge.mockReturnValue({
-      data: [],
+      data: { pages: [] },
       isLoading: false,
       isError: true,
       error: new Error("불러오기 실패"),
+      hasNextPage: false,
+      isFetchingNextPage: false,
+      fetchNextPage: jest.fn(),
     });
 
     renderWithClient();
