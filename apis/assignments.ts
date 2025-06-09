@@ -11,7 +11,7 @@ export async function getAssignment(lectureId: number) {
 
     if (error) throw error;
 
-    console.log("과제 정보:", assignment);
+    // console.log("과제 정보:", assignment);
 
     return assignment || [];
   } catch (error) {
@@ -218,11 +218,11 @@ export async function getUserSubmission({
       throw error;
     }
 
-    console.log("제출된 과제:", submission);
+    // console.log("제출된 과제:", submission);
 
     return submission || null;
   } catch (error) {
-    console.error("제출된 과제 조회 실패:", error);
+    // console.error("제출된 과제 조회 실패:", error);
     throw new Error(
       error instanceof Error
         ? error.message
