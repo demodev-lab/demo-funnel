@@ -164,38 +164,69 @@ export default function StudentList() {
     return undefined;
   };
 
-  const validateForm = (): boolean => {
+  // 개별 필드 검증 함수
+  const validateField = async (
+    field: keyof Omit<Student, "id">,
+    value: string,
+    excludeId?: number,
+  ): Promise<string | undefined> => {
+    switch (field) {
+      case "name":
+        return validateName(value);
+      case "email": {
+        const emailError = validateEmail(value);
+        if (emailError) return emailError;
+        return checkDuplicateEmail(value, excludeId);
+      }
+      case "phone": {
+        const phoneError = validatePhone(value);
+        if (phoneError) return phoneError;
+        return checkDuplicatePhone(value, excludeId);
+      }
+      default:
+        return undefined;
+    }
+  };
+
+  // 입력값 변경 처리
+  const handleInputChange = (
+    field: keyof Omit<Student, "id">,
+    value: string,
+  ) => {
+    setCurrentStudent((prev) => ({ ...prev, [field]: value }));
+    // 입력 중에는 에러 메시지 제거
+    setValidationErrors((prev) => ({ ...prev, [field]: undefined }));
+  };
+
+  // 필드별 검증 처리 (onBlur 시점)
+  const handleFieldBlur = async (field: keyof Omit<Student, "id">) => {
+    const error = await validateField(
+      field,
+      String(currentStudent[field]),
+      editingStudentId || undefined,
+    );
+    setValidationErrors((prev) => ({
+      ...prev,
+      [field]: error,
+    }));
+  };
+
+  // 전체 폼 검증
+  const validateForm = async (): Promise<boolean> => {
     const errors: ValidationErrors = {};
 
-    // 이름 검증
-    const nameError = validateName(currentStudent.name);
-    if (nameError) errors.name = nameError;
-
-    // 이메일 검증
-    const emailError = validateEmail(currentStudent.email);
-    if (emailError) {
-      errors.email = emailError;
-    } else {
-      // 중복 이메일 검증 (수정 모드일 때는 현재 편집 중인 학생 제외)
-      const duplicateEmailError = checkDuplicateEmail(
-        currentStudent.email,
-        editingStudentId || undefined,
-      );
-      if (duplicateEmailError) errors.email = duplicateEmailError;
-    }
-
-    // 전화번호 검증
-    const phoneError = validatePhone(currentStudent.phone);
-    if (phoneError) {
-      errors.phone = phoneError;
-    } else {
-      // 중복 전화번호 검증 (수정 모드일 때는 현재 편집 중인 학생 제외)
-      const duplicatePhoneError = checkDuplicatePhone(
-        currentStudent.phone,
-        editingStudentId || undefined,
-      );
-      if (duplicatePhoneError) errors.phone = duplicatePhoneError;
-    }
+    // 각 필드 검증
+    const fields: (keyof Omit<Student, "id">)[] = ["name", "email", "phone"];
+    await Promise.all(
+      fields.map(async (field) => {
+        const error = await validateField(
+          field,
+          String(currentStudent[field]),
+          editingStudentId || undefined,
+        );
+        if (error) errors[field] = error;
+      }),
+    );
 
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
@@ -267,12 +298,13 @@ export default function StudentList() {
     return errors;
   };
 
+  // 폼 제출 핸들러
   const handleAddStudent = async () => {
-    if (!validateForm()) return;
+    const isValid = await validateForm();
+    if (!isValid) return;
 
     try {
       if (isEditMode && editingStudentId) {
-        // 수정 모드
         await updateStudentMutation.mutateAsync({
           id: editingStudentId,
           ...currentStudent,
@@ -280,7 +312,6 @@ export default function StudentList() {
         });
         toast.success("학생 정보가 성공적으로 수정되었습니다.");
       } else {
-        // 추가 모드
         await createStudentMutation.mutateAsync({
           ...currentStudent,
           challenges: selectedChallenges,
@@ -288,13 +319,8 @@ export default function StudentList() {
         toast.success("학생이 성공적으로 추가되었습니다.");
       }
 
-      // 폼 초기화
-      setCurrentStudent({ name: "", email: "", phone: "" });
-      setValidationErrors({});
-      setSelectedChallenges([]);
+      resetFormState();
       setIsFormOpen(false);
-      setIsEditMode(false);
-      setEditingStudentId(null);
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "오류가 발생했습니다.",
@@ -345,17 +371,6 @@ export default function StudentList() {
   const cancelDelete = () => {
     setStudentToDelete(null);
     setIsDeleteOpen(false);
-  };
-
-  // 입력값 변경 시 해당 필드의 에러 메시지 제거
-  const handleInputChange = (
-    field: keyof Omit<Student, "id">,
-    value: string,
-  ) => {
-    setCurrentStudent({ ...currentStudent, [field]: value });
-    if (validationErrors[field]) {
-      setValidationErrors({ ...validationErrors, [field]: undefined });
-    }
   };
 
   const resetFormState = () => {
@@ -571,6 +586,7 @@ export default function StudentList() {
                     id="name"
                     value={currentStudent.name}
                     onChange={(e) => handleInputChange("name", e.target.value)}
+                    onBlur={() => handleFieldBlur("name")}
                     className={`bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20 ${
                       validationErrors.name ? "border-red-500" : ""
                     }`}
@@ -590,6 +606,7 @@ export default function StudentList() {
                     type="email"
                     value={currentStudent.email}
                     onChange={(e) => handleInputChange("email", e.target.value)}
+                    onBlur={() => handleFieldBlur("email")}
                     className={`bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20 ${
                       validationErrors.email ? "border-red-500" : ""
                     }`}
@@ -609,6 +626,7 @@ export default function StudentList() {
                     id="phone"
                     value={currentStudent.phone}
                     onChange={(e) => handleInputChange("phone", e.target.value)}
+                    onBlur={() => handleFieldBlur("phone")}
                     className={`bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20 ${
                       validationErrors.phone ? "border-red-500" : ""
                     }`}
