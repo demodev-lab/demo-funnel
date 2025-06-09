@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Plus, Upload } from "lucide-react";
+import { Plus, Upload, ArrowUpDown } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
@@ -20,9 +20,19 @@ import StudentTable from "@/components/admin/students/student-table";
 import DeleteConfirmDialog from "@/components/admin/students/delete-confirm-dialog";
 import { StudentListState } from "@/components/admin/students/student-list-state";
 import { Student } from "@/types/user";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+type SortOption = "default" | "name_asc" | "name_desc";
 
 export default function StudentList() {
   const { selectedChallengeId } = useChallengeStore();
+  const [sortOption, setSortOption] = useState<SortOption>("default");
 
   // React Query 훅들
   const {
@@ -33,7 +43,15 @@ export default function StudentList() {
     isLoading,
     error,
     isError,
-  } = useStudentsByChallenge(selectedChallengeId);
+    refetch,
+  } = useStudentsByChallenge(
+    selectedChallengeId,
+    sortOption === "default"
+      ? undefined
+      : sortOption === "name_asc"
+      ? "asc"
+      : "desc",
+  );
   const createStudentMutation = useCreateStudent();
   const updateStudentMutation = useUpdateStudent();
   const deleteStudentMutation = useDeleteStudent();
@@ -161,7 +179,38 @@ export default function StudentList() {
 
   return (
     <>
-      <div className="flex justify-end">
+      <div className="flex justify-between items-center mb-4">
+        <Select
+          value={sortOption}
+          onValueChange={(value: SortOption) => {
+            setSortOption(value);
+            refetch();
+          }}
+        >
+          <SelectTrigger className="w-[180px] border-gray-700/30 bg-[#1A1D29]/50 text-gray-300 hover:bg-[#1A1D29]/70 hover:text-white">
+            <SelectValue placeholder="정렬 방식 선택" />
+          </SelectTrigger>
+          <SelectContent className="bg-[#1A1D29] border-gray-700/30">
+            <SelectItem
+              value="default"
+              className="text-gray-300 hover:bg-[#2A2D39] hover:text-white focus:bg-[#2A2D39] focus:text-white"
+            >
+              기본 순서
+            </SelectItem>
+            <SelectItem
+              value="name_asc"
+              className="text-gray-300 hover:bg-[#2A2D39] hover:text-white focus:bg-[#2A2D39] focus:text-white"
+            >
+              이름순 (오름차순)
+            </SelectItem>
+            <SelectItem
+              value="name_desc"
+              className="text-gray-300 hover:bg-[#2A2D39] hover:text-white focus:bg-[#2A2D39] focus:text-white"
+            >
+              이름순 (내림차순)
+            </SelectItem>
+          </SelectContent>
+        </Select>
         <div className="space-x-2">
           <ExcelUploadDialog
             isOpen={isExcelPreviewOpen}

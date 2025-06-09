@@ -170,10 +170,22 @@ export async function getUserChallenges(
   }
 }
 
+interface ChallengeUserResponse {
+  user_id: number;
+  Users: {
+    id: number;
+    name: string;
+    email: string;
+    phone: string;
+  };
+}
+
 export async function getChallengeUsers(
   challengeId: number,
   page: number = 0,
   pageSize: number = 10,
+  sortBy: string = "name",
+  sortOrder?: "asc" | "desc",
 ): Promise<{ data: User[]; total: number }> {
   try {
     if (!challengeId) {
@@ -191,40 +203,46 @@ export async function getChallengeUsers(
     const start = page * pageSize;
     const end = start + pageSize - 1;
 
-    // 페이지네이션된 수강생 목록 조회
-    const { data, error } = await supabase
+    // 기본 쿼리 생성
+    let query = supabase
       .from("ChallengeUsers")
       .select(
         `
         user_id,
-        Users (
+        Users!inner (
           id,
           name,
           email,
-          phone,
-          created_at
+          phone
         )
       `,
       )
       .eq("challenge_id", challengeId)
-      .range(start, end)
-      .order("Users(created_at)", { ascending: true });
+      .range(start, end);
+
+    // 정렬 옵션이 있을 때만 정렬 적용
+    if (sortOrder) {
+      query = query.order("Users(name)", { ascending: sortOrder === "asc" });
+    }
+
+    // 쿼리 실행
+    const { data, error } = await query;
 
     if (error) throw error;
 
-    const users = data.map((item: any) => ({
-      id: item.Users.id,
-      name: item.Users.name,
-      email: item.Users.email,
-      phone: item.Users.phone || "",
-    }));
+    const typedData = data as unknown as ChallengeUserResponse[];
 
     return {
-      data: users,
+      data: typedData.map((item) => ({
+        id: item.Users.id,
+        name: item.Users.name,
+        email: item.Users.email,
+        phone: item.Users.phone,
+      })),
       total: totalUsers || 0,
     };
   } catch (error) {
-    console.error("챌린지 수강생 정보 조회 실패", error);
+    console.error("수강생 목록 조회 실패", error);
     return { data: [], total: 0 };
   }
 }

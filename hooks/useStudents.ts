@@ -108,12 +108,15 @@ export const useStudents = () => {
   });
 };
 
-export function useStudentsByChallenge(challengeId: number | null) {
+export function useStudentsByChallenge(
+  challengeId: number | null,
+  sortOrder?: "asc" | "desc",
+) {
   return useInfiniteQuery({
-    queryKey: ["students", challengeId],
+    queryKey: ["students", challengeId, sortOrder],
     queryFn: async ({ pageParam = 0 }) => {
       if (!challengeId) return { data: [], total: 0 };
-      return getChallengeUsers(challengeId, pageParam, 10);
+      return getChallengeUsers(challengeId, pageParam, 10, "name", sortOrder);
     },
     getNextPageParam: (lastPage, allPages) => {
       if (!lastPage.data || lastPage.data.length < 10) return undefined;
