@@ -4,10 +4,10 @@ import { studentsDataManager } from "@/lib/data/students-data";
 // PUT /api/students/[id] - 학생 수정
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     const { name, email, phone } = body;
 
@@ -68,10 +68,10 @@ export async function PUT(
 // DELETE /api/students/[id] - 학생 삭제
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     console.log(`DELETE /api/students/${id} - 삭제 요청 받음`); // 디버깅
 
