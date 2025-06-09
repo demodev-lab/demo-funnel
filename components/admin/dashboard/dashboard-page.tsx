@@ -5,7 +5,6 @@ import SummaryCards from "./summary-cards";
 import DetailedStats from "./detailed-stats";
 import { useQuery } from "@tanstack/react-query";
 import { useChallengeStore } from "@/lib/store/useChallengeStore";
-import { getAssignmentStats } from "@/apis/assignments";
 import { DashboardAssignmentStat } from "@/types/assignment";
 import { usePeriodComparison } from "@/hooks/admin/usePeriodComparison";
 
@@ -16,9 +15,16 @@ export default function DashboardPage() {
     useQuery<DashboardAssignmentStat[]>({
       queryKey: ["challengeUsers", selectedChallengeId],
       queryFn: async () => {
-        const data = await getAssignmentStats(selectedChallengeId);
+        // const data = await getAssignmentStats(selectedChallengeId);
         // console.log("현재 기수 제출 인원 (API response): ", data);
-        return data;
+        // return data;
+        const response = await fetch(
+          `/api/admin/assignments/stats/${selectedChallengeId}`,
+        );
+        if (!response.ok) {
+          throw new Error("과제 통계 조회에 실패했습니다.");
+        }
+        return response.json();
       },
       enabled: !!selectedChallengeId,
     });
@@ -33,9 +39,16 @@ export default function DashboardPage() {
     useQuery<DashboardAssignmentStat[]>({
       queryKey: ["challengeUsers", previousChallengeId],
       queryFn: async () => {
-        const data = await getAssignmentStats(previousChallengeId);
-        console.log("이전 기수 제출 인원 (API response): ", data);
-        return data;
+        // const data = await getAssignmentStats(previousChallengeId);
+        // console.log("이전 기수 제출 인원 (API response): ", data);
+        // return data;
+        const response = await fetch(
+          `/api/admin/assignments/stats/${previousChallengeId}`,
+        );
+        if (!response.ok) {
+          throw new Error("과제 통계 조회에 실패했습니다.");
+        }
+        return response.json();
       },
       enabled: !!previousChallengeId,
     });
