@@ -4,8 +4,7 @@ import { useState } from "react";
 import {
   setTestServerTime,
   getServerTime,
-  isOpen,
-  isTodayOpen,
+  isLectureOpen,
 } from "@/utils/date/serverTime";
 
 export default function TestPage() {
@@ -46,8 +45,8 @@ export default function TestPage() {
       let testResults = `현재 서버 시간: ${serverTime}\n\n`;
 
       for (const testCase of testCases) {
-        const isToday = await isTodayOpen(testCase.openAt);
-        const isOpenResult = await isOpen(testCase.openAt);
+        const isToday = await isLectureOpen(testCase.openAt);
+        const isOpenResult = await isLectureOpen(testCase.openAt);
 
         testResults += `${testCase.name}:\n`;
         testResults += `open_at: ${testCase.openAt}\n`;

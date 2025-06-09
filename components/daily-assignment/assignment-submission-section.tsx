@@ -9,7 +9,7 @@ import { userInfo } from "@/types/user";
 import { useSelectedLectureStore } from "@/lib/store/useSelectedLectureStore";
 import { useEffect, useState } from "react";
 import { SubmittedAssignment } from "@/types/assignment";
-import { isTodayOpen } from "@/utils/date/serverTime";
+import { isLectureOpen } from "@/utils/date/serverTime";
 
 interface AssignmentSubmissionSectionProps {
   userInfo: userInfo;
@@ -24,7 +24,7 @@ export function AssignmentSubmissionSection({
   useEffect(() => {
     const checkTodayLecture = async () => {
       if (open_at) {
-        const isToday = await isTodayOpen(open_at);
+        const isToday = await isLectureOpen(open_at);
         setIsTodayLecture(isToday);
       }
     };
