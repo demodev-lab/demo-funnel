@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DailyLectureItem from "./daily-lecture-item";
 import LecturePlayer from "./lecture-player";
 import {
@@ -11,6 +11,7 @@ import {
 import { PlayCircle, Lock, Calendar } from "lucide-react";
 import { Lecture } from "@/types/lecture";
 import { useSelectedLectureStore } from "@/lib/store/useSelectedLectureStore";
+import { isOpen } from "@/utils/date/serverTime";
 
 interface DailyLectureSectionProps {
   lectures: Lecture[];
@@ -23,15 +24,29 @@ export default function DailyLectureSection({
   const [selectedVideoIdx, setSelectedVideoIdx] = useState(0);
   const [isLockedModalOpen, setIsLockedModalOpen] = useState(false);
   const [lockedVideoTitle, setLockedVideoTitle] = useState("");
+  const [mainLecture, setMainLecture] = useState<{
+    title: string;
+    description: string;
+    lectureUrl: string;
+    isLocked: boolean;
+  } | null>(null);
 
-  const mainLecture = lectures[selectedVideoIdx]
-    ? {
-        title: lectures[selectedVideoIdx].name,
-        description: lectures[selectedVideoIdx].description,
-        lectureUrl: lectures[selectedVideoIdx].url,
-        isLocked: new Date(lectures[selectedVideoIdx].open_at) > new Date(),
+  useEffect(() => {
+    const updateMainLecture = async () => {
+      if (lectures[selectedVideoIdx]) {
+        const isLocked = !(await isOpen(lectures[selectedVideoIdx].open_at));
+        setMainLecture({
+          title: lectures[selectedVideoIdx].name,
+          description: lectures[selectedVideoIdx].description,
+          lectureUrl: lectures[selectedVideoIdx].url,
+          isLocked,
+        });
+      } else {
+        setMainLecture(null);
       }
-    : null;
+    };
+    updateMainLecture();
+  }, [lectures, selectedVideoIdx]);
 
   const onSelectedLecture = useSelectedLectureStore(
     (state) => state.setSelectedLecture,
