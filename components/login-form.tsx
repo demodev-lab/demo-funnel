@@ -42,7 +42,6 @@ export function LoginForm() {
         });
 
         setTimeout(() => {
-          // lectureId가 있으면 해당 강의로 이동
           if (lectureId) {
             router.push(`/class?lectureId=${lectureId}`);
           } else {

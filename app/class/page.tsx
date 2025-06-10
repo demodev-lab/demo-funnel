@@ -9,13 +9,12 @@ import { AssignmentSubmissionSection } from "@/components/daily-assignment/assig
 import { getUserLectures } from "@/apis/lectures";
 import { Lecture } from "@/types/lecture";
 import { useSelectedLectureStore } from "@/lib/store/useSelectedLectureStore";
+import { checkIsTodayLecture } from "@/utils/date/serverTime";
 
 export default function ClassPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: user, isLoading } = useUser();
-  const selectedLecture = useSelectedLectureStore((state) => state.lectureId);
-
   const { data: lectures = [] } = useQuery({
     queryKey: ["daily-lectures", user?.id],
     queryFn: async () => {
@@ -29,39 +28,43 @@ export default function ClassPage() {
     (state) => state.setSelectedLecture,
   );
 
+  const findTodayLecture = async () => {
+    for (const lecture of lectures) {
+      const isToday = await checkIsTodayLecture(lecture.open_at);
+      if (isToday) {
+        onSelectedLecture(lecture);
+        return;
+      }
+    }
+    // 오늘 강의가 없으면 첫 번째 강의 선택
+    onSelectedLecture(lectures[0]);
+  };
+
   useEffect(() => {
+    const lectureId = searchParams.get("lectureId");
     if (!isLoading && !user) {
-      router.push("/login");
+      if (lectureId) {
+        router.push(`/login?lectureId=${lectureId}`);
+      } else {
+        router.push("/login");
+      }
       return;
     }
 
     if (lectures && lectures.length > 0) {
-      const lectureId = searchParams.get("lectureId");
-
       if (lectureId) {
-        // URL에 lectureId가 있으면 해당 강의 찾기
         const targetLecture = lectures.find(
           (lecture) => String(lecture.id) === lectureId,
         );
-
         if (targetLecture) {
           onSelectedLecture(targetLecture);
-        } else {
-          onSelectedLecture(lectures[0]);
+          router.replace("/class");
         }
-      } else if (!selectedLecture) {
-        onSelectedLecture(lectures[0]);
+      } else {
+        findTodayLecture();
       }
     }
-  }, [
-    user,
-    isLoading,
-    router,
-    lectures,
-    onSelectedLecture,
-    searchParams,
-    selectedLecture,
-  ]);
+  }, [user, isLoading, router, lectures, onSelectedLecture]);
 
   if (isLoading) {
     return <div>로딩 중...</div>;

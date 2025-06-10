@@ -21,7 +21,7 @@ export default function DailyLectureSection({
   lectures,
 }: DailyLectureSectionProps) {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [selectedVideoIdx, setSelectedVideoIdx] = useState(0);
+  const [selectedVideoIdx, setSelectedVideoIdx] = useState<number | null>(null);
   const [isLockedModalOpen, setIsLockedModalOpen] = useState(false);
   const [lockedVideoTitle, setLockedVideoTitle] = useState("");
   const [mainLecture, setMainLecture] = useState<{
@@ -33,7 +33,7 @@ export default function DailyLectureSection({
 
   const { lectureId, setSelectedLecture } = useSelectedLectureStore();
 
-  // URL의 lectureId와 selectedVideoIdx 동기화
+  // lectureId가 변경될 때 selectedVideoIdx 업데이트
   useEffect(() => {
     if (lectureId && lectures.length > 0) {
       const index = lectures.findIndex((lecture) => lecture.id === lectureId);
@@ -45,7 +45,7 @@ export default function DailyLectureSection({
 
   useEffect(() => {
     const updateMainLecture = async () => {
-      if (lectures[selectedVideoIdx]) {
+      if (selectedVideoIdx !== null && lectures[selectedVideoIdx]) {
         const isLocked = !(await isLectureOpen(
           lectures[selectedVideoIdx].open_at,
         ));
@@ -55,14 +55,12 @@ export default function DailyLectureSection({
           lectureUrl: lectures[selectedVideoIdx].url,
           isLocked,
         });
-        // selectedVideoIdx가 변경될 때마다 store 업데이트
-        setSelectedLecture(lectures[selectedVideoIdx]);
       } else {
         setMainLecture(null);
       }
     };
     updateMainLecture();
-  }, [lectures, selectedVideoIdx, setSelectedLecture]);
+  }, [lectures, selectedVideoIdx]);
 
   const togglePlay = () => {
     setIsPlaying(!isPlaying);
@@ -70,6 +68,7 @@ export default function DailyLectureSection({
 
   const handleVideoSelect = (index: number) => {
     setSelectedVideoIdx(index);
+    setSelectedLecture(lectures[index]);
     setIsPlaying(false);
   };
 
