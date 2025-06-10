@@ -7,7 +7,7 @@ export const EMAIL_TEMPLATES: Record<EmailTemplate["id"], EmailTemplate> = {
     content: `안녕하세요, {name}님!
 
 demo-funnel의 새로운 강의가 오픈되었습니다.
-지금 바로 확인해보세요.
+지금 확인해보세요.
 
 https://demodev-funnel.vercel.app/
 
