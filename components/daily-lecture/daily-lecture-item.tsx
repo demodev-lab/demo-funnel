@@ -50,8 +50,8 @@ export default function DailyLectureItem({
               locked ? "opacity-40 blur-[1px]" : "hover:scale-105"
             }`}
           />
-        ) : (
-          // 직접 업로드 동영상인 경우 Video 태그 사용
+        ) : // 직접 업로드 동영상인 경우 Video 태그 사용
+        dailyLecture.url ? (
           <video
             src={dailyLecture.url}
             className={`w-full h-full object-cover ${
@@ -62,6 +62,10 @@ export default function DailyLectureItem({
             playsInline
             controlsList="no-controls"
           />
+        ) : (
+          <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+            <span className="text-gray-400">동영상을 불러올 수 없습니다</span>
+          </div>
         )}
 
         {locked ? (
