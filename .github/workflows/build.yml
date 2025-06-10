@@ -19,15 +19,14 @@ jobs:
   build-and-test:
     name: Build and Test
     runs-on: ubuntu-latest
-    env:
-      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Check environment variable presence
         run: |
-          if [ -z "$RESEND_API_KEY" ]; then
+          if [ -z "${{ secrets.RESEND_API_KEY }}" ]; then
             echo "RESEND_API_KEY is NOT set"
             exit 1
           else
@@ -59,4 +58,6 @@ jobs:
         run: pnpm run test --coverage
 
       - name: Build
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
         run: pnpm run build
