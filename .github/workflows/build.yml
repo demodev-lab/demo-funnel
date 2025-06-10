@@ -24,6 +24,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Check environment variable presence
+        run: |
+          if [ -z "$RESEND_API_KEY" ]; then
+            echo "RESEND_API_KEY is NOT set"
+            exit 1
+          else
+            echo "RESEND_API_KEY is set"
+          fi
+
       - name: Use Node.js 20.0.0
         uses: actions/setup-node@v4
         with:
