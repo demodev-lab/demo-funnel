@@ -60,7 +60,8 @@ export default function ClassPage() {
           onSelectedLecture(targetLecture);
           router.replace("/class");
         }
-      } else {
+      } else if (!searchParams.get("lectureId")) {
+        // lectureId가 없을 때만 실행
         findTodayLecture();
       }
     }
