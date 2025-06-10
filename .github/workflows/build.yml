@@ -2,25 +2,16 @@ name: Build and Test on PR
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened]
+  push:
     branches:
       - main
       - dev
-
-permissions:
-  contents: read
-  pull-requests: write
-  secrets: read
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
   build-and-test:
     name: Build and Test
     runs-on: ubuntu-latest
-    env:
-      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
 
     steps:
       - name: Checkout
@@ -33,16 +24,6 @@ jobs:
 
       - name: Setup pnpm
         run: npm install -g pnpm
-
-      - name: Cache pnpm store and node_modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.pnpm-store
-            **/node_modules
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
