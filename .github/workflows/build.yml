@@ -9,7 +9,6 @@ on:
 permissions:
   contents: read
   pull-requests: write
-  secrets: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
