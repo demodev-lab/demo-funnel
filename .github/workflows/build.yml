@@ -1,4 +1,4 @@
-ame: Build and Test on PR
+name: Build and Test on PR
 
 on:
   pull_request:
