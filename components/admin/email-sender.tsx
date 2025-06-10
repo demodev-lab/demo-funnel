@@ -6,6 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
+import { sendEmails } from "@/apis/email";
+import { EmailTemplateType } from "@/types/email";
 import {
   Table,
   TableBody,
@@ -20,15 +24,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useChallengeStore } from "@/lib/store/useChallengeStore";
 import { useStudentsByChallenge } from "@/hooks/useStudents";
 import { User } from "@/types/user";
-
-// Mock data
-// const students = [
-//   { id: 1, name: "홍길동", email: "test@example.com", selected: false },
-//   { id: 2, name: "김철수", email: "kim@example.com", selected: false },
-//   { id: 3, name: "이영희", email: "lee@example.com", selected: false },
-//   { id: 4, name: "박지민", email: "park@example.com", selected: false },
-//   { id: 5, name: "최유리", email: "choi@example.com", selected: false },
-// ];
+import { EMAIL_TEMPLATES } from "@/constants/email-templates";
 
 const emailLogs = [
   {
@@ -69,6 +65,8 @@ export default function EmailSender() {
   const [studentList, setStudentList] = useState<
     (User & { selected?: boolean })[]
   >([]);
+  const [emailContent, setEmailContent] = useState("");
+  const [isSending, setIsSending] = useState(false);
 
   useEffect(() => {
     if (students.length > 0) {
@@ -86,6 +84,21 @@ export default function EmailSender() {
       fetchNextPage();
     }
   }, [inView, hasNextPage, fetchNextPage, isFetchingNextPage]);
+
+  useEffect(() => {
+    const template = EMAIL_TEMPLATES[selectedTemplate];
+    if (!template) return;
+
+    const variables = getTemplateVariables();
+    const content = template.content
+      .replace("{lectureName}", variables.lectureName || "")
+      .replace("{openDate}", variables.openDate || "")
+      .replace("{assignmentName}", variables.assignmentName || "")
+      .replace("{dueDate}", variables.dueDate || "")
+      .replace("{name}", "회원님"); // 미리보기용 기본값
+
+    setEmailContent(content);
+  }, [selectedTemplate]);
 
   const handleSelectAll = () => {
     const newSelectAll = !selectAll;
@@ -114,6 +127,64 @@ export default function EmailSender() {
         return "안녕하세요, {이름}님!\n\n아직 제출하지 않은 과제가 있습니다. 기한 내에 제출해주세요.\n\n과제명: {과제명}\n제출기한: {제출기한}\n\n코드언락 드림";
       default:
         return "";
+    }
+  };
+
+  const getTemplateVariables = () => {
+    switch (selectedTemplate) {
+      case "lecture-open":
+        return {
+          lectureName: "React 기초 강의", // 실제로는 강의 정보에서 가져와야 함
+          openDate: new Date().toLocaleDateString(),
+          customContent: emailContent || undefined,
+        };
+      case "assignment-reminder":
+        return {
+          assignmentName: "리액트 컴포넌트 만들기", // 실제로는 과제 정보에서 가져와야 함
+          dueDate: new Date(
+            Date.now() + 7 * 24 * 60 * 60 * 1000,
+          ).toLocaleDateString(),
+          customContent: emailContent || undefined,
+        };
+      default:
+        return {};
+    }
+  };
+
+  const handleSendEmails = async () => {
+    const selectedStudents = studentList.filter((student) => student.selected);
+
+    if (selectedStudents.length === 0) {
+      toast.error("선택된 학생이 없습니다.");
+      return;
+    }
+
+    try {
+      setIsSending(true);
+
+      const response = await sendEmails({
+        to: selectedStudents.map((student) => student.email),
+        template: selectedTemplate as EmailTemplateType,
+        variables: {
+          ...getTemplateVariables(),
+          customContent: emailContent, // 수정된 내용 전체를 전송
+        },
+      });
+
+      if (response.success) {
+        toast.success("이메일이 성공적으로 전송되었습니다.");
+        setSelectAll(false);
+        setStudentList(
+          studentList.map((student) => ({ ...student, selected: false })),
+        );
+      } else {
+        toast.error(response.message || "이메일 전송에 실패했습니다.");
+      }
+    } catch (error) {
+      console.error("이메일 전송 에러:", error);
+      toast.error("이메일 전송 중 오류가 발생했습니다.");
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -250,16 +321,21 @@ export default function EmailSender() {
                 </div>
 
                 <div>
-                  <Label className="text-base text-gray-300">
-                    이메일 미리보기
-                  </Label>
-                  <div className="mt-2 p-4 border border-gray-700/30 rounded-md bg-[#1A1D29]/60 text-gray-300 whitespace-pre-line">
-                    {getTemplatePreview()}
-                  </div>
+                  <Label className="text-base text-gray-300">이메일 내용</Label>
+                  <Textarea
+                    value={emailContent}
+                    onChange={(e) => setEmailContent(e.target.value)}
+                    placeholder="이메일 내용을 입력하세요..."
+                    className="mt-2 min-h-[300px] bg-[#1A1D29]/60 border-gray-700/30 text-gray-300 font-mono"
+                  />
                 </div>
 
-                <Button className="w-full bg-gradient-to-r from-[#5046E4] to-[#6A5AFF] hover:brightness-110 text-white shadow-md hover:shadow-xl transition-all duration-300">
-                  발송하기
+                <Button
+                  className="w-full bg-gradient-to-r from-[#5046E4] to-[#6A5AFF] hover:brightness-110 text-white shadow-md hover:shadow-xl transition-all duration-300"
+                  onClick={handleSendEmails}
+                  disabled={isSending}
+                >
+                  {isSending ? "전송 중..." : "발송하기"}
                 </Button>
               </div>
             </CardContent>
