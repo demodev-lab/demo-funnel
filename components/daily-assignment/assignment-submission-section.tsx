@@ -31,11 +31,6 @@ export function AssignmentSubmissionSection({
     checkTodayLecture();
   }, [open_at]);
 
-  // 마감 기한이 지나지 않았는지 확인 (마감 기한 전에만 수정 가능) TODO: open_at이 아닌 due_at으로 변경할 지 논의 필
-  const isBeforeDeadline =
-    open_at &&
-    new Date(open_at).getTime() + 24 * 60 * 60 * 1000 > new Date().getTime();
-
   // 선택한 강의에 대한 과제 정보 가져오기
   const { data: assignmentInfo = [] } = useQuery({
     queryKey: ["assignment-info", lectureId],
@@ -111,7 +106,7 @@ export function AssignmentSubmissionSection({
             <AssignmentSubmissionItem
               userInfo={userInfo}
               submittedAssignment={submittedAssignment}
-              isBeforeDeadline={isBeforeDeadline}
+              isTodayLecture={isTodayLecture}
             />
           ) : (
             <div className="text-gray-400 text-center py-6">

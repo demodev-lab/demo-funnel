@@ -13,13 +13,13 @@ import { toast } from "sonner";
 interface AssignmentSubmissionItemProps {
   userInfo: userInfo;
   submittedAssignment: SubmittedAssignment | null;
-  isBeforeDeadline: boolean;
+  isTodayLecture: boolean;
 }
 
 export function AssignmentSubmissionItem({
   userInfo,
   submittedAssignment,
-  isBeforeDeadline,
+  isTodayLecture,
 }: AssignmentSubmissionItemProps) {
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
@@ -68,7 +68,7 @@ export function AssignmentSubmissionItem({
             </div>
           </div>
         </div>
-        {isBeforeDeadline && (
+        {isTodayLecture && (
           <button
             onClick={() => setIsEditing(!isEditing)}
             className="text-sm text-[#8C7DFF] hover:text-[#A99AFF]"
