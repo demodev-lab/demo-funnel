@@ -12,14 +12,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { FormEvent, useState } from "react";
 
 export function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const queryClient = useQueryClient();
+  const lectureId = searchParams.get("lectureId");
 
   const loginMutation = useMutation({
     mutationFn: (email: string) => userLogin(email),
@@ -40,7 +42,12 @@ export function LoginForm() {
         });
 
         setTimeout(() => {
-          router.push("/class");
+          // lectureId가 있으면 해당 강의로 이동
+          if (lectureId) {
+            router.push(`/class?lectureId=${lectureId}`);
+          } else {
+            router.push("/class");
+          }
         }, 1500);
       }
     },

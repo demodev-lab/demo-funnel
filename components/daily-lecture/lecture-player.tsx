@@ -1,11 +1,12 @@
 import Image from "next/image";
-import { Play, Pause, Bookmark, Share2 } from "lucide-react";
+import { Play, Pause, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   getUploadTypeFromUrl,
   getVideoThumbnailUrl,
   getYouTubeEmbedUrl,
 } from "@/utils/youtube";
+import { useSelectedLectureStore } from '@/lib/store/useSelectedLectureStore';
 
 interface LecturePlayerProps {
   title: string;
@@ -23,6 +24,30 @@ export default function LecturePlayer({
   onTogglePlay,
 }: LecturePlayerProps) {
   const upload_type = getUploadTypeFromUrl(lectureUrl);
+  const { lectureId } = useSelectedLectureStore();
+
+  const handleShare = async () => {
+    const shareUrl = `${window.location.origin}/class?lectureId=${lectureId}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: title,
+          text: description,
+          url: shareUrl,
+        });
+      } else {
+        await navigator.clipboard.writeText(shareUrl);
+        alert("링크가 클립보드에 복사되었습니다.");
+      }
+    } catch {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        alert("링크가 클립보드에 복사되었습니다.");
+      } catch {
+        alert("공유하기를 실패했습니다. 브라우저 설정을 확인해주세요.");
+      }
+    }
+  };
 
   return (
     <>
@@ -30,17 +55,19 @@ export default function LecturePlayer({
         <div className="flex flex-col md:flex-row justify-between md:items-center mb-4">
           <h2 className="text-xl md:text-2xl font-bold">{title}</h2>
           <div className="flex items-center space-x-2 mt-2 md:mt-0">
-            <Button
+            {/* TODO: 수강생 개인 페이지 생성 후 추가 */}
+            {/* <Button
               variant="outline"
               size="sm"
               className="rounded-full text-sm px-3 border-gray-700 bg-[#1C1F2B]/70 hover:bg-[#5046E4]/10 hover:text-[#8C7DFF] hover:border-[#5046E4]/30 flex items-center"
             >
               <Bookmark className="h-4 w-4 mr-1.5" /> 저장
-            </Button>
+            </Button> */}
             <Button
               variant="outline"
               size="sm"
               className="rounded-full text-sm px-3 border-gray-700 bg-[#1C1F2B]/70 hover:bg-[#5046E4]/10 hover:text-[#8C7DFF] hover:border-[#5046E4]/30 flex items-center"
+              onClick={handleShare}
             >
               <Share2 className="h-4 w-4 mr-1.5" /> 공유
             </Button>

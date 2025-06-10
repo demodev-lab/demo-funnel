@@ -31,6 +31,18 @@ export default function DailyLectureSection({
     isLocked: boolean;
   } | null>(null);
 
+  const { lectureId, setSelectedLecture } = useSelectedLectureStore();
+
+  // URL의 lectureId와 selectedVideoIdx 동기화
+  useEffect(() => {
+    if (lectureId && lectures.length > 0) {
+      const index = lectures.findIndex((lecture) => lecture.id === lectureId);
+      if (index !== -1) {
+        setSelectedVideoIdx(index);
+      }
+    }
+  }, [lectureId, lectures]);
+
   useEffect(() => {
     const updateMainLecture = async () => {
       if (lectures[selectedVideoIdx]) {
@@ -43,16 +55,14 @@ export default function DailyLectureSection({
           lectureUrl: lectures[selectedVideoIdx].url,
           isLocked,
         });
+        // selectedVideoIdx가 변경될 때마다 store 업데이트
+        setSelectedLecture(lectures[selectedVideoIdx]);
       } else {
         setMainLecture(null);
       }
     };
     updateMainLecture();
-  }, [lectures, selectedVideoIdx]);
-
-  const onSelectedLecture = useSelectedLectureStore(
-    (state) => state.setSelectedLecture,
-  );
+  }, [lectures, selectedVideoIdx, setSelectedLecture]);
 
   const togglePlay = () => {
     setIsPlaying(!isPlaying);
@@ -118,7 +128,7 @@ export default function DailyLectureSection({
               <div
                 key={lecture.id}
                 className="group"
-                onClick={() => onSelectedLecture(lecture)}
+                onClick={() => handleVideoSelect(index)}
               >
                 <DailyLectureItem
                   dailyLecture={lecture}

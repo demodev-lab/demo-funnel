@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useUser } from "@/hooks/auth/use-user";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import DailyLectureSection from "@/components/daily-lecture/daily-lecture-section";
 import { AssignmentSubmissionSection } from "@/components/daily-assignment/assignment-submission-section";
@@ -12,7 +12,9 @@ import { useSelectedLectureStore } from "@/lib/store/useSelectedLectureStore";
 
 export default function ClassPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: user, isLoading } = useUser();
+  const selectedLecture = useSelectedLectureStore((state) => state.lectureId);
 
   const { data: lectures = [] } = useQuery({
     queryKey: ["daily-lectures", user?.id],
@@ -33,19 +35,33 @@ export default function ClassPage() {
       return;
     }
 
-    // TODO: 콘솔 제거
-    // if (user) {
-    //   console.log("사용자 정보:", {
-    //     id: user.id,
-    //     name: user.name,
-    //     email: user.email,
-    //   });
-    // }
-
     if (lectures && lectures.length > 0) {
-      onSelectedLecture(lectures[0]);
+      const lectureId = searchParams.get("lectureId");
+
+      if (lectureId) {
+        // URL에 lectureId가 있으면 해당 강의 찾기
+        const targetLecture = lectures.find(
+          (lecture) => String(lecture.id) === lectureId,
+        );
+
+        if (targetLecture) {
+          onSelectedLecture(targetLecture);
+        } else {
+          onSelectedLecture(lectures[0]);
+        }
+      } else if (!selectedLecture) {
+        onSelectedLecture(lectures[0]);
+      }
     }
-  }, [user, isLoading, router, lectures, onSelectedLecture]);
+  }, [
+    user,
+    isLoading,
+    router,
+    lectures,
+    onSelectedLecture,
+    searchParams,
+    selectedLecture,
+  ]);
 
   if (isLoading) {
     return <div>로딩 중...</div>;
