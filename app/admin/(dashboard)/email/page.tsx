@@ -1,4 +1,4 @@
-import Header from "@/components/admin/header";
+"use client";
 import EmailSender from "@/components/admin/email-sender";
 
 export default function EmailPage() {
