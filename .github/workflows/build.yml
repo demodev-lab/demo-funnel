@@ -12,6 +12,9 @@ jobs:
   build-and-test:
     name: Build and Test
     runs-on: ubuntu-latest
+    env:
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      NEXT_TELEMETRY_DISABLED: 1
 
     steps:
       - name: Checkout
@@ -27,6 +30,10 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Create dummy .env file
+        run: |
+          echo "RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}" > .env.local
 
       - name: Run tests
         run: pnpm run test --coverage
