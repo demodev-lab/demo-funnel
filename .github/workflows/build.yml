@@ -41,9 +41,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Create .env.production
-        run: echo "RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}" >> .env.production
-
       - name: Run tests
         run: pnpm run test --coverage
 
