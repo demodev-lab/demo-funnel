@@ -213,11 +213,6 @@ export default function EmailSender() {
                 <div>
                   <Label className="text-base text-gray-300">대상 선택</Label>
                   <div className="mt-2">
-                    <Input
-                      placeholder="이름 또는 이메일 검색"
-                      className="mb-2 bg-[#1A1D29]/70 border-gray-700/50 text-white placeholder:text-gray-500 focus:border-[#5046E4] focus:ring-[#5046E4]/20"
-                    />
-
                     <div className="bg-[#1A1D29]/40 border border-gray-700/30 rounded-lg overflow-hidden">
                       <div className="max-h-[400px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
                         <Table>
