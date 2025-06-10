@@ -95,7 +95,7 @@ export default function EmailSender() {
       .replace("{openDate}", variables.openDate || "")
       .replace("{assignmentName}", variables.assignmentName || "")
       .replace("{dueDate}", variables.dueDate || "")
-      .replace("{name}", "회원님"); // 미리보기용 기본값
+      .replace("{name}", "회원"); // 미리보기용 기본값
 
     setEmailContent(content);
   }, [selectedTemplate]);
