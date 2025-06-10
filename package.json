@@ -60,6 +60,7 @@
     "react-day-picker": "8.10.1",
     "react-dom": "^18",
     "react-hook-form": "^7.54.1",
+    "react-intersection-observer": "^9.16.0",
     "react-resizable-panels": "^2.1.7",
     "recharts": "2.15.0",
     "resend": "^4.5.2",
