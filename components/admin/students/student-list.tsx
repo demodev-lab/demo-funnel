@@ -19,15 +19,15 @@ import {
   type Student,
 } from "@/hooks/useStudents";
 import { useQueryClient } from "@tanstack/react-query";
-import { StudentTable } from "./student-table";
 import { StudentForm } from "./student-form";
-import { ExcelUploadDialog } from "./excel-upload-dialog";
 import { DeleteDialogContent } from "./delete-dialog";
 import {
   validateStudentForm,
   type ValidationErrors,
 } from "@/utils/validations/student";
 import { StudentListState } from "./student-list-state";
+import ExcelUploadDialog from "./excel-upload-dialog";
+import StudentTable from "./student-table";
 
 export default function StudentList() {
   // React Query 훅들
@@ -104,7 +104,7 @@ export default function StudentList() {
     const errors = validateStudentForm(
       currentStudent,
       students,
-      editingStudentId,
+      editingStudentId ? Number(editingStudentId) : undefined,
     );
     setValidationErrors(errors);
     if (Object.keys(errors).length > 0) return;
@@ -145,8 +145,8 @@ export default function StudentList() {
     setIsFormOpen(true);
   };
 
-  const handleDeleteClick = (studentId: string) => {
-    setStudentToDelete(studentId);
+  const handleDeleteClick = (studentId: number) => {
+    setStudentToDelete(studentId.toString());
     setIsDeleteOpen(true);
   };
 
@@ -202,7 +202,6 @@ export default function StudentList() {
             isProcessing={isExcelUploading || isExcelAdding}
             selectedChallengeId={1}
             challenges={[]}
-            validateStudent={() => []}
           />
 
           {/* 학생 추가/수정 다이얼로그 */}
@@ -254,8 +253,11 @@ export default function StudentList() {
         students={students}
         onEdit={handleEditClick}
         onDelete={handleDeleteClick}
-        isUpdating={updateStudentMutation.isPending}
-        isDeleting={deleteStudentMutation.isPending}
+        isLoading={isLoading}
+        error={error}
+        hasNextPage={false}
+        isFetchingNextPage={false}
+        onFetchNextPage={() => {}}
       />
     </div>
   );

@@ -1,10 +1,9 @@
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Lock, Calendar } from "lucide-react";
-import {
-  getUploadTypeFromUrl,
-  getVideoThumbnailUrl,
-} from "@/utils/youtube";
+import { getUploadTypeFromUrl, getVideoThumbnailUrl } from "@/utils/youtube";
 import { Lecture } from "@/types/lecture";
+import { isLectureOpen } from "@/utils/date/serverTime";
 
 interface DailyLectureItemProps {
   dailyLecture: Lecture;
@@ -20,7 +19,15 @@ export default function DailyLectureItem({
   videoIndex,
 }: DailyLectureItemProps) {
   const upload_type = getUploadTypeFromUrl(dailyLecture.url);
-  const locked = new Date(dailyLecture.open_at) > new Date();
+  const [locked, setLocked] = useState(true);
+
+  useEffect(() => {
+    const checkLockStatus = async () => {
+      const isLocked = !(await isLectureOpen(dailyLecture.open_at));
+      setLocked(isLocked);
+    };
+    checkLockStatus();
+  }, [dailyLecture.open_at]);
 
   return (
     <div
@@ -63,7 +70,7 @@ export default function DailyLectureItem({
               <Lock className="h-10 w-10 text-[#8C7DFF] drop-shadow-md mb-2" />
               <span className="text-xs font-medium text-white/90 bg-[#5046E4]/30 px-2 py-1 rounded-full backdrop-blur-sm flex items-center">
                 <Calendar className="h-3 w-3 mr-1" />
-                Coming Soon
+                {dailyLecture.open_at}
               </span>
             </div>
           </div>

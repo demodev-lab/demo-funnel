@@ -30,7 +30,7 @@ export const validateName = (name: string): string | undefined => {
 export const checkDuplicateEmail = (
   email: string,
   students: Student[],
-  excludeId?: string,
+  excludeId?: number,
 ): string | undefined => {
   const isDuplicate = students.some(
     (student) => student.email === email && student.id !== excludeId,
@@ -42,7 +42,7 @@ export const checkDuplicateEmail = (
 export const validateStudentForm = (
   student: Omit<Student, "id">,
   students: Student[],
-  excludeId?: string,
+  excludeId?: number,
 ): ValidationErrors => {
   const errors: ValidationErrors = {};
 

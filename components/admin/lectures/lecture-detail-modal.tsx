@@ -1,4 +1,4 @@
-import { Lecture } from "@/types/lecture";
+import { AdminLecture } from "@/types/lecture";
 import { getYouTubeEmbedUrl } from "@/utils/youtube";
 import {
   Dialog,
@@ -9,7 +9,7 @@ import {
 import LectureForm from "@/components/admin/lecture-form";
 
 interface LectureDetailModalProps {
-  lecture: Lecture | null;
+  lecture: AdminLecture | null;
   isOpen: boolean;
   onClose: () => void;
   onDelete: () => Promise<void>;
@@ -56,7 +56,7 @@ export default function LectureDetailModal({
             <LectureForm
               isEdit
               initialData={{
-                title: lecture.name,
+                name: lecture.name,
                 description: lecture.description || "",
                 url: lecture.url || "",
                 assignmentTitle: lecture.assignment_title || "",

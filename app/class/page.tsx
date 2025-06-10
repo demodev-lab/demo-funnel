@@ -18,7 +18,6 @@ export default function ClassPage() {
     queryKey: ["daily-lectures", user?.id],
     queryFn: async () => {
       const data = await getUserLectures(user.id);
-      // console.log('강의 데이터:', data);
       return data as unknown as Lecture[];
     },
     enabled: !!user?.id,
@@ -30,7 +29,6 @@ export default function ClassPage() {
 
   useEffect(() => {
     if (!isLoading && !user) {
-      // 사용자 정보가 없으면 로그인 페이지로 리다이렉트
       router.push("/login");
       return;
     }
@@ -46,7 +44,6 @@ export default function ClassPage() {
 
     if (lectures && lectures.length > 0) {
       onSelectedLecture(lectures[0]);
-      // console.log("현재 강의:", lectures[0]);
     }
   }, [user, isLoading, router, lectures, onSelectedLecture]);
 
@@ -73,8 +70,6 @@ export default function ClassPage() {
             </h1>
           </div>
 
-          {/* FIXME: 애니메이션 추가시, 깜빡임 발생 */}
-          {/* <div className="transform transition-all duration-500 hover:scale-[1.01] shadow-xl rounded-2xl overflow-hidden animate-slide-up"> */}
           <div>
             <div className="bg-gradient-to-br from-[#252A3C] to-[#2A2F45] rounded-xl overflow-hidden shadow-lg border border-gray-700/50">
               <div className="transition-all duration-300 hover:brightness-105">
