@@ -10,7 +10,8 @@
     "start:msw": "cross-env NEXT_PUBLIC_API_MOCKING=enabled next start",
     "lint": "next lint",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "tunnel": "ngrok http 3000"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -72,6 +73,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
+    "@ngrok/ngrok": "^1.5.1",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
