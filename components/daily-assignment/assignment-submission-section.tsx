@@ -95,6 +95,18 @@ export function AssignmentSubmissionSection({
             />
           )}
 
+        {/* 과제 제출 기간 마감 안내 */}
+        {!isTodayLecture &&
+          assignmentInfo?.contents &&
+          !submittedAssignment?.is_submit && (
+            <div className="p-6 bg-[#1A1D29]/30 border-b border-gray-700/50">
+              <div className="flex items-center justify-center text-gray-400">
+                <AlertCircle className="h-5 w-5 mr-2 text-[#FF6B6B]" />
+                <span>과제 제출 기간이 마감되었습니다.</span>
+              </div>
+            </div>
+          )}
+
         <div className="p-6 bg-[#1A1D29]/30">
           <h3 className="text-lg font-semibold mb-4 flex items-center">
             <CheckCircle className="h-5 w-5 mr-2 text-[#8C7DFF]" />
