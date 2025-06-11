@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import DailyLectureItem from "./daily-lecture-item";
 import LecturePlayer from "./lecture-player";
@@ -30,21 +32,27 @@ export default function DailyLectureSection({
     lectureUrl: string;
     isLocked: boolean;
   } | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const updateMainLecture = async () => {
-      if (lectures[selectedVideoIdx]) {
-        const isLocked = !(await isLectureOpen(
-          lectures[selectedVideoIdx].open_at,
-        ));
-        setMainLecture({
-          title: lectures[selectedVideoIdx].name,
-          description: lectures[selectedVideoIdx].description,
-          lectureUrl: lectures[selectedVideoIdx].url,
-          isLocked,
-        });
-      } else {
-        setMainLecture(null);
+      setIsLoading(true);
+      try {
+        if (lectures[selectedVideoIdx]) {
+          const isLocked = !(await isLectureOpen(
+            lectures[selectedVideoIdx].open_at,
+          ));
+          setMainLecture({
+            title: lectures[selectedVideoIdx].name,
+            description: lectures[selectedVideoIdx].description,
+            lectureUrl: lectures[selectedVideoIdx].url,
+            isLocked,
+          });
+        } else {
+          setMainLecture(null);
+        }
+      } finally {
+        setIsLoading(false);
       }
     };
     updateMainLecture();
@@ -90,6 +98,13 @@ export default function DailyLectureSection({
               onTogglePlay={togglePlay}
             />
           )
+        ) : isLoading ? (
+          <div className="aspect-video bg-[#1A1D29] flex items-center justify-center">
+            <div className="text-center text-gray-400">
+              <div className="animate-spin rounded-full h-8 w-8 border-2 border-[#8C7DFF] border-t-transparent mx-auto mb-4"></div>
+              <p>강의 정보를 불러오는 중...</p>
+            </div>
+          </div>
         ) : (
           <div className="aspect-video bg-[#1A1D29] flex items-center justify-center">
             <div className="text-center text-gray-400">
