@@ -1,6 +1,6 @@
 "use client";
 
-import { FileText, Clock, CheckCircle, AlertCircle } from "lucide-react";
+import { FileText, Clock, CheckCircle, AlertCircle, Info } from "lucide-react";
 import { AssignmentSubmissionItem } from "./assignment-submission-item";
 import { AssignmentSubmissionForm } from "./assignment-submission-form";
 import { useQuery } from "@tanstack/react-query";
@@ -64,6 +64,15 @@ export function AssignmentSubmissionSection({
           <div className="flex items-center">
             <FileText className="h-5 w-5 mr-3 text-[#8C7DFF]" />
             <span className="font-semibold text-xl">과제 제출</span>
+            <div className="group relative ml-2">
+              <Info className="h-4 w-4 text-gray-400 cursor-help" />
+              <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 hidden group-hover:block">
+                <div className="bg-[#1C1F2B] text-sm text-gray-300 px-3 py-2 rounded-lg shadow-lg whitespace-nowrap">
+                  과제는 해당 강의일 자정까지 제출 가능합니다
+                </div>
+                <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-2 h-2 bg-[#1C1F2B] rotate-45"></div>
+              </div>
+            </div>
           </div>
           {assignmentInfo && (
             <div className="text-sm px-3 py-1 rounded-full bg-[#5046E4]/10 text-[#8C7DFF] font-medium flex items-center">
