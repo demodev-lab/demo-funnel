@@ -32,15 +32,16 @@ export function AssignmentSubmissionSection({
   }, [open_at]);
 
   // 선택한 강의에 대한 과제 정보 가져오기
-  const { data: assignmentInfo = [] } = useQuery({
-    queryKey: ["assignment-info", lectureId],
-    queryFn: async () => {
-      if (!lectureId) return null;
-      const data = await getAssignment(lectureId);
-      return data[0]; // NOTE: 하나의 강의에 하나의 과제만 존재
-    },
-    enabled: !!lectureId,
-  });
+  const { data: assignmentInfo = [], isLoading: isAssignmentLoading } =
+    useQuery({
+      queryKey: ["assignment-info", lectureId],
+      queryFn: async () => {
+        if (!lectureId) return null;
+        const data = await getAssignment(lectureId);
+        return data[0]; // NOTE: 하나의 강의에 하나의 과제만 존재
+      },
+      enabled: !!lectureId,
+    });
 
   // 제출된 과제 정보 가져오기
   const { data: submittedAssignment, isLoading: isSubmissionLoading } =
@@ -84,7 +85,11 @@ export function AssignmentSubmissionSection({
 
         <div className="p-6 bg-[#1A1D29]/30 border-b border-gray-700/50">
           <div className="prose prose-invert max-w-none">
-            {assignmentInfo?.contents ? (
+            {isAssignmentLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-2 border-[#8C7DFF] border-t-transparent"></div>
+              </div>
+            ) : assignmentInfo?.contents ? (
               <p className="text-gray-300 whitespace-pre-wrap leading-relaxed">
                 {assignmentInfo.contents}
               </p>
