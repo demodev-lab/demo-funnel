@@ -37,7 +37,7 @@ const emailLogs = [
   {
     id: 2,
     date: "2024-05-15",
-    template: "과제 제출 독려",
+    template: "과제 제출 독려!",
     targets: 45,
     success: 45,
   },
