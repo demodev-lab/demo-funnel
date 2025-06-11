@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
@@ -47,16 +46,8 @@ export default function EmailSender() {
   const { selectedChallengeId } = useChallengeStore();
   const { ref, inView } = useInView();
 
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading,
-    error,
-    isError,
-    refetch,
-  } = useStudentsByChallenge(selectedChallengeId, undefined);
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+    useStudentsByChallenge(selectedChallengeId, undefined);
 
   const students = data?.pages?.flatMap((page) => page?.data ?? []) ?? [];
 
