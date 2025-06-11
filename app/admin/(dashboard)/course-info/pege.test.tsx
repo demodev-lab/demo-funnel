@@ -12,13 +12,13 @@ jest.mock("@/components/admin/course-info/search-filter", () => {
   return function MockSearchFilter({
     searchQuery,
     onSearchChange,
-    showUnsubmittedOnly,
-    onUnsubmittedChange,
+    showCompletedOnly,
+    onCompletedChange,
   }: {
     searchQuery: string;
     onSearchChange: (value: string) => void;
-    showUnsubmittedOnly: boolean;
-    onUnsubmittedChange: (value: boolean) => void;
+    showCompletedOnly: boolean;
+    onCompletedChange: (value: boolean) => void;
   }) {
     return (
       <div>
@@ -30,9 +30,9 @@ jest.mock("@/components/admin/course-info/search-filter", () => {
         />
         <input
           type="checkbox"
-          data-testid="unsubmitted-checkbox"
-          checked={showUnsubmittedOnly}
-          onChange={(e) => onUnsubmittedChange(e.target.checked)}
+          data-testid="completed-checkbox"
+          checked={showCompletedOnly}
+          onChange={(e) => onCompletedChange(e.target.checked)}
         />
       </div>
     );
@@ -42,16 +42,16 @@ jest.mock("@/components/admin/course-info/search-filter", () => {
 jest.mock("@/components/admin/course-info/main-content", () => {
   return function MockMainContent({
     searchQuery,
-    showUnsubmittedOnly,
+    showCompletedOnly,
   }: {
     searchQuery: string;
-    showUnsubmittedOnly: boolean;
+    showCompletedOnly: boolean;
   }) {
     return (
       <div>
         <div data-testid="passed-search-query">{searchQuery}</div>
-        <div data-testid="passed-show-unsubmitted">
-          {showUnsubmittedOnly.toString()}
+        <div data-testid="passed-show-completed">
+          {showCompletedOnly.toString()}
         </div>
       </div>
     );
@@ -74,22 +74,22 @@ describe("CourseInfoPage", () => {
     expect(passedSearchQuery).toHaveTextContent("React");
   });
 
-  it("toggles showUnsubmittedOnly when checkbox is clicked", () => {
+  it("toggles showCompletedOnly when checkbox is clicked", () => {
     render(<CourseInfoPage />);
 
-    const checkbox = screen.getByTestId("unsubmitted-checkbox");
-    const passedShowUnsubmitted = screen.getByTestId("passed-show-unsubmitted");
+    const checkbox = screen.getByTestId("completed-checkbox");
+    const passedShowCompleted = screen.getByTestId("passed-show-completed");
 
     // 초기값 확인
-    expect(passedShowUnsubmitted).toHaveTextContent("false");
+    expect(passedShowCompleted).toHaveTextContent("false");
 
     // 체크박스 클릭
     fireEvent.click(checkbox);
-    expect(passedShowUnsubmitted).toHaveTextContent("true");
+    expect(passedShowCompleted).toHaveTextContent("true");
 
     // 다시 클릭
     fireEvent.click(checkbox);
-    expect(passedShowUnsubmitted).toHaveTextContent("false");
+    expect(passedShowCompleted).toHaveTextContent("false");
   });
 
   it("passes correct props to MainContent", () => {
@@ -97,7 +97,7 @@ describe("CourseInfoPage", () => {
 
     // 초기값 확인
     expect(screen.getByTestId("passed-search-query")).toHaveTextContent("");
-    expect(screen.getByTestId("passed-show-unsubmitted")).toHaveTextContent(
+    expect(screen.getByTestId("passed-show-completed")).toHaveTextContent(
       "false",
     );
 
@@ -106,14 +106,14 @@ describe("CourseInfoPage", () => {
     fireEvent.change(searchInput, { target: { value: "React" } });
 
     // 체크박스 클릭
-    const checkbox = screen.getByTestId("unsubmitted-checkbox");
+    const checkbox = screen.getByTestId("completed-checkbox");
     fireEvent.click(checkbox);
 
     // 최종 상태 확인
     expect(screen.getByTestId("passed-search-query")).toHaveTextContent(
       "React",
     );
-    expect(screen.getByTestId("passed-show-unsubmitted")).toHaveTextContent(
+    expect(screen.getByTestId("passed-show-completed")).toHaveTextContent(
       "true",
     );
   });
