@@ -33,6 +33,16 @@ export default function DailyLectureSection({
     isLocked: boolean;
   } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const { lectureId } = useSelectedLectureStore();
+
+  useEffect(() => {
+    if (lectureId && lectures.length > 0) {
+      const index = lectures.findIndex((lecture) => lecture.id === lectureId);
+      if (index !== -1) {
+        setSelectedVideoIdx(index);
+      }
+    }
+  }, [lectureId]);
 
   useEffect(() => {
     const updateMainLecture = async () => {
