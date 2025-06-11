@@ -4,7 +4,6 @@ import { Student } from "@/types/user";
 interface ValidationErrors {
   name?: string;
   email?: string;
-  phone?: string;
 }
 
 export function useStudentValidation(existingStudents: Student[] = []) {
@@ -33,17 +32,6 @@ export function useStudentValidation(existingStudents: Student[] = []) {
     return undefined;
   };
 
-  const validatePhone = (phone: string): string | undefined => {
-    if (!phone.trim()) {
-      return "전화번호를 입력해주세요.";
-    }
-    const phoneRegex = /^010-\d{4}-\d{4}$/;
-    if (!phoneRegex.test(phone)) {
-      return "전화번호는 010-0000-0000 형식으로 입력해주세요.";
-    }
-    return undefined;
-  };
-
   const checkDuplicateEmail = (
     email: string,
     excludeId?: number,
@@ -53,19 +41,6 @@ export function useStudentValidation(existingStudents: Student[] = []) {
     );
     if (isDuplicate) {
       return "중복된 이메일입니다.";
-    }
-    return undefined;
-  };
-
-  const checkDuplicatePhone = (
-    phone: string,
-    excludeId?: number,
-  ): string | undefined => {
-    const isDuplicate = existingStudents.some(
-      (student) => student.phone === phone && student.id !== excludeId,
-    );
-    if (isDuplicate) {
-      return "중복된 전화번호입니다.";
     }
     return undefined;
   };
@@ -83,11 +58,6 @@ export function useStudentValidation(existingStudents: Student[] = []) {
         if (emailError) return emailError;
         return checkDuplicateEmail(value, excludeId);
       }
-      case "phone": {
-        const phoneError = validatePhone(value);
-        if (phoneError) return phoneError;
-        return checkDuplicatePhone(value, excludeId);
-      }
       default:
         return undefined;
     }
@@ -99,7 +69,7 @@ export function useStudentValidation(existingStudents: Student[] = []) {
   ): Promise<boolean> => {
     const errors: ValidationErrors = {};
 
-    const fields: (keyof Omit<Student, "id">)[] = ["name", "email", "phone"];
+    const fields: (keyof Omit<Student, "id">)[] = ["name", "email"];
     await Promise.all(
       fields.map(async (field) => {
         const error = await validateField(
