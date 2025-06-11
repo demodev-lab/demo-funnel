@@ -9,6 +9,7 @@ import { AssignmentSubmissionSection } from "@/components/daily-assignment/assig
 import { getUserLectures } from "@/apis/lectures";
 import { Lecture } from "@/types/lecture";
 import { useSelectedLectureStore } from "@/lib/store/useSelectedLectureStore";
+import { checkIsTodayLecture } from "@/utils/date/serverTime";
 
 export default function ClassPage() {
   const router = useRouter();
@@ -33,19 +34,29 @@ export default function ClassPage() {
       return;
     }
 
-    // TODO: 콘솔 제거
-    // if (user) {
-    //   console.log("사용자 정보:", {
-    //     id: user.id,
-    //     name: user.name,
-    //     email: user.email,
-    //   });
-    // }
-
     if (lectures && lectures.length > 0) {
-      onSelectedLecture(lectures[0]);
+      let isMounted = true;
+
+      const findTodayLecture = async () => {
+        for (const lecture of lectures) {
+          const isToday = await checkIsTodayLecture(lecture.open_at);
+          if (isToday && isMounted) {
+            onSelectedLecture(lecture);
+            return;
+          }
+        }
+        if (isMounted) {
+          onSelectedLecture(lectures[0]);
+        }
+      };
+
+      findTodayLecture();
+
+      return () => {
+        isMounted = false;
+      };
     }
-  }, [user, isLoading, router, lectures, onSelectedLecture]);
+  }, [user, isLoading, router, lectures]);
 
   if (isLoading) {
     return <div>로딩 중...</div>;
