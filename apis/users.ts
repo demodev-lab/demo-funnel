@@ -255,18 +255,65 @@ export async function getStudentSubmissions(
   challengeId: number,
   page: number = 0,
   pageSize: number = 10,
+  completedOnly: boolean = false,
 ): Promise<{ data: StudentSubmission[]; total: number }> {
   try {
-    // 1. 전체 수강생 수 조회
-    const { count: totalUsers, error: countError } = await supabase
+    // 1. ChallengeLectures 조회하여 해당 챌린지의 강의 목록 가져오기
+    const { data: challengeLectures, error: challengeLecturesError } =
+      await supabase
+        .from("ChallengeLectures")
+        .select("id, lecture_id")
+        .eq("challenge_id", challengeId)
+        .order("sequence", { ascending: true });
+
+    if (challengeLecturesError) throw challengeLecturesError;
+
+    if (!challengeLectures || challengeLectures.length === 0) {
+      return { data: [], total: 0 };
+    }
+
+    // 2. 완주자만 보기가 활성화된 경우, 모든 과제를 제출한 사용자 ID 목록 가져오기
+    let userIds: number[] = [];
+    if (completedOnly) {
+      // 모든 강의에 대해 제출 여부 확인
+      const submissionPromises = challengeLectures.map((lecture) =>
+        supabase
+          .from("Submissions")
+          .select("user_id")
+          .eq("challenge_lecture_id", lecture.id)
+          .eq("is_submit", true),
+      );
+
+      const submissionResults = await Promise.all(submissionPromises);
+      const submittedUserIds = submissionResults.map(
+        (result) => result.data?.map((sub) => sub.user_id) || [],
+      );
+
+      // 모든 강의에 대해 과제를 제출한 사용자 ID만 필터링
+      userIds = submittedUserIds.reduce((acc, curr) => {
+        if (acc.length === 0) return curr;
+        return acc.filter((id) => curr.includes(id));
+      }, []);
+
+      if (userIds.length === 0) {
+        return { data: [], total: 0 };
+      }
+    }
+
+    // 3. 전체 수강생 수 조회
+    const countQuery = supabase
       .from("ChallengeUsers")
       .select("*", { count: "exact", head: true })
       .eq("challenge_id", challengeId);
 
-    if (countError) throw countError;
+    if (completedOnly && userIds.length > 0) {
+      countQuery.in("user_id", userIds);
+    }
 
-    // 2. 페이지네이션된 수강생 목록 조회
-    const { data: challengeUsers, error: challengeUsersError } = await supabase
+    const { count } = await countQuery;
+
+    // 4. 페이지네이션된 수강생 목록 조회
+    const userQuery = supabase
       .from("ChallengeUsers")
       .select(
         `
@@ -278,28 +325,24 @@ export async function getStudentSubmissions(
         )
       `,
       )
-      .eq("challenge_id", challengeId)
+      .eq("challenge_id", challengeId);
+
+    if (completedOnly && userIds.length > 0) {
+      userQuery.in("user_id", userIds);
+    }
+
+    const { data: challengeUsers, error: challengeUsersError } = await userQuery
       .range(page * pageSize, (page + 1) * pageSize - 1)
       .order("user_id", { ascending: true });
 
     if (challengeUsersError) throw challengeUsersError;
 
-    // 3. ChallengeLectures 조회하여 해당 챌린지의 강의 목록 가져오기
-    const { data: challengeLectures, error: challengeLecturesError } =
-      await supabase
-        .from("ChallengeLectures")
-        .select("id, lecture_id")
-        .eq("challenge_id", challengeId)
-        .order("sequence", { ascending: true });
-
-    if (challengeLecturesError) throw challengeLecturesError;
-
-    // 4. 각 수강생별로 제출 여부 확인
+    // 5. 각 수강생별로 제출 여부 확인
     const studentSubmissions = await Promise.all(
       (challengeUsers || []).map(async (user: any) => {
         // 각 강의별 제출 여부 조회
         const submissions = await Promise.all(
-          (challengeLectures || []).map(async (lecture: ChallengeLecture) => {
+          challengeLectures.map(async (lecture) => {
             const { data: submissions, error: submissionError } = await supabase
               .from("Submissions")
               .select("is_submit, assignment_url, assignment_comment")
@@ -337,10 +380,10 @@ export async function getStudentSubmissions(
 
     return {
       data: studentSubmissions,
-      total: totalUsers || 0,
+      total: count || 0,
     };
   } catch (error) {
-    console.error("수강생 제출 현황 조회 실패:", error);
-    throw error;
+    console.error("수강생 제출 현황 조회 실패", error);
+    return { data: [], total: 0 };
   }
 }

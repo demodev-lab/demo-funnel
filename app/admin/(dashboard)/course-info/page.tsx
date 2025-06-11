@@ -7,7 +7,7 @@ import MainContent from "@/components/admin/course-info/main-content";
 
 export default function CourseInfoPage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [showUnsubmittedOnly, setShowUnsubmittedOnly] = useState(false);
+  const [showCompletedOnly, setShowCompletedOnly] = useState(false);
 
   return (
     <div className="space-y-4">
@@ -15,12 +15,12 @@ export default function CourseInfoPage() {
       <SearchFilter
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
-        showUnsubmittedOnly={showUnsubmittedOnly}
-        onUnsubmittedChange={setShowUnsubmittedOnly}
+        showCompletedOnly={showCompletedOnly}
+        onCompletedChange={setShowCompletedOnly}
       />
       <MainContent
         searchQuery={searchQuery}
-        showUnsubmittedOnly={showUnsubmittedOnly}
+        showCompletedOnly={showCompletedOnly}
       />
     </div>
   );
