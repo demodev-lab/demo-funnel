@@ -19,7 +19,7 @@ import {
   type Student,
 } from "@/hooks/useStudents";
 import { useQueryClient } from "@tanstack/react-query";
-import { StudentForm } from "./student-form";
+import StudentFormDialog from "./student-form-dialog";
 import { DeleteDialogContent } from "./delete-dialog";
 import {
   validateStudentForm,
@@ -205,32 +205,23 @@ export default function StudentList() {
           />
 
           {/* 학생 추가/수정 다이얼로그 */}
-          <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-            <DialogTrigger asChild>
-              <Button size="sm" className="bg-[#5046E4] hover:bg-[#4038c7]">
-                <Plus className="w-4 h-4 mr-2" />
-                수강생 추가
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>
-                  {isEditMode ? "수강생 수정" : "수강생 추가"}
-                </DialogTitle>
-              </DialogHeader>
-              <StudentForm
-                student={currentStudent}
-                onSubmit={handleAddStudent}
-                onChange={handleInputChange}
-                validationErrors={validationErrors}
-                isSubmitting={
-                  createStudentMutation.isPending ||
-                  updateStudentMutation.isPending
-                }
-                isEditMode={isEditMode}
-              />
-            </DialogContent>
-          </Dialog>
+          <StudentFormDialog
+            isOpen={isFormOpen}
+            onOpenChange={setIsFormOpen}
+            onSubmit={async (student, challenges) => {
+              await handleAddStudent();
+            }}
+            existingStudent={
+              isEditMode && editingStudentId
+                ? students.find((s) => s.id.toString() === editingStudentId)
+                : undefined
+            }
+            challenges={[]}
+            initialChallenges={[]}
+            isSubmitting={
+              createStudentMutation.isPending || updateStudentMutation.isPending
+            }
+          />
         </div>
       </div>
 

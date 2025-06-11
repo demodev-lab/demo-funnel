@@ -2,6 +2,7 @@ import { supabase } from "./supabase";
 import { UserChallenges } from "@/types/challenge";
 import { User, UserWithChallenges, StudentSubmission } from "@/types/user";
 import { ChallengeLecture } from "@/types/lecture";
+import { handleError } from "@/utils/errorHandler";
 
 export async function getUsers() {
   try {
@@ -13,7 +14,7 @@ export async function getUsers() {
     if (error) throw error;
     return data;
   } catch (error) {
-    console.error("데이터 패칭 실패", error);
+    handleError(error, "사용자 데이터 패칭 실패");
     return [];
   }
 }
@@ -21,6 +22,25 @@ export async function getUsers() {
 export async function createUser(data: UserWithChallenges) {
   try {
     const { challenges, ...userData } = data;
+
+    // 이메일 중복 체크
+    const { data: existingUser, error: checkError } = await supabase
+      .from("Users")
+      .select("id")
+      .eq("email", userData.email)
+      .single();
+
+    if (checkError && checkError.code !== "PGRST116") {
+      // PGRST116는 결과가 없을 때의 에러 코드
+      handleError(checkError, "이메일 중복 체크 실패");
+    }
+
+    if (existingUser) {
+      handleError(
+        new Error("이미 존재하는 이메일입니다."),
+        "이미 존재하는 이메일입니다.",
+      );
+    }
 
     const { data: newUser, error: userError } = await supabase
       .from("Users")
@@ -46,7 +66,7 @@ export async function createUser(data: UserWithChallenges) {
 
     return newUser;
   } catch (error) {
-    console.error("데이터 패칭 실패", error);
+    handleError(error, "사용자 데이터 패칭 실패");
     throw error;
   }
 }
@@ -102,7 +122,7 @@ export async function updateUser(data: { id: number; [key: string]: any }) {
 
     return updatedUser;
   } catch (error) {
-    console.error("사용자 업데이트 실패", error);
+    handleError(error, "사용자 업데이트 실패");
     throw error;
   }
 }
@@ -136,7 +156,7 @@ export async function deleteUser(userId: number) {
 
     return { success: true };
   } catch (error) {
-    console.error("사용자 삭제 실패", error);
+    handleError(error, "사용자 삭제 실패");
     throw error;
   }
 }
@@ -165,7 +185,7 @@ export async function getUserChallenges(
       name: item.Challenges.name,
     }));
   } catch (error) {
-    console.error("챌린지 정보 조회 실패", error);
+    handleError(error, "챌린지 정보 조회 실패");
     return [];
   }
 }
@@ -246,7 +266,7 @@ export async function getChallengeUsers(
       total: totalUsers || 0,
     };
   } catch (error) {
-    console.error("수강생 목록 조회 실패", error);
+    handleError(error, "수강생 목록 조회 실패");
     return { data: [], total: 0 };
   }
 }
@@ -385,7 +405,7 @@ export async function getStudentSubmissions(
       total: count || 0,
     };
   } catch (error) {
-    console.error("수강생 제출 현황 조회 실패", error);
-    return { data: [], total: 0 };
+    handleError(error, "수강생 제출 현황 조회 실패");
+    throw error;
   }
 }
