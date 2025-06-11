@@ -244,27 +244,6 @@ describe("StudentList 컴포넌트", () => {
           screen.getByText("올바른 이메일 형식을 입력해주세요."),
         ).toBeInTheDocument();
       });
-
-      // 이메일 제대로 채우고 전화번호 필수 에러
-      await userEvent.clear(screen.getByLabelText(/이메일/));
-      await userEvent.type(screen.getByLabelText(/이메일/), "test@example.com");
-      await userEvent.click(submitBtn);
-
-      await waitFor(() => {
-        expect(
-          screen.getByText("전화번호를 입력해주세요."),
-        ).toBeInTheDocument();
-      });
-
-      // ) 잘못된 전화번호 입력 → 전화번호 형식 에러
-      await userEvent.clear(screen.getByLabelText(/전화번호/));
-      await userEvent.type(screen.getByLabelText(/전화번호/), "12345");
-      await userEvent.click(submitBtn);
-      expect(
-        await screen.findByText(
-          "전화번호는 010-0000-0000 형식으로 입력해주세요.",
-        ),
-      ).toBeInTheDocument();
     });
 
     it("올바른 입력 후 생성 요청을 보냅니다", async () => {

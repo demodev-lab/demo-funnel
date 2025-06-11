@@ -150,21 +150,15 @@ export default function StudentFormDialog({
 
           <div className="space-y-2">
             <Label htmlFor="phone" className="text-gray-300">
-              전화번호 <span className="text-red-500">*</span>
+              전화번호
             </Label>
             <Input
               id="phone"
               value={currentStudent.phone}
               onChange={(e) => handleInputChange("phone", e.target.value)}
-              onBlur={() => handleFieldBlur("phone")}
-              className={`bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20 ${
-                validationErrors.phone ? "border-red-500" : ""
-              }`}
+              className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20"
               placeholder="010-0000-0000"
             />
-            {validationErrors.phone && (
-              <p className="text-sm text-red-500">{validationErrors.phone}</p>
-            )}
           </div>
 
           <div className="space-y-2">
