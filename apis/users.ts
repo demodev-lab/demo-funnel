@@ -30,7 +30,8 @@ export async function createUser(data: UserWithChallenges) {
       .eq("email", userData.email)
       .single();
 
-    if (checkError) {
+    if (checkError && checkError.code !== "PGRST116") {
+      // PGRST116는 결과가 없을 때의 에러 코드
       handleError(checkError, "이메일 중복 체크 실패");
     }
 
