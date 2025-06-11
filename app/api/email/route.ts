@@ -31,7 +31,7 @@ export async function POST(request: Request) {
           ); // 이메일 앞부분을 이름으로 사용
 
           await resend.emails.send({
-            from: "CodeUnlock <onboarding@resend.dev>",
+            from: "demo-funnel <onboarding@resend.dev>",
             to: [email],
             subject: template.subject,
             text: content,
