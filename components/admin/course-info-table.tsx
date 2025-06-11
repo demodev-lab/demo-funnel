@@ -35,14 +35,14 @@ interface SubmissionDialogProps {
 
 interface CourseInfoTableProps {
   searchQuery: string;
-  showUnsubmittedOnly: boolean;
+  showCompletedOnly: boolean;
 }
 
 const PAGE_SIZE = 10;
 
 export default function CourseInfoTable({
   searchQuery,
-  showUnsubmittedOnly,
+  showCompletedOnly,
 }: CourseInfoTableProps) {
   const [selectedSubmission, setSelectedSubmission] =
     useState<SubmissionDialogProps | null>(null);
@@ -50,10 +50,15 @@ export default function CourseInfoTable({
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useInfiniteQuery({
-      queryKey: ["student-submissions", selectedChallengeId],
+      queryKey: ["student-submissions", selectedChallengeId, showCompletedOnly],
       queryFn: async ({ pageParam = 0 }) => {
         if (!selectedChallengeId) return { data: [], total: 0 };
-        return getStudentSubmissions(selectedChallengeId, pageParam, PAGE_SIZE);
+        return getStudentSubmissions(
+          selectedChallengeId,
+          pageParam,
+          PAGE_SIZE,
+          showCompletedOnly,
+        );
       },
       getNextPageParam: (lastPage, allPages) => {
         if (!lastPage.data || lastPage.data.length < PAGE_SIZE)
@@ -81,14 +86,9 @@ export default function CourseInfoTable({
         student.userName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         student.userEmail.toLowerCase().includes(searchQuery.toLowerCase());
 
-      // 미제출자 필터링
-      const unsubmittedMatch =
-        !showUnsubmittedOnly ||
-        student.submissions.some((submission) => !submission.isSubmitted);
-
-      return searchMatch && unsubmittedMatch;
+      return searchMatch;
     });
-  }, [data?.pages, searchQuery, showUnsubmittedOnly]);
+  }, [data?.pages, searchQuery]);
 
   if (isLoading) {
     return (

@@ -5,15 +5,15 @@ import { Switch } from "@/components/ui/switch";
 interface SearchFilterProps {
   searchQuery: string;
   onSearchChange: (value: string) => void;
-  showUnsubmittedOnly: boolean;
-  onUnsubmittedChange: (value: boolean) => void;
+  showCompletedOnly: boolean;
+  onCompletedChange: (value: boolean) => void;
 }
 
 export default function SearchFilter({
   searchQuery,
   onSearchChange,
-  showUnsubmittedOnly,
-  onUnsubmittedChange,
+  showCompletedOnly,
+  onCompletedChange,
 }: SearchFilterProps) {
   return (
     <div className="bg-[#252A3C] border border-gray-700/30 rounded-xl overflow-hidden p-5 shadow-lg">
@@ -33,12 +33,12 @@ export default function SearchFilter({
 
         <div className="flex items-center space-x-2">
           <Switch
-            id="show-unsubmitted"
-            checked={showUnsubmittedOnly}
-            onCheckedChange={onUnsubmittedChange}
+            id="show-completed"
+            checked={showCompletedOnly}
+            onCheckedChange={onCompletedChange}
           />
-          <Label htmlFor="show-unsubmitted" className="text-gray-300">
-            미제출자만 보기
+          <Label htmlFor="show-completed" className="text-gray-300">
+            과제 완료자만 보기
           </Label>
         </div>
       </div>
