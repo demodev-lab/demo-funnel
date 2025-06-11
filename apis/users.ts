@@ -285,15 +285,17 @@ export async function getStudentSubmissions(
       );
 
       const submissionResults = await Promise.all(submissionPromises);
-      const submittedUserIds = submissionResults.map(
-        (result) => result.data?.map((sub) => sub.user_id) || [],
-      );
+      const submittedUserIds = submissionResults
+        .slice(1) // 강의1 제출자 제외(첫번째 챌린지만. 추후 꼭 삭제할 것.)
+        .map((result) => result.data?.map((sub) => sub.user_id) || []);
 
       // 모든 강의에 대해 과제를 제출한 사용자 ID만 필터링
-      userIds = submittedUserIds.reduce((acc, curr) => {
-        if (acc.length === 0) return curr;
-        return acc.filter((id) => curr.includes(id));
-      }, []);
+      let [first, ...rest] = submittedUserIds;
+      let acc = first; // (빈 배열조차 손실없이)
+      for (let curr of rest) {
+        acc = acc.filter((id) => curr.includes(id));
+      }
+      userIds = acc;
 
       if (userIds.length === 0) {
         return { data: [], total: 0 };
