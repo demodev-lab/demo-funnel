@@ -38,7 +38,7 @@ export default function SearchFilter({
             onCheckedChange={onCompletedChange}
           />
           <Label htmlFor="show-completed" className="text-gray-300">
-            과제 완주자만 보기
+            과제 완료자만 보기
           </Label>
         </div>
       </div>
