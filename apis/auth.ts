@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { handleError } from "@/utils/errorHandler";
 
 export interface User {
   id: number;
@@ -39,14 +40,20 @@ export async function userLogin(email: string): Promise<LoginResponse> {
       .single();
 
     if (error) {
-      throw error;
+      if (error.code === "PGRST116") {
+        return {
+          success: false,
+          error: "등록된 이메일의 수강생이 없습니다.",
+        };
+      }
+      handleError(error, "로그인 실패");
     }
 
     if (!user) {
-      return {
-        success: false,
-        error: "해당 이메일로 등록된 사용자가 없습니다.",
-      };
+      handleError(
+        new Error("등록된 이메일의 수강생이 없습니다."),
+        "로그인 실패",
+      );
     }
 
     // 로그인 성공 시 이메일 저장
@@ -61,11 +68,7 @@ export async function userLogin(email: string): Promise<LoginResponse> {
       },
     };
   } catch (error) {
-    console.error("로그인 실패:", error);
-    return {
-      success: false,
-      error: "로그인 처리 중 오류가 발생했습니다.",
-    };
+    handleError(error, "로그인 실패");
   }
 }
 
