@@ -1,14 +1,17 @@
 "use client";
 
-import { ExternalLink, Clock } from "lucide-react";
+import { ExternalLink, Clock, ImageIcon, LinkIcon } from "lucide-react";
 import { userInfo } from "@/types/user";
 import { timeAgo } from "@/utils/date/timeAgo";
 import { SubmittedAssignment } from "@/types/assignment";
 import { getLinkIcon } from "@/utils/link/linkUtils";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { updateSubmission } from "@/apis/assignments";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { validateFileSize } from "@/utils/files";
+import { ImagePreview } from "@/components/ui/image-preview";
+import { Input } from "@/components/ui/input";
 
 interface AssignmentSubmissionItemProps {
   userInfo: userInfo;
@@ -29,14 +32,31 @@ export function AssignmentSubmissionItem({
   const [editedUrl, setEditedUrl] = useState(
     submittedAssignment?.assignment_url || "",
   );
+  const [editedImageUrl, setEditedImageUrl] = useState(
+    submittedAssignment?.image_url || "",
+  );
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(
+    submittedAssignment?.image_url || null,
+  );
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { mutate: handleSubmit } = useMutation({
-    mutationFn: (submissionId: number) =>
-      updateSubmission({
+    mutationFn: async (submissionId: number) => {
+      const imageFile = editedImageUrl
+        ? await fetch(editedImageUrl)
+            .then((r) => r.blob())
+            .then(
+              (blob) => new File([blob], "image.jpg", { type: "image/jpeg" }),
+            )
+        : undefined;
+      return updateSubmission({
         submissionId,
         link: editedUrl,
         text: editedComment,
-      }),
+        imageFile: imageFile || undefined,
+      });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [
@@ -52,6 +72,31 @@ export function AssignmentSubmissionItem({
       toast.error(error.message || "과제 수정에 실패했습니다.");
     },
   });
+
+  // TODO: 이미지 업로드, 삭제 로직 유틸 분리 필
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!validateFileSize(file)) {
+        toast.error("이미지 파일 크기는 3MB를 초과할 수 없습니다.");
+        e.target.value = "";
+        return;
+      }
+      setImageFile(file);
+      const imageUrl = URL.createObjectURL(file);
+      setImagePreview(imageUrl);
+      setEditedImageUrl(imageUrl);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setImagePreview(null);
+    setEditedImageUrl("");
+    setImageFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
 
   return (
     <div className="bg-[#1C1F2B]/60 p-4 rounded-xl border border-gray-700/30 hover:border-gray-600/50 shadow-sm hover:shadow-md transition-all duration-300">
@@ -70,7 +115,13 @@ export function AssignmentSubmissionItem({
         </div>
         {isTodayLecture && (
           <button
-            onClick={() => setIsEditing(!isEditing)}
+            onClick={() => {
+              setIsEditing(!isEditing);
+              if (!isEditing) {
+                setEditedImageUrl(submittedAssignment?.image_url || "");
+                setImagePreview(submittedAssignment?.image_url || null);
+              }
+            }}
             className="text-sm text-[#8C7DFF] hover:text-[#A99AFF]"
           >
             {isEditing ? "취소" : "수정"}
@@ -87,13 +138,39 @@ export function AssignmentSubmissionItem({
             placeholder="과제 코멘트를 입력하세요"
             rows={3}
           />
-          <input
-            type="url"
-            value={editedUrl}
-            onChange={(e) => setEditedUrl(e.target.value)}
-            className="w-full p-2 rounded-lg bg-[#1A1D29]/80 border border-gray-700/30 text-sm text-gray-200"
-            placeholder="과제 URL을 입력하세요"
-          />
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 flex-1">
+              <LinkIcon className="h-4 w-4 text-gray-400" />
+              <Input
+                type="url"
+                value={editedUrl}
+                onChange={(e) => setEditedUrl(e.target.value)}
+                placeholder="과제 링크 (GitHub, CodeSandbox, CodePen 등)"
+                className="bg-[#1C1F2B] border-gray-700"
+                required
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <ImageIcon className="h-5 w-5 text-gray-400" />
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                ref={fileInputRef}
+                className="bg-[#1C1F2B] border-gray-700 file:text-white file:cursor-pointer file:hover:text-gray-700 file:transition-colors file:duration-300"
+              />
+              <div className="h-14 w-14 rounded-lg border border-gray-700 flex items-center justify-center shrink-0 relative group">
+                {imagePreview ? (
+                  <ImagePreview
+                    imageUrl={imagePreview}
+                    onRemove={handleRemoveImage}
+                  />
+                ) : (
+                  <ImageIcon className="h-8 w-8 text-gray-400" />
+                )}
+              </div>
+            </div>
+          </div>
           <button
             onClick={() => handleSubmit(submittedAssignment.id)}
             className="w-full py-2 bg-[#5046E4] hover:bg-[#4338CA] text-white rounded-lg text-sm font-medium transition-colors"
@@ -102,9 +179,9 @@ export function AssignmentSubmissionItem({
           </button>
         </div>
       ) : (
-        <>
+        <div className="flex flex-col gap-2">
           {submittedAssignment.assignment_comment && (
-            <p className="text-sm mb-3 text-gray-200 leading-relaxed">
+            <p className="text-sm text-gray-200 leading-relaxed">
               {submittedAssignment.assignment_comment}
             </p>
           )}
@@ -124,7 +201,16 @@ export function AssignmentSubmissionItem({
               <ExternalLink className="h-3.5 w-3.5 flex-shrink-0 ml-auto opacity-70 group-hover:opacity-100 transition-opacity" />
             </a>
           )}
-        </>
+          {submittedAssignment.image_url && (
+            <div>
+              <img
+                src={submittedAssignment.image_url}
+                alt="과제 이미지"
+                className="w-1/5 h-auto rounded-lg border border-gray-700/30"
+              />
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
