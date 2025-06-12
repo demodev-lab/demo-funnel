@@ -12,7 +12,7 @@ import {
 } from "@/hooks/useStudents";
 import { useQuery } from "@tanstack/react-query";
 import { getChallenges } from "@/apis/challenges";
-import { getUserChallenges } from "@/apis/users";
+import { getUserChallenges } from "@/apis/challenges";
 import { useChallengeStore } from "@/lib/store/useChallengeStore";
 import ExcelUploadDialog from "@/components/admin/students/excel-upload-dialog";
 import StudentFormDialog from "@/components/admin/students/student-form-dialog";

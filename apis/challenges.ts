@@ -77,3 +77,19 @@ export async function deleteChallenge(id: number) {
     handleError(error, "챌린지 삭제 중 오류가 발생했습니다.");
   }
 }
+
+export async function getUserChallenges(userId: number) {
+  try {
+    const { data, error } = await supabase
+      .from("ChallengeUsers")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    return data;
+  } catch (error) {
+    handleError(error, "사용자의 챌린지 목록 조회 중 오류가 발생했습니다.");
+  }
+}
