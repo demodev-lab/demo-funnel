@@ -6,6 +6,7 @@ export interface SubmittedAssignment {
   is_submit: boolean;
   submitted_at: string;
   user_id: number;
+  image_url?: string;
 }
 
 export interface DashboardAssignmentStat {
