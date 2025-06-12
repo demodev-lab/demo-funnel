@@ -11,16 +11,20 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { PlayCircle, Lock, Calendar } from "lucide-react";
-import { Lecture } from "@/types/lecture";
+import { Lecture, LectureWithSequence } from "@/types/lecture";
 import { useSelectedLectureStore } from "@/lib/store/useSelectedLectureStore";
 import { isLectureOpen } from "@/utils/date/serverTime";
 
+type UnifiedLecture = Lecture | LectureWithSequence;
+
 interface DailyLectureSectionProps {
-  lectures: Lecture[];
+  lectures: UnifiedLecture[];
+  isActiveChallenge: boolean;
 }
 
 export default function DailyLectureSection({
   lectures,
+  isActiveChallenge,
 }: DailyLectureSectionProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [selectedVideoIdx, setSelectedVideoIdx] = useState(0);
@@ -49,9 +53,10 @@ export default function DailyLectureSection({
       setIsLoading(true);
       try {
         if (lectures[selectedVideoIdx]) {
-          const isLocked = !(await isLectureOpen(
-            lectures[selectedVideoIdx].open_at,
-          ));
+          const isLocked =
+            isActiveChallenge && "open_at" in lectures[selectedVideoIdx]
+              ? !(await isLectureOpen(lectures[selectedVideoIdx].open_at))
+              : false;
           setMainLecture({
             title: lectures[selectedVideoIdx].name,
             description: lectures[selectedVideoIdx].description,
@@ -66,7 +71,7 @@ export default function DailyLectureSection({
       }
     };
     updateMainLecture();
-  }, [lectures, selectedVideoIdx]);
+  }, [lectures, selectedVideoIdx, isActiveChallenge]);
 
   const onSelectedLecture = useSelectedLectureStore(
     (state) => state.setSelectedLecture,
@@ -143,13 +148,14 @@ export default function DailyLectureSection({
               <div
                 key={lecture.id}
                 className="group"
-                onClick={() => onSelectedLecture(lecture)}
+                onClick={() => onSelectedLecture(lecture as Lecture)}
               >
                 <DailyLectureItem
                   dailyLecture={lecture}
                   onLockedClick={handleLockedClick}
                   onVideoSelect={handleVideoSelect}
                   videoIndex={index}
+                  isActiveChallenge={isActiveChallenge}
                 />
                 <div
                   className={`mt-2 h-1 bg-gradient-to-r from-[#5046E4] to-[#8C7DFF] rounded-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ${
@@ -168,14 +174,14 @@ export default function DailyLectureSection({
 
       {/* Locked Video Modal */}
       <Dialog open={isLockedModalOpen} onOpenChange={setIsLockedModalOpen}>
-        <DialogContent className="bg-gradient-to-b from-[#1A1D29] to-[#252A3C] border-gray-700/50 text-white rounded-lg shadow-xl">
-          <DialogHeader className="pb-4 border-b border-gray-700/30">
+        <DialogContent className="bg-[#252A3C] border border-gray-700/50 text-white">
+          <DialogHeader>
             <DialogTitle className="text-xl font-bold flex items-center">
               <Lock className="h-5 w-5 mr-2 text-[#8C7DFF]" />
-              <span>강의 잠금</span>
+              <span>잠긴 강의</span>
             </DialogTitle>
-            <DialogDescription className="text-gray-300 mt-2">
-              {lockedVideoTitle} 강의는 아직 잠겨 있습니다.
+            <DialogDescription className="text-gray-400">
+              강의는 매일 자정에 순차적으로 열립니다.
             </DialogDescription>
           </DialogHeader>
           <div className="mt-4 space-y-4">
