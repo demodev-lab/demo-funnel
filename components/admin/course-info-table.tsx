@@ -21,6 +21,16 @@ import { getStudentSubmissions } from "@/apis/users";
 import { useChallengeStore } from "@/lib/store/useChallengeStore";
 import { StudentSubmission } from "@/types/user";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface SubmissionDialogProps {
   studentName: string;
@@ -46,6 +56,10 @@ export default function CourseInfoTable({
 }: CourseInfoTableProps) {
   const [selectedSubmission, setSelectedSubmission] =
     useState<SubmissionDialogProps | null>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleteTargetIndex, setDeleteTargetIndex] = useState<number | null>(
+    null,
+  );
   const { selectedChallengeId } = useChallengeStore();
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
@@ -289,7 +303,8 @@ export default function CourseInfoTable({
                               <button
                                 className="px-2.5 py-1.5 text-sm rounded-md bg-[#3A2438] hover:bg-[#4E2D4A] text-[#FF9898] transition-colors"
                                 onClick={() => {
-                                  // TODO: 삭제 기능 구현
+                                  setDeleteTargetIndex(index);
+                                  setDeleteConfirmOpen(true);
                                 }}
                               >
                                 삭제
@@ -348,6 +363,37 @@ export default function CourseInfoTable({
           )}
         </DialogContent>
       </Dialog>
+
+      {/* 삭제 확인 AlertDialog */}
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent className="bg-[#252A3C] border-gray-700/30">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white">
+              과제 삭제
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-400">
+              정말 이 과제를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              className="bg-[#1A1D29] hover:bg-[#252A3C] text-gray-300 border-gray-700/30"
+              onClick={() => setDeleteTargetIndex(null)}
+            >
+              취소
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-[#3A2438] hover:bg-[#4E2D4A] text-[#FF9898] border-0"
+              onClick={() => {
+                // TODO: 삭제 기능 구현
+                setDeleteTargetIndex(null);
+              }}
+            >
+              삭제
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
