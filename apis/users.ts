@@ -161,35 +161,6 @@ export async function deleteUser(userId: number) {
   }
 }
 
-export async function getUserChallenges(
-  userId: number,
-): Promise<UserChallenges[]> {
-  try {
-    const { data, error } = await supabase
-      .from("ChallengeUsers")
-      .select(
-        `
-        id,
-        Challenges (
-          id,
-          name
-        )
-      `,
-      )
-      .eq("user_id", userId);
-
-    if (error) throw error;
-
-    return data.map((item: any) => ({
-      id: item.Challenges.id,
-      name: item.Challenges.name,
-    }));
-  } catch (error) {
-    handleError(error, "챌린지 정보 조회 실패");
-    return [];
-  }
-}
-
 interface ChallengeUserResponse {
   user_id: number;
   Users: {

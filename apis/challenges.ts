@@ -1,5 +1,5 @@
 import { supabase } from "./supabase";
-import type { ChallengeFormData } from "@/types/challenge";
+import type { ChallengeFormData, UserChallenges } from "@/types/challenge";
 import { handleError } from "@/utils/errorHandler";
 
 export async function getChallenges() {
@@ -75,5 +75,34 @@ export async function deleteChallenge(id: number) {
     return true;
   } catch (error) {
     handleError(error, "챌린지 삭제 중 오류가 발생했습니다.");
+  }
+}
+
+export async function getUserChallenges(
+  userId: number,
+): Promise<UserChallenges[]> {
+  try {
+    const { data, error } = await supabase
+      .from("ChallengeUsers")
+      .select(
+        `
+        id,
+        Challenges (
+          id,
+          name
+        )
+      `,
+      )
+      .eq("user_id", userId);
+
+    if (error) throw error;
+
+    return data.map((item: any) => ({
+      id: item.Challenges.id,
+      name: item.Challenges.name,
+    }));
+  } catch (error) {
+    handleError(error, "챌린지 정보 조회 실패");
+    return [];
   }
 }
