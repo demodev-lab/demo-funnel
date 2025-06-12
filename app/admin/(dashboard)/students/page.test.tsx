@@ -29,7 +29,7 @@ jest.mock("@tanstack/react-query", () => {
   };
 });
 // getUserChallenges 모킹: 항상 [dummyChallengeId] 반환 (id만 반환)
-jest.mock("@/apis/users", () => ({
+jest.mock("@/apis/challenges", () => ({
   getUserChallenges: jest.fn().mockResolvedValue([42]),
 }));
 
