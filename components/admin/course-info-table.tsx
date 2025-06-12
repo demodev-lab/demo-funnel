@@ -269,13 +269,33 @@ export default function CourseInfoTable({
                     <div className="space-y-3">
                       {assignment.comment && (
                         <div className="space-y-2">
-                          <p className="text-sm font-medium text-gray-300">
-                            과제 설명{" "}
-                            {selectedSubmission.assignments!.length > 1
-                              ? `#${index + 1}`
-                              : ""}
-                            :
-                          </p>
+                          <div className="flex items-center justify-between">
+                            <p className="text-sm font-medium text-gray-300">
+                              과제 설명{" "}
+                              {selectedSubmission.assignments!.length > 1
+                                ? `#${index + 1}`
+                                : ""}
+                              :
+                            </p>
+                            <div className="flex items-center gap-2">
+                              <button
+                                className="px-2.5 py-1.5 text-sm rounded-md bg-[#2A2F42] hover:bg-[#353B54] text-gray-300 transition-colors"
+                                onClick={() => {
+                                  // TODO: 수정 기능 구현
+                                }}
+                              >
+                                수정
+                              </button>
+                              <button
+                                className="px-2.5 py-1.5 text-sm rounded-md bg-[#3A2438] hover:bg-[#4E2D4A] text-[#FF9898] transition-colors"
+                                onClick={() => {
+                                  // TODO: 삭제 기능 구현
+                                }}
+                              >
+                                삭제
+                              </button>
+                            </div>
+                          </div>
                           <p className="text-gray-300 whitespace-pre-wrap">
                             {assignment.comment}
                           </p>
