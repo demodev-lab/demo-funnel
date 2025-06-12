@@ -21,6 +21,7 @@ export interface SubmissionStatus {
   assignments?: {
     url: string;
     comment: string;
+    image?: string;
   }[];
 }
 

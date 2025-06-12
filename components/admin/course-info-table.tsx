@@ -9,12 +9,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Check, X } from "lucide-react";
+import { Check, X, Pencil, Upload, Trash } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { getStudentSubmissions } from "@/apis/users";
@@ -31,6 +32,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 
 interface SubmissionDialogProps {
   studentName: string;
@@ -40,6 +44,7 @@ interface SubmissionDialogProps {
   assignments?: {
     url: string;
     comment: string;
+    image?: string;
   }[];
 }
 
@@ -60,6 +65,12 @@ export default function CourseInfoTable({
   const [deleteTargetIndex, setDeleteTargetIndex] = useState<number | null>(
     null,
   );
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editingAssignment, setEditingAssignment] = useState<{
+    index: number;
+    url: string;
+    image?: string;
+  } | null>(null);
   const { selectedChallengeId } = useChallengeStore();
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
@@ -295,7 +306,12 @@ export default function CourseInfoTable({
                               <button
                                 className="px-2.5 py-1.5 text-sm rounded-md bg-[#2A2F42] hover:bg-[#353B54] text-gray-300 transition-colors"
                                 onClick={() => {
-                                  // TODO: 수정 기능 구현
+                                  setEditingAssignment({
+                                    index,
+                                    url: assignment.url || "",
+                                    image: assignment.image,
+                                  });
+                                  setEditModalOpen(true);
                                 }}
                               >
                                 수정
@@ -394,6 +410,106 @@ export default function CourseInfoTable({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* 과제 수정 모달 */}
+      <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
+        <DialogContent className="sm:max-w-[500px] bg-[#252A3C] border-gray-700/30 text-white">
+          <DialogHeader>
+            <DialogTitle className="text-white">과제 수정</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6 py-4">
+            <div className="space-y-2">
+              <Label className="text-gray-300">과제 URL</Label>
+              <Input
+                value={editingAssignment?.url || ""}
+                onChange={(e) =>
+                  setEditingAssignment((prev) =>
+                    prev ? { ...prev, url: e.target.value } : null,
+                  )
+                }
+                className="bg-[#1A1D29] border-gray-700/30 text-gray-200 focus-visible:ring-[#5046E4]"
+                placeholder="https://"
+              />
+            </div>
+
+            <div className="space-y-3">
+              <Label className="text-gray-300">제출된 이미지</Label>
+              {editingAssignment?.image ? (
+                <div className="relative group">
+                  <img
+                    src={editingAssignment.image}
+                    alt="제출된 과제 이미지"
+                    className="w-full h-auto rounded-lg border border-gray-700/30"
+                  />
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 rounded-lg">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-white hover:bg-white/20"
+                      onClick={() => {
+                        // TODO: 이미지 변경 기능 구현
+                      }}
+                    >
+                      <Upload className="w-4 h-4 mr-2" />
+                      변경
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-[#FF9898] hover:bg-[#3A2438]"
+                      onClick={() => {
+                        // TODO: 이미지 삭제 기능 구현
+                      }}
+                    >
+                      <Trash className="w-4 h-4 mr-2" />
+                      삭제
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-[#1A1D29] border border-gray-700/30 rounded-lg p-8 text-center">
+                  <div className="flex flex-col items-center gap-2">
+                    <Upload className="w-8 h-8 text-gray-500" />
+                    <p className="text-gray-400">제출된 이미지가 없습니다.</p>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-[#8C7DFF] hover:bg-[#5046E4]/20"
+                      onClick={() => {
+                        // TODO: 이미지 업로드 기능 구현
+                      }}
+                    >
+                      이미지 업로드
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="ghost"
+              className="bg-[#1A1D29] hover:bg-[#252A3C] text-gray-300"
+              onClick={() => {
+                setEditingAssignment(null);
+                setEditModalOpen(false);
+              }}
+            >
+              취소
+            </Button>
+            <Button
+              className="bg-[#5046E4] hover:bg-[#6A5AFF] text-white"
+              onClick={() => {
+                // TODO: 수정 기능 구현
+                setEditingAssignment(null);
+                setEditModalOpen(false);
+              }}
+            >
+              저장
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
