@@ -109,64 +109,106 @@ export default function CourseInfoTable({
   return (
     <>
       <div className="bg-[#252A3C] border border-gray-700/30 rounded-xl overflow-hidden shadow-lg">
-        <Table>
-          <TableHeader className="bg-[#1A1D29]/60">
-            <TableRow className="hover:bg-transparent">
-              <TableHead className="w-16">No.</TableHead>
-              <TableHead>수강생 이름</TableHead>
-              <TableHead>이메일</TableHead>
-              {filteredStudents[0]?.submissions.map((_, index) => (
-                <TableHead key={index} className="text-center">
-                  {index + 1}강
-                </TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredStudents.map((student, index) => (
-              <TableRow key={student.userId} className="hover:bg-[#1C1F2B]/50">
-                <TableCell className="font-medium text-gray-300">
-                  {index + 1}
-                </TableCell>
-                <TableCell className="font-medium text-gray-300">
-                  {student.userName}
-                </TableCell>
-                <TableCell className="text-gray-400">
-                  {student.userEmail}
-                </TableCell>
-                {student.submissions.map((submission, index) => (
-                  <TableCell
-                    key={submission.lectureId}
-                    className="text-center cursor-pointer"
-                    onClick={() =>
-                      setSelectedSubmission({
-                        studentName: student.userName,
-                        lectureNumber: index + 1,
-                        isSubmitted: submission.isSubmitted,
-                        submissionDate: submission.isSubmitted
-                          ? "2024-03-19 14:30"
-                          : undefined,
-                        assignments: submission.assignments,
-                      })
-                    }
+        <div className="flex divide-x divide-gray-700/30">
+          {/* 고정 영역 */}
+          <div className="flex-1 bg-[#252A3C]">
+            <Table>
+              <TableHeader className="bg-[#1A1D29]">
+                <TableRow className="hover:bg-transparent border-b border-gray-700/30">
+                  <TableHead className="w-[60px] bg-[#1A1D29] h-[58px] px-4">
+                    No.
+                  </TableHead>
+                  <TableHead className="bg-[#1A1D29] h-[58px] px-4">
+                    수강생 이름
+                  </TableHead>
+                  <TableHead className="bg-[#1A1D29] h-[58px] px-4">
+                    이메일
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredStudents.map((student, index) => (
+                  <TableRow
+                    key={`${student.userId}-fixed`}
+                    className="hover:bg-[#1C1F2B]/50 border-b border-gray-700/30 last:border-b-0"
                   >
-                    <div className="flex justify-center">
-                      {submission.isSubmitted ? (
-                        <div className="w-6 h-6 rounded-full bg-[#5046E4]/20 flex items-center justify-center">
-                          <Check className="h-4 w-4 text-[#8C7DFF]" />
-                        </div>
-                      ) : (
-                        <div className="w-6 h-6 rounded-full bg-[#1A1D29]/60 flex items-center justify-center">
-                          <X className="h-4 w-4 text-gray-400" />
-                        </div>
-                      )}
-                    </div>
-                  </TableCell>
+                    <TableCell className="w-[60px] bg-[#252A3C] font-medium text-gray-300 h-[58px] px-4">
+                      {index + 1}
+                    </TableCell>
+                    <TableCell className="bg-[#252A3C] font-medium text-gray-300 h-[58px] px-4">
+                      {student.userName}
+                    </TableCell>
+                    <TableCell className="bg-[#252A3C] text-gray-400 h-[58px] px-4">
+                      {student.userEmail}
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* 스크롤 영역 (과제 제출) */}
+          <div className="w-[320px] overflow-x-auto bg-[#252A3C] relative">
+            <div className="absolute inset-0 bg-[#1A1D29] h-[58px]" />
+            <Table
+              className="table-layout-fixed w-full"
+              style={{
+                minWidth: `${filteredStudents[0]?.submissions.length * 80}px`,
+              }}
+            >
+              <TableHeader>
+                <TableRow className="hover:bg-transparent border-b border-gray-700/30">
+                  {filteredStudents[0]?.submissions.map((_, index) => (
+                    <TableHead
+                      key={index}
+                      className="w-[80px] text-center whitespace-nowrap h-[58px] px-4"
+                    >
+                      {index + 1}강
+                    </TableHead>
+                  ))}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredStudents.map((student) => (
+                  <TableRow
+                    key={`${student.userId}-scroll`}
+                    className="hover:bg-[#1C1F2B]/50 border-b border-gray-700/30 last:border-b-0"
+                  >
+                    {student.submissions.map((submission, lectureIndex) => (
+                      <TableCell
+                        key={submission.lectureId}
+                        className="w-[80px] text-center cursor-pointer bg-[#252A3C] hover:bg-[#1C1F2B] h-[58px] px-4"
+                        onClick={() =>
+                          setSelectedSubmission({
+                            studentName: student.userName,
+                            lectureNumber: lectureIndex + 1,
+                            isSubmitted: submission.isSubmitted,
+                            submissionDate: submission.isSubmitted
+                              ? "2024-03-19 14:30"
+                              : undefined,
+                            assignments: submission.assignments,
+                          })
+                        }
+                      >
+                        <div className="flex justify-center">
+                          {submission.isSubmitted ? (
+                            <div className="w-6 h-6 rounded-full bg-[#5046E4]/20 flex items-center justify-center">
+                              <Check className="h-4 w-4 text-[#8C7DFF]" />
+                            </div>
+                          ) : (
+                            <div className="w-6 h-6 rounded-full bg-[#1A1D29] flex items-center justify-center">
+                              <X className="h-4 w-4 text-gray-400" />
+                            </div>
+                          )}
+                        </div>
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
 
         {/* 무한 스크롤 옵저버 타겟 */}
         <div
