@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Check, X, Pencil, Upload, Trash } from "lucide-react";
+import { Check, X, Pencil, Upload, Trash, FileText } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -71,6 +71,7 @@ export default function CourseInfoTable({
     url: string;
     image?: string;
   } | null>(null);
+  const [isNewAssignment, setIsNewAssignment] = useState(false);
   const { selectedChallengeId } = useChallengeStore();
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
@@ -364,17 +365,51 @@ export default function CourseInfoTable({
                 ))}
                 {(!selectedSubmission.assignments ||
                   selectedSubmission.assignments.length === 0) && (
-                  <div className="border border-gray-700/30 rounded-md p-4 bg-[#1A1D29]/60">
-                    <p className="text-gray-400 text-sm">
-                      과제 정보가 없습니다.
-                    </p>
+                  <div className="border border-gray-700/30 rounded-md p-8 bg-[#1A1D29]/60">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="w-12 h-12 rounded-full bg-[#2A2F42] flex items-center justify-center">
+                        <FileText className="w-6 h-6 text-gray-400" />
+                      </div>
+                      <p className="text-gray-400">제출된 과제가 없습니다.</p>
+                      <Button
+                        className="bg-[#5046E4] hover:bg-[#6A5AFF] text-white"
+                        onClick={() => {
+                          setIsNewAssignment(true);
+                          setEditingAssignment({
+                            index: 0,
+                            url: "",
+                            image: undefined,
+                          });
+                          setEditModalOpen(true);
+                        }}
+                      >
+                        과제 등록
+                      </Button>
+                    </div>
                   </div>
                 )}
               </div>
             </div>
           ) : (
-            <div className="py-6 text-center text-gray-400">
-              <p>아직 과제가 제출되지 않았습니다.</p>
+            <div className="py-8 flex flex-col items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-[#2A2F42] flex items-center justify-center">
+                <FileText className="w-6 h-6 text-gray-400" />
+              </div>
+              <p className="text-gray-400">아직 과제가 제출되지 않았습니다.</p>
+              <Button
+                className="bg-[#5046E4] hover:bg-[#6A5AFF] text-white"
+                onClick={() => {
+                  setIsNewAssignment(true);
+                  setEditingAssignment({
+                    index: 0,
+                    url: "",
+                    image: undefined,
+                  });
+                  setEditModalOpen(true);
+                }}
+              >
+                과제 등록
+              </Button>
             </div>
           )}
         </DialogContent>
@@ -411,11 +446,22 @@ export default function CourseInfoTable({
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* 과제 수정 모달 */}
-      <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
+      {/* 과제 수정/등록 모달 */}
+      <Dialog
+        open={editModalOpen}
+        onOpenChange={(open) => {
+          setEditModalOpen(open);
+          if (!open) {
+            setEditingAssignment(null);
+            setIsNewAssignment(false);
+          }
+        }}
+      >
         <DialogContent className="sm:max-w-[500px] bg-[#252A3C] border-gray-700/30 text-white">
           <DialogHeader>
-            <DialogTitle className="text-white">과제 수정</DialogTitle>
+            <DialogTitle className="text-white">
+              {isNewAssignment ? "과제 등록" : "과제 수정"}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-6 py-4">
             <div className="space-y-2">
@@ -470,7 +516,11 @@ export default function CourseInfoTable({
                 <div className="bg-[#1A1D29] border border-gray-700/30 rounded-lg p-8 text-center">
                   <div className="flex flex-col items-center gap-2">
                     <Upload className="w-8 h-8 text-gray-500" />
-                    <p className="text-gray-400">제출된 이미지가 없습니다.</p>
+                    <p className="text-gray-400">
+                      {isNewAssignment
+                        ? "이미지를 업로드해주세요."
+                        : "제출된 이미지가 없습니다."}
+                    </p>
                     <Button
                       size="sm"
                       variant="ghost"
@@ -492,6 +542,7 @@ export default function CourseInfoTable({
               className="bg-[#1A1D29] hover:bg-[#252A3C] text-gray-300"
               onClick={() => {
                 setEditingAssignment(null);
+                setIsNewAssignment(false);
                 setEditModalOpen(false);
               }}
             >
@@ -500,12 +551,13 @@ export default function CourseInfoTable({
             <Button
               className="bg-[#5046E4] hover:bg-[#6A5AFF] text-white"
               onClick={() => {
-                // TODO: 수정 기능 구현
+                // TODO: 수정/등록 기능 구현
                 setEditingAssignment(null);
+                setIsNewAssignment(false);
                 setEditModalOpen(false);
               }}
             >
-              저장
+              {isNewAssignment ? "등록" : "저장"}
             </Button>
           </DialogFooter>
         </DialogContent>
