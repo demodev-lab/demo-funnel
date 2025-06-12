@@ -1,5 +1,8 @@
 import { supabase } from "./supabase";
 import { ChallengeLecture } from "@/types/lecture";
+import { handleError } from "@/utils/errorHandler";
+import { uploadFileToStorage } from "@/utils/files";
+import { checkIsTodayLecture } from "@/utils/date/serverTime";
 
 export async function getAssignment(lectureId: number) {
   try {
@@ -15,25 +18,23 @@ export async function getAssignment(lectureId: number) {
 
     return assignment || [];
   } catch (error) {
-    console.error("과제 데이터 조회 실패:", error);
-    throw new Error(
-      error instanceof Error
-        ? error.message
-        : "강의 과제 데이터 조회 중 오류가 발생했습니다.",
-    );
+    handleError(error, "과제 데이터 조회 중 오류가 발생했습니다.");
   }
 }
 
+// 서버시간 더하기 9시간해서 비교하기
 export async function createSubmission({
   link,
   text,
   challengeLectureId,
   userId,
+  imageFile,
 }: {
   link: string;
   text: string;
   challengeLectureId: number;
   userId: number;
+  imageFile?: File;
 }) {
   try {
     // 마감 기한 체크 로직
@@ -46,17 +47,25 @@ export async function createSubmission({
     if (lectureError) throw lectureError;
     if (!lectureInfo) throw new Error("강의 정보를 찾을 수 없습니다.");
 
-    const { data: serverTime, error: timeError } = await supabase.rpc(
-      "get_server_time",
-    );
+    const isTodayLecture = await checkIsTodayLecture(lectureInfo.due_at);
 
-    if (timeError) throw timeError;
+    if (isTodayLecture) {
+      handleError(
+        new Error("과제 제출 마감 기한이 지났습니다."),
+        "과제 제출 마감 기한이 지났습니다.",
+      );
+    }
 
-    const deadline = new Date(lectureInfo.due_at);
-    const currentServerTime = new Date(serverTime);
-
-    if (currentServerTime > deadline) {
-      throw new Error("과제 제출 마감 기한이 지났습니다.");
+    let imageUrl = null;
+    if (imageFile) {
+      try {
+        imageUrl = await uploadFileToStorage(imageFile, "assignment-images");
+      } catch (uploadError) {
+        handleError(
+          uploadError,
+          `이미지 업로드 중 오류가 발생했습니다: ${uploadError.message}`,
+        );
+      }
     }
 
     // 새로운 제출 생성
@@ -65,11 +74,12 @@ export async function createSubmission({
       .insert([
         {
           user_id: userId,
-          submitted_at: currentServerTime.toISOString(),
+          submitted_at: new Date().toISOString(),
           is_submit: true,
           assignment_url: link,
           assignment_comment: text,
           challenge_lecture_id: challengeLectureId,
+          image_url: imageUrl,
         },
       ])
       .select();
@@ -90,16 +100,18 @@ export async function updateSubmission({
   submissionId,
   link,
   text,
+  imageFile,
 }: {
   submissionId: number;
   link: string;
   text: string;
+  imageFile?: File;
 }) {
   try {
-    // 제출 정보 조회하여 challenge_lecture_id 가져오기
+    // 제출 정보 조회하여 challenge_lecture_id와 기존 이미지 URL 가져오기
     const { data: submission, error: submissionError } = await supabase
       .from("Submissions")
-      .select("challenge_lecture_id")
+      .select("challenge_lecture_id, image_url")
       .eq("id", submissionId)
       .single();
 
@@ -122,11 +134,60 @@ export async function updateSubmission({
 
     if (timeError) throw timeError;
 
+    // 서버 시간을 Date 객체로 변환하고 9시간 추가
+    const currentServerTime = new Date(
+      new Date(serverTime).getTime() + 9 * 60 * 60 * 1000,
+    );
     const deadline = new Date(lectureInfo.due_at);
-    const currentServerTime = new Date(serverTime);
 
     if (currentServerTime > deadline) {
       throw new Error("과제 제출 마감 기한이 지났습니다.");
+    }
+
+    let imageUrl = submission.image_url;
+
+    // 이미지 파일이 없는 경우 (이미지 제거)
+    if (!imageFile) {
+      // 기존 이미지가 있다면 삭제
+      if (submission.image_url) {
+        try {
+          const oldImagePath = submission.image_url.split("/").pop();
+          if (oldImagePath) {
+            await supabase.storage
+              .from("assignment-images")
+              .remove([oldImagePath]);
+          }
+        } catch (deleteError) {
+          console.error("기존 이미지 삭제 실패:", deleteError);
+        }
+      }
+      imageUrl = null;
+    }
+    // 새로운 이미지 파일이 있는 경우에만 처리
+    else if (imageFile) {
+      // 기존 이미지가 있다면 삭제
+      if (submission.image_url) {
+        try {
+          const oldImagePath = submission.image_url.split("/").pop();
+          if (oldImagePath) {
+            await supabase.storage
+              .from("assignment-images")
+              .remove([oldImagePath]);
+          }
+        } catch (deleteError) {
+          console.error("기존 이미지 삭제 실패:", deleteError);
+        }
+      }
+
+      // 새로운 이미지 업로드
+      try {
+        imageUrl = await uploadFileToStorage(imageFile, "assignment-images");
+      } catch (uploadError) {
+        handleError(
+          uploadError,
+          `이미지 업로드 중 오류가 발생했습니다: ${uploadError.message}`,
+        );
+      }
     }
 
     const { data, error } = await supabase
@@ -136,6 +197,7 @@ export async function updateSubmission({
         is_submit: true,
         assignment_url: link,
         assignment_comment: text,
+        image_url: imageUrl,
       })
       .eq("id", submissionId)
       .select();
