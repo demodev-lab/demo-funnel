@@ -111,17 +111,17 @@ export default function CourseInfoTable({
       <div className="bg-[#252A3C] border border-gray-700/30 rounded-xl overflow-hidden shadow-lg">
         <div className="flex divide-x divide-gray-700/30">
           {/* 고정 영역 */}
-          <div className="flex-none bg-[#252A3C]">
+          <div className="flex-1 bg-[#252A3C]">
             <Table>
               <TableHeader className="bg-[#1A1D29]">
                 <TableRow className="hover:bg-transparent border-b border-gray-700/30">
                   <TableHead className="w-[60px] bg-[#1A1D29] h-[58px] px-4">
                     No.
                   </TableHead>
-                  <TableHead className="w-[120px] bg-[#1A1D29] h-[58px] px-4">
+                  <TableHead className="bg-[#1A1D29] h-[58px] px-4">
                     수강생 이름
                   </TableHead>
-                  <TableHead className="w-[180px] bg-[#1A1D29] h-[58px] px-4">
+                  <TableHead className="bg-[#1A1D29] h-[58px] px-4">
                     이메일
                   </TableHead>
                 </TableRow>
@@ -132,7 +132,7 @@ export default function CourseInfoTable({
                     key={`${student.userId}-fixed`}
                     className="hover:bg-[#1C1F2B]/50 border-b border-gray-700/30 last:border-b-0"
                   >
-                    <TableCell className="bg-[#252A3C] font-medium text-gray-300 h-[58px] px-4">
+                    <TableCell className="w-[60px] bg-[#252A3C] font-medium text-gray-300 h-[58px] px-4">
                       {index + 1}
                     </TableCell>
                     <TableCell className="bg-[#252A3C] font-medium text-gray-300 h-[58px] px-4">
@@ -148,9 +148,9 @@ export default function CourseInfoTable({
           </div>
 
           {/* 스크롤 영역 (과제 제출) */}
-          <div className="flex-1 overflow-x-auto bg-[#252A3C] relative">
+          <div className="w-[320px] overflow-x-auto bg-[#252A3C] relative">
             <div className="absolute inset-0 bg-[#1A1D29] h-[58px]" />
-            <div className="min-w-[320px]">
+            <div style={{ width: "320px" }}>
               <Table
                 className="table-layout-fixed"
                 style={{
