@@ -148,15 +148,21 @@ export default function CourseInfoTable({
           </div>
 
           {/* 스크롤 영역 (과제 제출) */}
-          <div className="flex-1 overflow-x-auto bg-[#252A3C]">
-            <div className="min-w-[320px] w-full">
-              <Table>
-                <TableHeader className="bg-[#1A1D29]">
+          <div className="flex-1 overflow-x-auto bg-[#252A3C] relative">
+            <div className="absolute inset-0 bg-[#1A1D29] h-[58px]" />
+            <div className="min-w-[320px]">
+              <Table
+                className="table-layout-fixed"
+                style={{
+                  width: `${filteredStudents[0]?.submissions.length * 80}px`,
+                }}
+              >
+                <TableHeader>
                   <TableRow className="hover:bg-transparent border-b border-gray-700/30">
                     {filteredStudents[0]?.submissions.map((_, index) => (
                       <TableHead
                         key={index}
-                        className="w-[80px] text-center whitespace-nowrap bg-[#1A1D29] h-[58px] px-4"
+                        className="w-[80px] text-center whitespace-nowrap h-[58px] px-4"
                       >
                         {index + 1}강
                       </TableHead>
