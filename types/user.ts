@@ -21,12 +21,13 @@ export interface SubmissionStatus {
   assignments?: {
     url: string;
     comment: string;
-    image?: string;
+    imageUrl?: string;
   }[];
+  submissionId?: number;
 }
 
 export interface StudentSubmission {
-  userId: string;
+  userId: number;
   userName: string;
   userEmail: string;
   submissions: SubmissionStatus[];

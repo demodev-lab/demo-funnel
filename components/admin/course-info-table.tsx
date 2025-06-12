@@ -44,7 +44,7 @@ interface SubmissionDialogProps {
   assignments?: {
     url: string;
     comment: string;
-    image?: string;
+    imageUrl?: string;
   }[];
 }
 
@@ -155,7 +155,7 @@ export default function CourseInfoTable({
               <TableBody>
                 {filteredStudents.map((student, index) => (
                   <TableRow
-                    key={`${student.userId}-fixed`}
+                    key={`fixed-${student.userId}-${index}`}
                     className="hover:bg-[#1C1F2B]/50 border-b border-gray-700/30 last:border-b-0"
                   >
                     <TableCell className="w-[60px] bg-[#252A3C] font-medium text-gray-300 h-[58px] px-4">
@@ -204,14 +204,14 @@ export default function CourseInfoTable({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredStudents.map((student) => (
+                  {filteredStudents.map((student, index) => (
                     <TableRow
-                      key={`${student.userId}-scroll`}
+                      key={`scroll-${student.userId}-${index}`}
                       className="hover:bg-[#1C1F2B]/50 border-b border-gray-700/30 last:border-b-0"
                     >
                       {student.submissions.map((submission, lectureIndex) => (
                         <TableCell
-                          key={submission.lectureId}
+                          key={`${student.userId}-${lectureIndex}`}
                           className="text-center cursor-pointer bg-[#252A3C] hover:bg-[#1C1F2B] h-[58px] px-4"
                           style={{
                             width:
@@ -310,7 +310,7 @@ export default function CourseInfoTable({
                                   setEditingAssignment({
                                     index,
                                     url: assignment.url || "",
-                                    image: assignment.image,
+                                    image: assignment.imageUrl,
                                   });
                                   setEditModalOpen(true);
                                 }}
@@ -333,8 +333,32 @@ export default function CourseInfoTable({
                           </p>
                         </div>
                       )}
+                      {/* 이미지 표시 영역 */}
+                      {assignment.imageUrl ? (
+                        <div className="mt-4">
+                          <p className="text-sm font-medium text-gray-300 mb-2">
+                            제출된 이미지:
+                          </p>
+                          <img
+                            src={assignment.imageUrl}
+                            alt="제출된 과제 이미지"
+                            className="w-full h-auto rounded-lg border border-gray-700/30"
+                          />
+                        </div>
+                      ) : (
+                        <div className="mt-4">
+                          <p className="text-sm font-medium text-gray-300 mb-2">
+                            제출된 이미지:
+                          </p>
+                          <div className="bg-[#1A1D29] border border-gray-700/30 rounded-lg p-4 text-center">
+                            <p className="text-gray-400">
+                              제출된 이미지가 없습니다.
+                            </p>
+                          </div>
+                        </div>
+                      )}
                       {assignment.url && (
-                        <div className="flex justify-end">
+                        <div className="flex justify-end mt-4">
                           <a
                             href={assignment.url}
                             target="_blank"

@@ -363,7 +363,9 @@ export async function getStudentSubmissions(
           filteredChallengeLectures.map(async (lecture) => {
             const { data: submissions, error: submissionError } = await supabase
               .from("Submissions")
-              .select("is_submit, assignment_url, assignment_comment")
+              .select(
+                "is_submit, assignment_url, assignment_comment, image_url",
+              )
               .eq("user_id", user.user_id)
               .eq("challenge_lecture_id", lecture.id);
 
@@ -377,6 +379,7 @@ export async function getStudentSubmissions(
                 .map((sub) => ({
                   url: sub.assignment_url,
                   comment: sub.assignment_comment,
+                  imageUrl: sub.image_url,
                 })) ?? [];
 
             return {
