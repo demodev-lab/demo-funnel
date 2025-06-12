@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Send, LinkIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,6 @@ import { toast } from "sonner";
 import { createSubmission } from "@/apis/assignments";
 import { userInfo } from "@/types/user";
 import AssignmentConfetti from "./assignment-confetti";
-import dynamic from "next/dynamic";
 
 interface AssignmentSubmissionFormProps {
   userInfo: userInfo;
@@ -25,6 +24,11 @@ export function AssignmentSubmissionForm({
   const [submissionLink, setSubmissionLink] = useState("");
   const [isConfetti, setIsConfetti] = useState(false);
   const queryClient = useQueryClient();
+
+  const resetForm = () => {
+    setNewSubmission("");
+    setSubmissionLink("");
+  };
 
   const { mutate: handleSubmit } = useMutation({
     mutationFn: (data: {
@@ -42,8 +46,7 @@ export function AssignmentSubmissionForm({
       queryClient.invalidateQueries({
         queryKey: ["submitted-assignment", userInfo.id, challengeLectureId],
       });
-      setNewSubmission("");
-      setSubmissionLink("");
+      resetForm();
       setIsConfetti(true);
       toast.success("과제가 성공적으로 제출되었습니다.");
 
@@ -52,8 +55,7 @@ export function AssignmentSubmissionForm({
       }, 3000);
     },
     onError: (error) => {
-      setNewSubmission("");
-      setSubmissionLink("");
+      resetForm();
       toast.error(error.message || "과제 제출에 실패했습니다.");
     },
   });
@@ -68,13 +70,6 @@ export function AssignmentSubmissionForm({
       link: submissionLink,
       text: newSubmission,
     });
-  };
-
-  const handleTestConfetti = () => {
-    setIsConfetti(true);
-    setTimeout(() => {
-      setIsConfetti(false);
-    }, 3000);
   };
 
   return (
@@ -106,14 +101,6 @@ export function AssignmentSubmissionForm({
               className="bg-[#5046E4] hover:bg-[#DCD9FF] text-[#1C1F2B] self-end"
             >
               <Send className="h-4 w-4" />
-            </Button>
-            <Button
-              type="button"
-              size="icon"
-              onClick={handleTestConfetti}
-              className="bg-[#6A5AFF] hover:bg-[#DCD9FF] text-[#1C1F2B] self-end"
-            >
-              🎉
             </Button>
           </div>
         </div>
