@@ -10,10 +10,7 @@ import { getUserLectures, getLecturesByChallenge } from "@/apis/lectures";
 import { Lecture, LectureWithSequence } from "@/types/lecture";
 import { useSelectedLectureStore } from "@/lib/store/useSelectedLectureStore";
 import { checkIsTodayLecture } from "@/utils/date/serverTime";
-import { useChallengeStore } from "@/lib/store/useChallengeStore";
-import Header from "@/components/admin/header";
-
-type UnifiedLecture = Lecture | LectureWithSequence;
+import Header from "@/components/header";
 
 export default function ClassPage({
   params,
@@ -24,7 +21,6 @@ export default function ClassPage({
   const { data: user, isLoading } = useUser();
   const { challengeId } = use(params);
   const currentChallengeId = Number(challengeId);
-  const { selectedChallengeId } = useChallengeStore();
 
   // 진행 중인 챌린지의 강의 조회
   const { data: activeLectures = [] } = useQuery<Lecture[]>({

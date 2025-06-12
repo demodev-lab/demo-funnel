@@ -143,9 +143,6 @@ export default function Header() {
                         endDate: new Date(challenge.end_date || Date.now()),
                       });
                     }
-                    if (pathname?.startsWith("/class")) {
-                      router.push(`/class/${value}`);
-                    }
                   }}
                 >
                   <SelectTrigger className="w-[120px] border-0 bg-transparent focus:ring-0 text-white">
