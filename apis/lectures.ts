@@ -102,7 +102,7 @@ export async function createLecture(data: LectureData) {
     let videoUrl = data.url;
 
     if (data.file && data.upload_type === UPLOAD_TYPE.VIDEO) {
-      videoUrl = await uploadFileToStorage(data.file);
+      videoUrl = await uploadFileToStorage(data.file, "videos");
     }
 
     const lecture = await createLectureRecord(data, videoUrl);
@@ -260,10 +260,10 @@ export async function updateLecture(lectureId: number, data: LectureData) {
         existingLecture?.upload_type === UPLOAD_TYPE.VIDEO &&
         existingLecture?.url
       ) {
-        await deleteStorageFile(existingLecture.url);
+        await deleteStorageFile(existingLecture.url, "videos");
       }
 
-      videoUrl = await uploadFileToStorage(data.file);
+      videoUrl = await uploadFileToStorage(data.file, "videos");
     }
 
     const updatedLecture = await updateLectureRecord(lectureId, data, videoUrl);
@@ -336,7 +336,7 @@ export async function deleteLecture(lectureId: number) {
 
     // 4. 스토리지 파일 삭제
     if (lecture?.upload_type === UPLOAD_TYPE.VIDEO && lecture?.url) {
-      await deleteStorageFile(lecture.url);
+      await deleteStorageFile(lecture.url, "videos");
     }
 
     return { success: true };
