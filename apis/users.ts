@@ -263,11 +263,36 @@ export async function getStudentSubmissions(
       return { data: [], total: 0 };
     }
 
-    // 2. 완주자만 보기가 활성화된 경우, 모든 과제를 제출한 사용자 ID 목록 가져오기
+    // 2. 과제가 있는 강의만 필터링
+    const { data: assignments, error: assignmentsError } = await supabase
+      .from("Assignments")
+      .select("lecture_id")
+      .in(
+        "lecture_id",
+        challengeLectures.map((cl) => cl.lecture_id),
+      );
+
+    if (assignmentsError) throw assignmentsError;
+
+    // 과제가 있는 강의 ID 목록
+    const lectureIdsWithAssignments = new Set(
+      assignments?.map((a) => a.lecture_id) || [],
+    );
+
+    // 과제가 있는 강의만 필터링
+    const filteredChallengeLectures = challengeLectures.filter((cl) =>
+      lectureIdsWithAssignments.has(cl.lecture_id),
+    );
+
+    if (filteredChallengeLectures.length === 0) {
+      return { data: [], total: 0 };
+    }
+
+    // 3. 완주자만 보기가 활성화된 경우, 모든 과제를 제출한 사용자 ID 목록 가져오기
     let userIds: number[] = [];
     if (completedOnly) {
       // 모든 강의에 대해 제출 여부 확인
-      const submissionPromises = challengeLectures.map((lecture) =>
+      const submissionPromises = filteredChallengeLectures.map((lecture) =>
         supabase
           .from("Submissions")
           .select("user_id")
@@ -293,7 +318,7 @@ export async function getStudentSubmissions(
       }
     }
 
-    // 3. 전체 수강생 수 조회
+    // 4. 전체 수강생 수 조회
     const countQuery = supabase
       .from("ChallengeUsers")
       .select("*", { count: "exact", head: true })
@@ -305,7 +330,7 @@ export async function getStudentSubmissions(
 
     const { count } = await countQuery;
 
-    // 4. 페이지네이션된 수강생 목록 조회
+    // 5. 페이지네이션된 수강생 목록 조회
     const userQuery = supabase
       .from("ChallengeUsers")
       .select(
@@ -330,12 +355,12 @@ export async function getStudentSubmissions(
 
     if (challengeUsersError) throw challengeUsersError;
 
-    // 5. 각 수강생별로 제출 여부 확인
+    // 6. 각 수강생별로 제출 여부 확인
     const studentSubmissions = await Promise.all(
       (challengeUsers || []).map(async (user: any) => {
         // 각 강의별 제출 여부 조회
         const submissions = await Promise.all(
-          challengeLectures.map(async (lecture) => {
+          filteredChallengeLectures.map(async (lecture) => {
             const { data: submissions, error: submissionError } = await supabase
               .from("Submissions")
               .select("is_submit, assignment_url, assignment_comment")
