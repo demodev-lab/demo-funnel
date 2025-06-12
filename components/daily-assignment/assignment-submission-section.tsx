@@ -100,14 +100,14 @@ export function AssignmentSubmissionSection({
         </div>
 
         {/* 제출 폼 (제출되지 않았고, 과제 내용 있고, 오늘 강의일 때 표시) */}
-        {isTodayLecture &&
+        {/* {isTodayLecture &&
           assignmentInfo?.contents &&
-          !submittedAssignment?.is_submit && (
-            <AssignmentSubmissionForm
-              userInfo={userInfo}
-              challengeLectureId={challengeLectureId}
-            />
-          )}
+          !submittedAssignment?.is_submit && ( */}
+        <AssignmentSubmissionForm
+          userInfo={userInfo}
+          challengeLectureId={challengeLectureId}
+        />
+        {/* )} */}
 
         {/* 과제 제출 기간 마감 안내 */}
         {!isTodayLecture &&
