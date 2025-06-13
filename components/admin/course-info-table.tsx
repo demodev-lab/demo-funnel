@@ -234,11 +234,17 @@ export default function CourseInfoTable({
 
     if (isEditMode && editSubmissionId) {
       console.log("수정중임..");
+      const imageFile =
+        submissionData.imageFile === undefined &&
+        selectedSubmission?.assignments?.[0]?.imageUrl
+          ? null
+          : submissionData.imageFile;
+
       updateSubmissionMutation.mutate({
         submissionId: editSubmissionId,
         link: submissionData.url,
         text: submissionData.comment,
-        imageFile: submissionData.imageFile,
+        imageFile,
       });
     } else {
       submitAssignmentMutation.mutate({
@@ -415,7 +421,7 @@ export default function CourseInfoTable({
           }
         }}
       >
-        <DialogContent className="sm:max-w-md bg-[#252A3C] border-gray-700/30 text-white">
+        <DialogContent className="sm:max-w-md bg-[#252A3C] border-gray-700/30 text-white max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-white">
               {selectedSubmission?.isSubmitted
@@ -461,7 +467,20 @@ export default function CourseInfoTable({
                                 setSubmissionData({
                                   url: assignment.url || "",
                                   comment: assignment.comment || "",
+                                  imageFile: undefined,
                                 });
+                                if (assignment.imageUrl) {
+                                  const previewImage =
+                                    document.createElement("img");
+                                  previewImage.src = assignment.imageUrl;
+                                  const container = document.querySelector(
+                                    ".image-preview-container",
+                                  );
+                                  if (container) {
+                                    container.innerHTML = "";
+                                    container.appendChild(previewImage);
+                                  }
+                                }
                                 setIsSubmitFormOpen(true);
                               }}
                             >
@@ -739,7 +758,7 @@ export default function CourseInfoTable({
           }
         }}
       >
-        <DialogContent className="sm:max-w-md bg-[#252A3C] border-gray-700/30 text-white">
+        <DialogContent className="sm:max-w-md bg-[#252A3C] border-gray-700/30 text-white max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-white">
               {isEditMode ? "과제 수정" : "과제 제출"}
@@ -776,17 +795,59 @@ export default function CourseInfoTable({
             </div>
             <div>
               <Label className="text-gray-300">이미지 첨부</Label>
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={(e) =>
-                  setSubmissionData((prev) => ({
-                    ...prev,
-                    imageFile: e.target.files?.[0],
-                  }))
-                }
-                className="bg-[#1A1D29] border-gray-700/30 text-gray-200 focus-visible:ring-[#5046E4]"
-              />
+              <div className="space-y-4">
+                {/* 이미지 미리보기 컨테이너 */}
+                <div className="image-preview-container">
+                  {selectedSubmission?.assignments?.[0]?.imageUrl &&
+                    !submissionData.imageFile && (
+                      <div className="relative">
+                        <img
+                          src={selectedSubmission.assignments[0].imageUrl}
+                          alt="현재 제출된 이미지"
+                          className="w-full h-auto rounded-lg border border-gray-700/30"
+                        />
+                        <p className="text-sm text-gray-400 mt-2">
+                          현재 제출된 이미지
+                        </p>
+                      </div>
+                    )}
+                </div>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setSubmissionData((prev) => ({
+                        ...prev,
+                        imageFile: file,
+                      }));
+
+                      // 새 이미지 선택 시 미리보기 업데이트
+                      const reader = new FileReader();
+                      reader.onload = (e) => {
+                        const container = document.querySelector(
+                          ".image-preview-container",
+                        );
+                        if (container && e.target?.result) {
+                          const img = document.createElement("img");
+                          img.src = e.target.result as string;
+                          img.className =
+                            "w-full h-auto rounded-lg border border-gray-700/30";
+                          container.innerHTML = "";
+                          container.appendChild(img);
+                          const caption = document.createElement("p");
+                          caption.className = "text-sm text-gray-400 mt-2";
+                          caption.textContent = "새로 선택한 이미지";
+                          container.appendChild(caption);
+                        }
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                  className="bg-[#1A1D29] border-gray-700/30 text-gray-200 focus-visible:ring-[#5046E4]"
+                />
+              </div>
             </div>
             <Button
               className="w-full bg-[#5046E4] hover:bg-[#6A5AFF] text-white"
