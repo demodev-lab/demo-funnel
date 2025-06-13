@@ -36,9 +36,9 @@ export function AssignmentSubmissionSection({
     useQuery({
       queryKey: ["assignment-info", lectureId],
       queryFn: async () => {
-        if (!lectureId) return null;
+        if (!lectureId) return [];
         const data = await getAssignment(lectureId);
-        return data[0]; // NOTE: 하나의 강의에 하나의 과제만 존재
+        return data[0] || []; // NOTE: 하나의 강의에 하나의 과제만 존재
       },
       enabled: !!lectureId,
     });
