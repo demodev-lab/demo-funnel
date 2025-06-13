@@ -24,18 +24,11 @@ export default function ClassPage({
   const { data: user, isLoading: isLoadingUser } = useUser();
   const { challengeId } = use(params);
   const currentChallengeId = Number(challengeId);
+  const { setSelectedChallengeId } = useUserChallengeStore();
 
-  // 로그인에서 저장한 쿼리 캐시의 챌린지 목록 사용
-  const { data: challengeList = [] } = useQuery({
-    queryKey: ["challenge-list", user?.id],
-    queryFn: async () => {
-      if (!user?.id) return [];
-      const data = await getUserChallenges(user.id);
-      return data;
-    },
-    enabled: !isLoadingUser && !!user?.id,
-    staleTime: 1000 * 60 * 5, // 5분 동안 캐시 유지
-  });
+  useEffect(() => {
+    setSelectedChallengeId(currentChallengeId);
+  }, [currentChallengeId]);
 
   // 진행 중인 챌린지의 강의 조회
   const { data: activeLectures = [] } = useQuery<Lecture[]>({
@@ -92,6 +85,11 @@ export default function ClassPage({
       return;
     }
 
+    if (challengeList && challengeList.length > 0) {
+      // 가장 최근 챌린지로 리다이렉트
+      router.push(`/class/${challengeList[0].id}`);
+    }
+
     if (lectures && lectures.length > 0) {
       let isMounted = true;
 
@@ -116,7 +114,7 @@ export default function ClassPage({
         isMounted = false;
       };
     }
-  }, [user, isLoadingUser, router, lectures]);
+  }, [user, isLoading, router, lectures]);
 
   if (isLoadingUser) {
     return <div>로딩 중...</div>;

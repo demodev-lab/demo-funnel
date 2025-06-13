@@ -10,11 +10,7 @@ import {
 import { UserChallenges } from "@/types/challenge";
 import { useRouter, usePathname } from "next/navigation";
 
-export default function Header({
-  challengeList,
-}: {
-  challengeList: UserChallenges[];
-}) {
+export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const currentChallengeId = pathname.split("/").pop();
