@@ -219,7 +219,11 @@ export default function CourseInfoTable({
                                 ? `${320 / student.submissions.length}px`
                                 : "80px",
                           }}
-                          onClick={() =>
+                          onClick={() => {
+                            console.log(
+                              "선택한 강의 ID:",
+                              submission.lectureId,
+                            );
                             setSelectedSubmission({
                               studentName: student.userName,
                               lectureNumber: lectureIndex + 1,
@@ -228,8 +232,8 @@ export default function CourseInfoTable({
                                 ? "2024-03-19 14:30"
                                 : undefined,
                               assignments: submission.assignments,
-                            })
-                          }
+                            });
+                          }}
                         >
                           <div className="flex justify-center">
                             {submission.isSubmitted ? (
