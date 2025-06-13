@@ -10,7 +10,7 @@ export function useRefundStatus(userId: number, challengeLectures: any[]) {
     queryKey: ["all-assignment-status", userId, challengeId],
     queryFn: async () => {
       if (!userId) {
-        return { submissions: [] };
+        return { isAllSubmitted: false, submissions: [] };
       }
       const data = await getUserAllAssignmentStatus(
         userId,
@@ -22,12 +22,5 @@ export function useRefundStatus(userId: number, challengeLectures: any[]) {
     enabled: !!userId,
   });
 
-  const isAllAssignmentsSubmitted =
-    allAssignmentStatus?.submissions.every(
-      (submission) => submission.isSubmitted,
-    ) ?? false;
-
-  return {
-    isAllAssignmentsSubmitted,
-  };
+  return allAssignmentStatus?.isAllSubmitted ?? false;
 }

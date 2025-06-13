@@ -67,7 +67,7 @@ export default function ClassPage({
     (state) => state.setSelectedLecture,
   );
 
-  const { isAllAssignmentsSubmitted } = useRefundStatus(
+  const isAllAssignmentsSubmitted = useRefundStatus(
     user?.id,
     lectures as any[],
   );
