@@ -12,6 +12,8 @@ import { useSelectedLectureStore } from "@/lib/store/useSelectedLectureStore";
 import { checkIsTodayLecture } from "@/utils/date/serverTime";
 import Header from "@/components/header";
 import { useUserChallengeStore } from "@/lib/store/useUserChallengeStore";
+import { RefundRequestButton } from "@/components/refund/refund-request-button";
+import { useRefundStatus } from "@/hooks/useRefundStatus";
 
 export default function ClassPage({
   params,
@@ -63,6 +65,11 @@ export default function ClassPage({
 
   const onSelectedLecture = useSelectedLectureStore(
     (state) => state.setSelectedLecture,
+  );
+
+  const { isAllAssignmentsSubmitted } = useRefundStatus(
+    user?.id,
+    lectures as any[],
   );
 
   useEffect(() => {
@@ -134,6 +141,10 @@ export default function ClassPage({
               </div>
 
               <AssignmentSubmissionSection userInfo={user} />
+
+              <RefundRequestButton
+                isAllAssignmentsSubmitted={isAllAssignmentsSubmitted}
+              />
             </div>
           </div>
         </div>
