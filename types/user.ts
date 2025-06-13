@@ -21,6 +21,7 @@ export interface SubmissionStatus {
   isSubmitted: boolean;
   dueDate: string;
   submissionId?: number;
+  sequence: number;
   assignments?: {
     url: string;
     comment: string;
