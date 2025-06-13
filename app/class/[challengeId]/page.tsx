@@ -11,6 +11,7 @@ import { Lecture, LectureWithSequence } from "@/types/lecture";
 import { useSelectedLectureStore } from "@/lib/store/useSelectedLectureStore";
 import { checkIsTodayLecture } from "@/utils/date/serverTime";
 import Header from "@/components/header";
+import { useUserChallengeStore } from "@/lib/store/useUserChallengeStore";
 
 export default function ClassPage({
   params,
@@ -21,6 +22,11 @@ export default function ClassPage({
   const { data: user, isLoading } = useUser();
   const { challengeId } = use(params);
   const currentChallengeId = Number(challengeId);
+  const { setSelectedChallengeId } = useUserChallengeStore();
+
+  useEffect(() => {
+    setSelectedChallengeId(currentChallengeId);
+  }, [currentChallengeId]);
 
   // 진행 중인 챌린지의 강의 조회
   const { data: activeLectures = [] } = useQuery<Lecture[]>({
@@ -101,7 +107,6 @@ export default function ClassPage({
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#1A1D29] to-[#252A3C] text-white">
-      <Header />
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-6xl mx-auto">
           <div className="mb-16 text-center animate-fade-in">
@@ -113,6 +118,10 @@ export default function ClassPage({
               </span>
               <span className="absolute -bottom-2 left-0 right-0 h-3 bg-gradient-to-r from-[#5046E4]/20 to-[#8C7DFF]/20 rounded-full blur-sm"></span>
             </h1>
+          </div>
+
+          <div className="flex justify-items-end w-full">
+            <Header />
           </div>
 
           <div>

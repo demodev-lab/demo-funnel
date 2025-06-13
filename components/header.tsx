@@ -7,23 +7,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useUserChallengeStore } from "@/lib/store/useUserChallengeStore";
 import { useRouter, usePathname } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
-import { getChallenges } from "@/apis/challenges";
 
 export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const currentChallengeId = pathname.split("/").pop();
-
-  const { data: challenges = [] } = useQuery({
-    queryKey: ["challenges"],
-    queryFn: getChallenges,
-  });
+  const { challengeList } = useUserChallengeStore();
 
   return (
     <header className="border-b border-gray-700/30 bg-[#1A1D29]/90 backdrop-blur-sm py-4">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -42,7 +37,7 @@ export default function Header() {
                       <SelectValue placeholder="기수 선택" />
                     </SelectTrigger>
                     <SelectContent className="bg-[#252A3C] border border-gray-700/50 text-white min-w-[160px]">
-                      {challenges.map((challenge) => (
+                      {challengeList.map((challenge) => (
                         <SelectItem
                           key={String(challenge.id)}
                           value={String(challenge.id)}
