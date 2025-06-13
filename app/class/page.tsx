@@ -16,7 +16,6 @@ export default function ClassRedirectPage() {
     queryKey: ["challenge-list", user?.id],
     queryFn: async () => {
       const data = await getUserChallenges(user.id);
-      console.log(data);
       return data;
     },
     enabled: !!user?.id,
