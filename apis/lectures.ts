@@ -304,6 +304,16 @@ export async function updateLecture(lectureId: number, data: LectureData) {
           data.assignment,
         );
       }
+    } else {
+      // 입력된 과제 데이터가 없는 경우 기존 과제 삭제
+      const { error: deleteError } = await supabase
+        .from("Assignments")
+        .delete()
+        .eq("lecture_id", lectureId);
+
+      if (deleteError) {
+        handleError(deleteError, "기존 과제 삭제에 실패했습니다.");
+      }
     }
 
     return updatedLecture;
