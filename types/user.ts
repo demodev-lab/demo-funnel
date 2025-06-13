@@ -20,12 +20,12 @@ export interface SubmissionStatus {
   challengeLectureId: number;
   isSubmitted: boolean;
   dueDate: string;
+  submissionId?: number;
   assignments?: {
     url: string;
     comment: string;
     imageUrl?: string;
   }[];
-  submissionId?: number;
 }
 
 export interface StudentSubmission {

@@ -35,7 +35,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { createSubmission } from "@/apis/assignments";
+import { createSubmission, updateSubmission } from "@/apis/assignments";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { validateFileSize } from "@/utils/files";
@@ -56,6 +56,7 @@ interface SubmissionDialogProps {
   isSubmitted: boolean;
   dueDate?: string;
   submissionDate?: string;
+  submissionId?: number;
   assignments?: {
     url: string;
     comment: string;
@@ -93,6 +94,8 @@ export default function CourseInfoTable({
     url: "",
     comment: "",
   });
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editSubmissionId, setEditSubmissionId] = useState<number | null>(null);
   const queryClient = useQueryClient();
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
@@ -172,6 +175,40 @@ export default function CourseInfoTable({
     },
   });
 
+  const updateSubmissionMutation = useMutation({
+    mutationFn: async ({
+      submissionId,
+      link,
+      text,
+      imageFile,
+    }: {
+      submissionId: number;
+      link: string;
+      text: string;
+      imageFile?: File;
+    }) => {
+      return updateSubmission({
+        submissionId,
+        link,
+        text,
+        imageFile,
+      });
+    },
+    onSuccess: () => {
+      toast.success("과제가 성공적으로 수정되었습니다.");
+      queryClient.invalidateQueries({ queryKey: ["student-submissions"] });
+      setSelectedSubmission(null);
+      setSubmissionData({ url: "", comment: "" });
+      setIsSubmitFormOpen(false);
+      setIsEditMode(false);
+      setEditSubmissionId(null);
+    },
+    onError: (error) => {
+      toast.error("과제 수정 중 오류가 발생했습니다.");
+      console.error("과제 수정 오류:", error);
+    },
+  });
+
   const handleSubmit = async () => {
     if (
       !selectedSubmission?.challengeLectureId ||
@@ -195,13 +232,23 @@ export default function CourseInfoTable({
       return;
     }
 
-    submitAssignmentMutation.mutate({
-      userId: selectedSubmission.studentId,
-      challengeLectureId: selectedSubmission.challengeLectureId,
-      link: submissionData.url,
-      text: submissionData.comment,
-      imageFile: submissionData.imageFile,
-    });
+    if (isEditMode && editSubmissionId) {
+      console.log("수정중임..");
+      updateSubmissionMutation.mutate({
+        submissionId: editSubmissionId,
+        link: submissionData.url,
+        text: submissionData.comment,
+        imageFile: submissionData.imageFile,
+      });
+    } else {
+      submitAssignmentMutation.mutate({
+        userId: selectedSubmission.studentId,
+        challengeLectureId: selectedSubmission.challengeLectureId,
+        link: submissionData.url,
+        text: submissionData.comment,
+        imageFile: submissionData.imageFile,
+      });
+    }
   };
 
   if (isLoading) {
@@ -320,6 +367,7 @@ export default function CourseInfoTable({
                               challengeLectureId: submission.challengeLectureId,
                               isSubmitted: submission.isSubmitted,
                               dueDate: submission.dueDate,
+                              submissionId: submission.submissionId,
                               submissionDate: submission.isSubmitted
                                 ? "2024-03-19 14:30"
                                 : undefined,
@@ -403,30 +451,22 @@ export default function CourseInfoTable({
                                 : ""}
                               :
                             </p>
-                            <div className="flex items-center gap-2">
-                              <button
-                                className="px-2.5 py-1.5 text-sm rounded-md bg-[#2A2F42] hover:bg-[#353B54] text-gray-300 transition-colors"
-                                onClick={() => {
-                                  setEditingAssignment({
-                                    index,
-                                    url: assignment.url || "",
-                                    image: assignment.imageUrl,
-                                  });
-                                  setEditModalOpen(true);
-                                }}
-                              >
-                                수정
-                              </button>
-                              <button
-                                className="px-2.5 py-1.5 text-sm rounded-md bg-[#3A2438] hover:bg-[#4E2D4A] text-[#FF9898] transition-colors"
-                                onClick={() => {
-                                  setDeleteTargetIndex(index);
-                                  setDeleteConfirmOpen(true);
-                                }}
-                              >
-                                삭제
-                              </button>
-                            </div>
+                            <Button
+                              className="bg-[#5046E4] hover:bg-[#6A5AFF] text-white"
+                              onClick={() => {
+                                setIsEditMode(true);
+                                setEditSubmissionId(
+                                  selectedSubmission.submissionId || null,
+                                );
+                                setSubmissionData({
+                                  url: assignment.url || "",
+                                  comment: assignment.comment || "",
+                                });
+                                setIsSubmitFormOpen(true);
+                              }}
+                            >
+                              수정
+                            </Button>
                           </div>
                           <p className="text-gray-300 whitespace-pre-wrap">
                             {assignment.comment}
@@ -686,7 +726,7 @@ export default function CourseInfoTable({
         </DialogContent>
       </Dialog>
 
-      {/* 과제 제출 폼 다이얼로그 */}
+      {/* 과제 제출/수정 폼 다이얼로그 */}
       <Dialog
         open={isSubmitFormOpen}
         onOpenChange={(open) => {
@@ -694,12 +734,16 @@ export default function CourseInfoTable({
             setIsSubmitFormOpen(false);
             setSubmissionData({ url: "", comment: "" });
             setSelectedSubmission(null);
+            setIsEditMode(false);
+            setEditSubmissionId(null);
           }
         }}
       >
         <DialogContent className="sm:max-w-md bg-[#252A3C] border-gray-700/30 text-white">
           <DialogHeader>
-            <DialogTitle className="text-white">과제 제출</DialogTitle>
+            <DialogTitle className="text-white">
+              {isEditMode ? "과제 수정" : "과제 제출"}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
@@ -747,13 +791,19 @@ export default function CourseInfoTable({
             <Button
               className="w-full bg-[#5046E4] hover:bg-[#6A5AFF] text-white"
               onClick={handleSubmit}
-              disabled={submitAssignmentMutation.isPending}
+              disabled={
+                submitAssignmentMutation.isPending ||
+                updateSubmissionMutation.isPending
+              }
             >
-              {submitAssignmentMutation.isPending ? (
+              {submitAssignmentMutation.isPending ||
+              updateSubmissionMutation.isPending ? (
                 <div className="flex items-center justify-center">
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                  제출 중...
+                  {isEditMode ? "수정 중..." : "제출 중..."}
                 </div>
+              ) : isEditMode ? (
+                "과제 수정"
               ) : (
                 "과제 제출"
               )}

@@ -364,7 +364,7 @@ export async function getStudentSubmissions(
             const { data: submissions, error: submissionError } = await supabase
               .from("Submissions")
               .select(
-                "is_submit, assignment_url, assignment_comment, image_url",
+                "id, is_submit, assignment_url, assignment_comment, image_url",
               )
               .eq("user_id", user.user_id)
               .eq("challenge_lecture_id", lecture.id);
@@ -376,10 +376,10 @@ export async function getStudentSubmissions(
             const assignments =
               submissions
                 ?.filter((sub) => sub.is_submit)
-                .map((sub) => ({
-                  url: sub.assignment_url,
-                  comment: sub.assignment_comment,
-                  imageUrl: sub.image_url,
+                .map((submission) => ({
+                  url: submission.assignment_url,
+                  comment: submission.assignment_comment,
+                  imageUrl: submission.image_url,
                 })) ?? [];
 
             return {
@@ -387,6 +387,7 @@ export async function getStudentSubmissions(
               challengeLectureId: lecture.id,
               dueDate: lecture.due_at,
               isSubmitted,
+              submissionId: submissions?.[0]?.id,
               assignments: assignments.length > 0 ? assignments : undefined,
             };
           }),
