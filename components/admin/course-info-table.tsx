@@ -75,6 +75,142 @@ interface CourseInfoTableProps {
 
 const PAGE_SIZE = 10;
 
+// DialogContent를 별도 컴포넌트로 분리
+function SubmissionDialogContent({
+  submission,
+  onEdit,
+  onDelete,
+}: {
+  submission: SubmissionDialogProps;
+  onEdit: (url: string, comment: string) => void;
+  onDelete: (submissionId: number) => void;
+}) {
+  if (!submission) return null;
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <h3 className="font-medium text-gray-200">
+          {submission.studentName} - {submission.lectureNumber}강 과제
+        </h3>
+        <p className="text-sm text-gray-400">
+          제출일: {submission.submissionDate}
+        </p>
+      </div>
+      <div className="space-y-4">
+        {submission.assignments?.map((assignment, index) => (
+          <div
+            key={index}
+            className="border border-gray-700/30 rounded-md p-4 bg-[#1A1D29]/60"
+          >
+            <div className="space-y-3">
+              {assignment.comment && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-medium text-gray-300">
+                      과제 설명{" "}
+                      {submission.assignments!.length > 1
+                        ? `#${index + 1}`
+                        : ""}
+                      :
+                    </p>
+                    <div className="flex gap-2">
+                      <Button
+                        className="bg-[#5046E4] hover:bg-[#6A5AFF] text-white"
+                        onClick={() =>
+                          onEdit(assignment.url || "", assignment.comment || "")
+                        }
+                      >
+                        수정
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        className="bg-[#3A2438] hover:bg-[#4E2D4A] text-[#FF9898] border-0"
+                        onClick={() => onDelete(submission.submissionId || 0)}
+                      >
+                        삭제
+                      </Button>
+                    </div>
+                  </div>
+                  <p className="text-gray-300 whitespace-pre-wrap">
+                    {assignment.comment}
+                  </p>
+                </div>
+              )}
+              {assignment.imageUrl ? (
+                <div className="mt-4">
+                  <p className="text-sm font-medium text-gray-300 mb-2">
+                    제출된 이미지:
+                  </p>
+                  <img
+                    src={assignment.imageUrl}
+                    alt="제출된 과제 이미지"
+                    className="w-full h-auto rounded-lg border border-gray-700/30"
+                  />
+                </div>
+              ) : (
+                <div className="mt-4">
+                  <p className="text-sm font-medium text-gray-300 mb-2">
+                    제출된 이미지:
+                  </p>
+                  <div className="bg-[#1A1D29] border border-gray-700/30 rounded-lg p-4 text-center">
+                    <p className="text-gray-400">제출된 이미지가 없습니다.</p>
+                  </div>
+                </div>
+              )}
+              {assignment.url && (
+                <div className="flex justify-end mt-4">
+                  <a
+                    href={assignment.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#5046E4] hover:bg-[#6A5AFF] transition-colors text-white font-medium"
+                  >
+                    과제 보러가기
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="stroke-current"
+                    >
+                      <path
+                        d="M7 17L17 7M17 7H7M17 7V17"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+        {(!submission.assignments || submission.assignments.length === 0) && (
+          <div className="border border-gray-700/30 rounded-md p-8 bg-[#1A1D29]/60">
+            <div className="flex flex-col items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-[#2A2F42] flex items-center justify-center">
+                <FileText className="w-6 h-6 text-gray-400" />
+              </div>
+              <p className="text-gray-400">제출된 과제가 없습니다.</p>
+              <Button
+                className="bg-[#5046E4] hover:bg-[#6A5AFF] text-white"
+                onClick={() => {
+                  // TODO: 과제 등록 로직
+                }}
+              >
+                과제 등록
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function CourseInfoTable({
   searchQuery,
   showCompletedOnly,
@@ -437,190 +573,67 @@ export default function CourseInfoTable({
         </div>
       </div>
 
-      <Dialog
-        open={!!selectedSubmission}
-        onOpenChange={(open) => {
-          if (!open) {
-            setSelectedSubmission(null);
-          }
-        }}
-      >
-        <DialogContent className="sm:max-w-md bg-[#252A3C] border-gray-700/30 text-white max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-white">
-              {selectedSubmission?.isSubmitted
-                ? "과제 제출 정보"
-                : "미제출 과제"}
-            </DialogTitle>
-          </DialogHeader>
-          {selectedSubmission?.isSubmitted ? (
-            <div className="space-y-4">
-              <div>
-                <h3 className="font-medium text-gray-200">
-                  {selectedSubmission.studentName} -{" "}
-                  {selectedSubmission.lectureNumber}강 과제
-                </h3>
-                <p className="text-sm text-gray-400">
-                  제출일: {selectedSubmission.submissionDate}
+      {/* 과제 정보 모달 */}
+      {selectedSubmission && (
+        <Dialog
+          open={true}
+          onOpenChange={(open) => {
+            if (!open) {
+              setSelectedSubmission(null);
+            }
+          }}
+        >
+          <DialogContent className="sm:max-w-md bg-[#252A3C] border-gray-700/30 text-white max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-white">
+                {selectedSubmission.isSubmitted
+                  ? "과제 제출 정보"
+                  : "미제출 과제"}
+              </DialogTitle>
+            </DialogHeader>
+            {selectedSubmission.isSubmitted ? (
+              <SubmissionDialogContent
+                submission={selectedSubmission}
+                onEdit={(url, comment) => {
+                  setIsEditMode(true);
+                  setEditSubmissionId(selectedSubmission.submissionId || null);
+                  setSubmissionData({
+                    url,
+                    comment,
+                  });
+                  setIsSubmitFormOpen(true);
+                }}
+                onDelete={(submissionId) => {
+                  setDeleteSubmissionId(submissionId);
+                  setDeleteConfirmOpen(true);
+                }}
+              />
+            ) : (
+              <div className="py-8 flex flex-col items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-[#2A2F42] flex items-center justify-center">
+                  <FileText className="w-6 h-6 text-gray-400" />
+                </div>
+                <p className="text-gray-400">
+                  아직 과제가 제출되지 않았습니다.
                 </p>
-              </div>
-              <div className="space-y-4">
-                {selectedSubmission.assignments?.map((assignment, index) => (
-                  <div
-                    key={index}
-                    className="border border-gray-700/30 rounded-md p-4 bg-[#1A1D29]/60"
+                {selectedSubmission?.dueDate &&
+                new Date(selectedSubmission.dueDate) > new Date() ? (
+                  <Button
+                    className="bg-[#5046E4] hover:bg-[#6A5AFF] text-white"
+                    onClick={() => {
+                      setIsSubmitFormOpen(true);
+                    }}
                   >
-                    <div className="space-y-3">
-                      {assignment.comment && (
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <p className="text-sm font-medium text-gray-300">
-                              과제 설명{" "}
-                              {selectedSubmission.assignments!.length > 1
-                                ? `#${index + 1}`
-                                : ""}
-                              :
-                            </p>
-                            <div className="flex gap-2">
-                              <Button
-                                className="bg-[#5046E4] hover:bg-[#6A5AFF] text-white"
-                                onClick={() => {
-                                  setIsEditMode(true);
-                                  setEditSubmissionId(
-                                    selectedSubmission.submissionId || null,
-                                  );
-                                  setSubmissionData({
-                                    url: assignment.url || "",
-                                    comment: assignment.comment || "",
-                                  });
-                                  setIsSubmitFormOpen(true);
-                                }}
-                              >
-                                수정
-                              </Button>
-                              <Button
-                                variant="destructive"
-                                className="bg-[#3A2438] hover:bg-[#4E2D4A] text-[#FF9898] border-0"
-                                onClick={() => {
-                                  setDeleteSubmissionId(
-                                    selectedSubmission.submissionId || null,
-                                  );
-                                  setDeleteConfirmOpen(true);
-                                }}
-                              >
-                                삭제
-                              </Button>
-                            </div>
-                          </div>
-                          <p className="text-gray-300 whitespace-pre-wrap">
-                            {assignment.comment}
-                          </p>
-                        </div>
-                      )}
-                      {/* 이미지 표시 영역 */}
-                      {assignment.imageUrl ? (
-                        <div className="mt-4">
-                          <p className="text-sm font-medium text-gray-300 mb-2">
-                            제출된 이미지:
-                          </p>
-                          <img
-                            src={assignment.imageUrl}
-                            alt="제출된 과제 이미지"
-                            className="w-full h-auto rounded-lg border border-gray-700/30"
-                          />
-                        </div>
-                      ) : (
-                        <div className="mt-4">
-                          <p className="text-sm font-medium text-gray-300 mb-2">
-                            제출된 이미지:
-                          </p>
-                          <div className="bg-[#1A1D29] border border-gray-700/30 rounded-lg p-4 text-center">
-                            <p className="text-gray-400">
-                              제출된 이미지가 없습니다.
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                      {assignment.url && (
-                        <div className="flex justify-end mt-4">
-                          <a
-                            href={assignment.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#5046E4] hover:bg-[#6A5AFF] transition-colors text-white font-medium"
-                          >
-                            과제 보러가기
-                            <svg
-                              width="16"
-                              height="16"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="stroke-current"
-                            >
-                              <path
-                                d="M7 17L17 7M17 7H7M17 7V17"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
-                          </a>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-                {(!selectedSubmission.assignments ||
-                  selectedSubmission.assignments.length === 0) && (
-                  <div className="border border-gray-700/30 rounded-md p-8 bg-[#1A1D29]/60">
-                    <div className="flex flex-col items-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-[#2A2F42] flex items-center justify-center">
-                        <FileText className="w-6 h-6 text-gray-400" />
-                      </div>
-                      <p className="text-gray-400">제출된 과제가 없습니다.</p>
-                      <Button
-                        className="bg-[#5046E4] hover:bg-[#6A5AFF] text-white"
-                        onClick={() => {
-                          setIsNewAssignment(true);
-                          setEditingAssignment({
-                            index: 0,
-                            url: "",
-                            image: undefined,
-                          });
-                          setEditModalOpen(true);
-                        }}
-                      >
-                        과제 등록
-                      </Button>
-                    </div>
-                  </div>
+                    과제 제출
+                  </Button>
+                ) : (
+                  <p className="text-[#FF9898]">제출 기한이 지났습니다.</p>
                 )}
               </div>
-            </div>
-          ) : (
-            <div className="py-8 flex flex-col items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-[#2A2F42] flex items-center justify-center">
-                <FileText className="w-6 h-6 text-gray-400" />
-              </div>
-              <p className="text-gray-400">아직 과제가 제출되지 않았습니다.</p>
-              {selectedSubmission?.dueDate &&
-              new Date(selectedSubmission.dueDate) > new Date() ? (
-                <Button
-                  className="bg-[#5046E4] hover:bg-[#6A5AFF] text-white"
-                  onClick={() => {
-                    setIsSubmitFormOpen(true);
-                  }}
-                >
-                  과제 제출
-                </Button>
-              ) : (
-                <p className="text-[#FF9898]">제출 기한이 지났습니다.</p>
-              )}
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+            )}
+          </DialogContent>
+        </Dialog>
+      )}
 
       {/* 삭제 확인 AlertDialog */}
       <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
