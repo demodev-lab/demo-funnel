@@ -253,7 +253,7 @@ export async function getStudentSubmissions(
     const { data: challengeLectures, error: challengeLecturesError } =
       await supabase
         .from("ChallengeLectures")
-        .select("id, lecture_id")
+        .select("id, lecture_id, due_at")
         .eq("challenge_id", challengeId)
         .order("sequence", { ascending: true });
 
@@ -363,7 +363,9 @@ export async function getStudentSubmissions(
           filteredChallengeLectures.map(async (lecture) => {
             const { data: submissions, error: submissionError } = await supabase
               .from("Submissions")
-              .select("is_submit, assignment_url, assignment_comment")
+              .select(
+                "id, is_submit, assignment_url, assignment_comment, image_url",
+              )
               .eq("user_id", user.user_id)
               .eq("challenge_lecture_id", lecture.id);
 
@@ -374,14 +376,18 @@ export async function getStudentSubmissions(
             const assignments =
               submissions
                 ?.filter((sub) => sub.is_submit)
-                .map((sub) => ({
-                  url: sub.assignment_url,
-                  comment: sub.assignment_comment,
+                .map((submission) => ({
+                  url: submission.assignment_url,
+                  comment: submission.assignment_comment,
+                  imageUrl: submission.image_url,
                 })) ?? [];
 
             return {
               lectureId: lecture.lecture_id,
+              challengeLectureId: lecture.id,
+              dueDate: lecture.due_at,
               isSubmitted,
+              submissionId: submissions?.[0]?.id,
               assignments: assignments.length > 0 ? assignments : undefined,
             };
           }),

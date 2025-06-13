@@ -128,9 +128,8 @@ export async function updateSubmission({
     if (lectureError) throw lectureError;
     if (!lectureInfo) throw new Error("강의 정보를 찾을 수 없습니다.");
 
-    const { data: serverTime, error: timeError } = await supabase.rpc(
-      "get_server_time",
-    );
+    const { data: serverTime, error: timeError } =
+      await supabase.rpc("get_server_time");
 
     if (timeError) throw timeError;
 
@@ -326,6 +325,49 @@ export async function getUserSubmission({
       error instanceof Error
         ? error.message
         : "제출된 과제 조회 중 오류가 발생했습니다.",
+    );
+  }
+}
+
+export async function deleteSubmission(submissionId: number) {
+  try {
+    // 제출 정보 조회하여 이미지 URL 가져오기
+    const { data: submission, error: submissionError } = await supabase
+      .from("Submissions")
+      .select("image_url")
+      .eq("id", submissionId)
+      .single();
+
+    if (submissionError) throw submissionError;
+    if (!submission) throw new Error("제출 정보를 찾을 수 없습니다.");
+
+    // 이미지가 있다면 스토리지에서 삭제
+    if (submission.image_url) {
+      try {
+        const imagePath = submission.image_url.split("/").pop();
+        if (imagePath) {
+          await supabase.storage.from("assignment-images").remove([imagePath]);
+        }
+      } catch (deleteError) {
+        console.error("이미지 삭제 실패:", deleteError);
+      }
+    }
+
+    // 제출 정보 삭제
+    const { error } = await supabase
+      .from("Submissions")
+      .delete()
+      .eq("id", submissionId);
+
+    if (error) throw error;
+
+    return { success: true };
+  } catch (error) {
+    console.error("과제 삭제 실패:", error);
+    throw new Error(
+      error instanceof Error
+        ? error.message
+        : "과제 삭제 중 오류가 발생했습니다.",
     );
   }
 }

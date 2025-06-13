@@ -17,15 +17,19 @@ export interface UserWithChallenges extends User {
 
 export interface SubmissionStatus {
   lectureId: number;
+  challengeLectureId: number;
   isSubmitted: boolean;
+  dueDate: string;
+  submissionId?: number;
   assignments?: {
     url: string;
     comment: string;
+    imageUrl?: string;
   }[];
 }
 
 export interface StudentSubmission {
-  userId: string;
+  userId: number;
   userName: string;
   userEmail: string;
   submissions: SubmissionStatus[];
