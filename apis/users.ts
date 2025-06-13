@@ -253,7 +253,7 @@ export async function getStudentSubmissions(
     const { data: challengeLectures, error: challengeLecturesError } =
       await supabase
         .from("ChallengeLectures")
-        .select("id, lecture_id")
+        .select("id, lecture_id, due_at")
         .eq("challenge_id", challengeId)
         .order("sequence", { ascending: true });
 
@@ -385,6 +385,7 @@ export async function getStudentSubmissions(
             return {
               lectureId: lecture.lecture_id,
               challengeLectureId: lecture.id,
+              dueDate: lecture.due_at,
               isSubmitted,
               assignments: assignments.length > 0 ? assignments : undefined,
             };

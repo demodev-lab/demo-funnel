@@ -54,6 +54,7 @@ interface SubmissionDialogProps {
   lectureId: number;
   challengeLectureId: number;
   isSubmitted: boolean;
+  dueDate?: string;
   submissionDate?: string;
   assignments?: {
     url: string;
@@ -318,6 +319,7 @@ export default function CourseInfoTable({
                               lectureId: submission.lectureId,
                               challengeLectureId: submission.challengeLectureId,
                               isSubmitted: submission.isSubmitted,
+                              dueDate: submission.dueDate,
                               submissionDate: submission.isSubmitted
                                 ? "2024-03-19 14:30"
                                 : undefined,
@@ -518,14 +520,19 @@ export default function CourseInfoTable({
                 <FileText className="w-6 h-6 text-gray-400" />
               </div>
               <p className="text-gray-400">아직 과제가 제출되지 않았습니다.</p>
-              <Button
-                className="bg-[#5046E4] hover:bg-[#6A5AFF] text-white"
-                onClick={() => {
-                  setIsSubmitFormOpen(true);
-                }}
-              >
-                과제 제출
-              </Button>
+              {selectedSubmission?.dueDate &&
+              new Date(selectedSubmission.dueDate) > new Date() ? (
+                <Button
+                  className="bg-[#5046E4] hover:bg-[#6A5AFF] text-white"
+                  onClick={() => {
+                    setIsSubmitFormOpen(true);
+                  }}
+                >
+                  과제 제출
+                </Button>
+              ) : (
+                <p className="text-[#FF9898]">제출 기한이 지났습니다.</p>
+              )}
             </div>
           )}
         </DialogContent>

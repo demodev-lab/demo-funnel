@@ -19,6 +19,7 @@ export interface SubmissionStatus {
   lectureId: number;
   challengeLectureId: number;
   isSubmitted: boolean;
+  dueDate: string;
   assignments?: {
     url: string;
     comment: string;
