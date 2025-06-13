@@ -35,7 +35,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { createSubmission, updateSubmission } from "@/apis/assignments";
+import {
+  createSubmission,
+  updateSubmission,
+  deleteSubmission,
+} from "@/apis/assignments";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { validateFileSize } from "@/utils/files";
@@ -97,6 +101,9 @@ export default function CourseInfoTable({
   const [isEditMode, setIsEditMode] = useState(false);
   const [editSubmissionId, setEditSubmissionId] = useState<number | null>(null);
   const queryClient = useQueryClient();
+  const [deleteSubmissionId, setDeleteSubmissionId] = useState<number | null>(
+    null,
+  );
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useInfiniteQuery({
@@ -206,6 +213,23 @@ export default function CourseInfoTable({
     onError: (error) => {
       toast.error("과제 수정 중 오류가 발생했습니다.");
       console.error("과제 수정 오류:", error);
+    },
+  });
+
+  const deleteSubmissionMutation = useMutation({
+    mutationFn: async (submissionId: number) => {
+      return deleteSubmission(submissionId);
+    },
+    onSuccess: () => {
+      toast.success("과제가 성공적으로 삭제되었습니다.");
+      queryClient.invalidateQueries({ queryKey: ["student-submissions"] });
+      setSelectedSubmission(null);
+      setDeleteConfirmOpen(false);
+      setDeleteSubmissionId(null);
+    },
+    onError: (error) => {
+      toast.error("과제 삭제 중 오류가 발생했습니다.");
+      console.error("과제 삭제 오류:", error);
     },
   });
 
@@ -457,35 +481,36 @@ export default function CourseInfoTable({
                                 : ""}
                               :
                             </p>
-                            <Button
-                              className="bg-[#5046E4] hover:bg-[#6A5AFF] text-white"
-                              onClick={() => {
-                                setIsEditMode(true);
-                                setEditSubmissionId(
-                                  selectedSubmission.submissionId || null,
-                                );
-                                setSubmissionData({
-                                  url: assignment.url || "",
-                                  comment: assignment.comment || "",
-                                  imageFile: undefined,
-                                });
-                                if (assignment.imageUrl) {
-                                  const previewImage =
-                                    document.createElement("img");
-                                  previewImage.src = assignment.imageUrl;
-                                  const container = document.querySelector(
-                                    ".image-preview-container",
+                            <div className="flex gap-2">
+                              <Button
+                                className="bg-[#5046E4] hover:bg-[#6A5AFF] text-white"
+                                onClick={() => {
+                                  setIsEditMode(true);
+                                  setEditSubmissionId(
+                                    selectedSubmission.submissionId || null,
                                   );
-                                  if (container) {
-                                    container.innerHTML = "";
-                                    container.appendChild(previewImage);
-                                  }
-                                }
-                                setIsSubmitFormOpen(true);
-                              }}
-                            >
-                              수정
-                            </Button>
+                                  setSubmissionData({
+                                    url: assignment.url || "",
+                                    comment: assignment.comment || "",
+                                  });
+                                  setIsSubmitFormOpen(true);
+                                }}
+                              >
+                                수정
+                              </Button>
+                              <Button
+                                variant="destructive"
+                                className="bg-[#3A2438] hover:bg-[#4E2D4A] text-[#FF9898] border-0"
+                                onClick={() => {
+                                  setDeleteSubmissionId(
+                                    selectedSubmission.submissionId || null,
+                                  );
+                                  setDeleteConfirmOpen(true);
+                                }}
+                              >
+                                삭제
+                              </Button>
+                            </div>
                           </div>
                           <p className="text-gray-300 whitespace-pre-wrap">
                             {assignment.comment}
@@ -611,18 +636,29 @@ export default function CourseInfoTable({
           <AlertDialogFooter>
             <AlertDialogCancel
               className="bg-[#1A1D29] hover:bg-[#252A3C] text-gray-300 border-gray-700/30"
-              onClick={() => setDeleteTargetIndex(null)}
+              onClick={() => {
+                setDeleteSubmissionId(null);
+                setDeleteConfirmOpen(false);
+              }}
             >
               취소
             </AlertDialogCancel>
             <AlertDialogAction
               className="bg-[#3A2438] hover:bg-[#4E2D4A] text-[#FF9898] border-0"
               onClick={() => {
-                // TODO: 삭제 기능 구현
-                setDeleteTargetIndex(null);
+                if (deleteSubmissionId) {
+                  deleteSubmissionMutation.mutate(deleteSubmissionId);
+                }
               }}
             >
-              삭제
+              {deleteSubmissionMutation.isPending ? (
+                <div className="flex items-center">
+                  <div className="w-4 h-4 border-2 border-[#FF9898] border-t-transparent rounded-full animate-spin mr-2" />
+                  삭제 중...
+                </div>
+              ) : (
+                "삭제"
+              )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
