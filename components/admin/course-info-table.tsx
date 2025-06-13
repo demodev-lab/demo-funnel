@@ -87,6 +87,7 @@ export default function CourseInfoTable({
   } | null>(null);
   const [isNewAssignment, setIsNewAssignment] = useState(false);
   const { selectedChallengeId } = useChallengeStore();
+  const [isSubmitFormOpen, setIsSubmitFormOpen] = useState(false);
   const [submissionData, setSubmissionData] = useState<SubmissionFormData>({
     url: "",
     comment: "",
@@ -162,6 +163,7 @@ export default function CourseInfoTable({
       queryClient.invalidateQueries({ queryKey: ["student-submissions"] });
       setSelectedSubmission(null);
       setSubmissionData({ url: "", comment: "" });
+      setIsSubmitFormOpen(false);
     },
     onError: (error) => {
       toast.error("과제 제출 중 오류가 발생했습니다.");
@@ -357,7 +359,11 @@ export default function CourseInfoTable({
 
       <Dialog
         open={!!selectedSubmission}
-        onOpenChange={() => setSelectedSubmission(null)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setSelectedSubmission(null);
+          }
+        }}
       >
         <DialogContent className="sm:max-w-md bg-[#252A3C] border-gray-700/30 text-white">
           <DialogHeader>
@@ -512,64 +518,14 @@ export default function CourseInfoTable({
                 <FileText className="w-6 h-6 text-gray-400" />
               </div>
               <p className="text-gray-400">아직 과제가 제출되지 않았습니다.</p>
-              <div className="w-full space-y-4 mt-2">
-                <div>
-                  <Label className="text-gray-300">과제 URL</Label>
-                  <Input
-                    value={submissionData.url}
-                    onChange={(e) =>
-                      setSubmissionData((prev) => ({
-                        ...prev,
-                        url: e.target.value,
-                      }))
-                    }
-                    className="bg-[#1A1D29] border-gray-700/30 text-gray-200 focus-visible:ring-[#5046E4]"
-                    placeholder="https://"
-                  />
-                </div>
-                <div>
-                  <Label className="text-gray-300">과제 설명</Label>
-                  <Textarea
-                    value={submissionData.comment}
-                    onChange={(e) =>
-                      setSubmissionData((prev) => ({
-                        ...prev,
-                        comment: e.target.value,
-                      }))
-                    }
-                    className="bg-[#1A1D29] border-gray-700/30 text-gray-200 focus-visible:ring-[#5046E4] min-h-[100px]"
-                    placeholder="과제에 대한 설명을 입력해주세요."
-                  />
-                </div>
-                <div>
-                  <Label className="text-gray-300">이미지 첨부</Label>
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) =>
-                      setSubmissionData((prev) => ({
-                        ...prev,
-                        imageFile: e.target.files?.[0],
-                      }))
-                    }
-                    className="bg-[#1A1D29] border-gray-700/30 text-gray-200 focus-visible:ring-[#5046E4]"
-                  />
-                </div>
-                <Button
-                  className="w-full bg-[#5046E4] hover:bg-[#6A5AFF] text-white"
-                  onClick={handleSubmit}
-                  disabled={submitAssignmentMutation.isPending}
-                >
-                  {submitAssignmentMutation.isPending ? (
-                    <div className="flex items-center justify-center">
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                      제출 중...
-                    </div>
-                  ) : (
-                    "과제 제출"
-                  )}
-                </Button>
-              </div>
+              <Button
+                className="bg-[#5046E4] hover:bg-[#6A5AFF] text-white"
+                onClick={() => {
+                  setIsSubmitFormOpen(true);
+                }}
+              >
+                과제 제출
+              </Button>
             </div>
           )}
         </DialogContent>
@@ -720,6 +676,82 @@ export default function CourseInfoTable({
               {isNewAssignment ? "등록" : "저장"}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 과제 제출 폼 다이얼로그 */}
+      <Dialog
+        open={isSubmitFormOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setIsSubmitFormOpen(false);
+            setSubmissionData({ url: "", comment: "" });
+            setSelectedSubmission(null);
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-md bg-[#252A3C] border-gray-700/30 text-white">
+          <DialogHeader>
+            <DialogTitle className="text-white">과제 제출</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label className="text-gray-300">과제 URL</Label>
+              <Input
+                value={submissionData.url}
+                onChange={(e) =>
+                  setSubmissionData((prev) => ({
+                    ...prev,
+                    url: e.target.value,
+                  }))
+                }
+                className="bg-[#1A1D29] border-gray-700/30 text-gray-200 focus-visible:ring-[#5046E4]"
+                placeholder="https://"
+              />
+            </div>
+            <div>
+              <Label className="text-gray-300">과제 설명</Label>
+              <Textarea
+                value={submissionData.comment}
+                onChange={(e) =>
+                  setSubmissionData((prev) => ({
+                    ...prev,
+                    comment: e.target.value,
+                  }))
+                }
+                className="bg-[#1A1D29] border-gray-700/30 text-gray-200 focus-visible:ring-[#5046E4] min-h-[100px]"
+                placeholder="과제에 대한 설명을 입력해주세요."
+              />
+            </div>
+            <div>
+              <Label className="text-gray-300">이미지 첨부</Label>
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={(e) =>
+                  setSubmissionData((prev) => ({
+                    ...prev,
+                    imageFile: e.target.files?.[0],
+                  }))
+                }
+                className="bg-[#1A1D29] border-gray-700/30 text-gray-200 focus-visible:ring-[#5046E4]"
+              />
+            </div>
+            <Button
+              className="w-full bg-[#5046E4] hover:bg-[#6A5AFF] text-white"
+              onClick={handleSubmit}
+              disabled={submitAssignmentMutation.isPending}
+            >
+              {submitAssignmentMutation.isPending ? (
+                <div className="flex items-center justify-center">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                  제출 중...
+                </div>
+              ) : (
+                "과제 제출"
+              )}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </>
