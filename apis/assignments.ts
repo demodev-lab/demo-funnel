@@ -255,7 +255,7 @@ export async function getAssignmentStats(challengeId: number) {
           .from("Assignments")
           .select("title")
           .eq("lecture_id", lecture.lecture_id)
-          .single();
+          .maybeSingle();
 
         if (assignmentError) throw assignmentError;
 
@@ -279,7 +279,9 @@ export async function getAssignmentStats(challengeId: number) {
           totalParticipants,
           submittedCount,
           submissionRate,
-          assignmentTitle: assignment?.title || "",
+          assignmentTitle:
+            // TODO: 과제가 없을 경우의 처리 필요
+            assignment?.title || "해당 강의에 등록된 과제가 없습니다",
         };
       }),
     );
