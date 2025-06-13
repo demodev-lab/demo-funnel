@@ -29,22 +29,6 @@ export default function LecturePlayer({
       <div className="p-4 md:p-6 bg-[#1A1D29]/80 backdrop-blur-sm">
         <div className="flex flex-col md:flex-row justify-between md:items-center mb-4">
           <h2 className="text-xl md:text-2xl font-bold">{title}</h2>
-          <div className="flex items-center space-x-2 mt-2 md:mt-0">
-            <Button
-              variant="outline"
-              size="sm"
-              className="rounded-full text-sm px-3 border-gray-700 bg-[#1C1F2B]/70 hover:bg-[#5046E4]/10 hover:text-[#8C7DFF] hover:border-[#5046E4]/30 flex items-center"
-            >
-              <Bookmark className="h-4 w-4 mr-1.5" /> 저장
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="rounded-full text-sm px-3 border-gray-700 bg-[#1C1F2B]/70 hover:bg-[#5046E4]/10 hover:text-[#8C7DFF] hover:border-[#5046E4]/30 flex items-center"
-            >
-              <Share2 className="h-4 w-4 mr-1.5" /> 공유
-            </Button>
-          </div>
         </div>
         <p className="text-sm text-gray-400 mb-2">{description}</p>
       </div>
