@@ -120,7 +120,7 @@ export default function ClassPage({
             </h1>
           </div>
 
-          <div className="flex justify-items-end w-full">
+          <div className="flex justify-end w-full">
             <Header />
           </div>
 
