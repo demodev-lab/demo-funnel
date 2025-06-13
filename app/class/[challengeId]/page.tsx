@@ -32,8 +32,7 @@ export default function ClassPage({
       const data = await getUserChallenges(user.id);
       return data;
     },
-    enabled: !isLoadingUser && !!user?.id,
-    staleTime: 1000 * 60 * 5, // 5분 동안 캐시 유지
+    enabled: !!user?.id,
   });
 
   // 진행 중인 챌린지의 강의 조회
@@ -91,6 +90,11 @@ export default function ClassPage({
       return;
     }
 
+    if (challengeList && challengeList.length > 0) {
+      // 가장 최근 챌린지로 리다이렉트
+      router.push(`/class/${challengeList[0].id}`);
+    }
+
     if (lectures && lectures.length > 0) {
       let isMounted = true;
 
@@ -115,7 +119,7 @@ export default function ClassPage({
         isMounted = false;
       };
     }
-  }, [user, isLoadingUser, router, lectures]);
+  }, [user, isLoadingUser, router, lectures, challengeList]);
 
   if (isLoadingUser) {
     return <div>로딩 중...</div>;
