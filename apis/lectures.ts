@@ -9,6 +9,7 @@ import { ChallengeUser } from "@/types/challenge";
 import { UPLOAD_TYPE } from "@/constants/uploadTypes";
 import { uploadFileToStorage, deleteStorageFile } from "@/utils/files";
 import { validateAuth } from "@/utils/auth";
+import { handleError } from "@/utils/errorHandler";
 
 const createLectureRecord = async (data: LectureData, videoUrl: string) => {
   const { data: lecture, error: lectureError } = await supabase
@@ -25,7 +26,7 @@ const createLectureRecord = async (data: LectureData, videoUrl: string) => {
     .single();
 
   if (lectureError) {
-    throw new Error("강의 생성에 실패했습니다.");
+    handleError(lectureError, "강의 생성에 실패했습니다.");
   }
 
   return lecture;
@@ -42,7 +43,7 @@ const createChallengeLectures = async (
     .in("id", challenges);
 
   if (challengesError) {
-    throw new Error("챌린지 정보 조회에 실패했습니다.");
+    handleError(challengesError, "챌린지 정보 조회에 실패했습니다.");
   }
 
   const challengeLectures = challenges.map((challengeId) => {
@@ -73,7 +74,7 @@ const createChallengeLectures = async (
     .insert(challengeLectures);
 
   if (challengeError) {
-    throw new Error("챌린지 연결에 실패했습니다.");
+    handleError(challengeError, "챌린지 연결에 실패했습니다.");
   }
 };
 
@@ -91,7 +92,7 @@ const createAssignment = async (
   ]);
 
   if (assignmentError) {
-    throw new Error("과제 추가에 실패했습니다.");
+    handleError(assignmentError, "과제 추가에 실패했습니다.");
   }
 };
 
@@ -144,7 +145,7 @@ const updateLectureRecord = async (
     .single();
 
   if (lectureError) {
-    throw new Error("강의 수정에 실패했습니다.");
+    handleError(lectureError, "강의 수정에 실패했습니다.");
   }
 
   return updatedLecture;
@@ -161,7 +162,7 @@ const updateChallengeLectures = async (
     .in("id", challenges);
 
   if (challengesError) {
-    throw new Error("챌린지 정보 조회에 실패했습니다.");
+    handleError(challengesError, "챌린지 정보 조회에 실패했습니다.");
   }
 
   for (const challengeId of challenges) {
@@ -186,7 +187,7 @@ const updateChallengeLectures = async (
       .single();
 
     if (checkError && checkError.code !== "PGRST116") {
-      throw new Error("챌린지 연결 확인에 실패했습니다.");
+      handleError(checkError, "챌린지 연결 확인에 실패했습니다.");
     }
 
     if (existingLink) {
@@ -201,7 +202,7 @@ const updateChallengeLectures = async (
         .eq("challenge_id", challengeId);
 
       if (updateError) {
-        throw new Error("챌린지 연결 업데이트에 실패했습니다.");
+        handleError(updateError, "챌린지 연결 업데이트에 실패했습니다.");
       }
     } else {
       const { error: insertError } = await supabase
@@ -215,7 +216,7 @@ const updateChallengeLectures = async (
         });
 
       if (insertError) {
-        throw new Error("챌린지 연결 추가에 실패했습니다.");
+        handleError(insertError, "챌린지 연결 추가에 실패했습니다.");
       }
     }
   }
@@ -235,7 +236,7 @@ const updateAssignment = async (
     .eq("lecture_id", lectureId);
 
   if (assignmentError) {
-    throw new Error("과제 업데이트에 실패했습니다.");
+    handleError(assignmentError, "과제 업데이트에 실패했습니다.");
   }
 };
 
@@ -253,7 +254,7 @@ export async function updateLecture(lectureId: number, data: LectureData) {
         .single();
 
       if (fetchError) {
-        throw new Error("기존 강의 정보 조회에 실패했습니다.");
+        handleError(fetchError, "기존 강의 정보 조회에 실패했습니다.");
       }
 
       if (
@@ -277,7 +278,32 @@ export async function updateLecture(lectureId: number, data: LectureData) {
     }
 
     if (data.assignmentTitle && data.assignment) {
-      await updateAssignment(lectureId, data.assignmentTitle, data.assignment);
+      // 기존 과제가 있는지 확인
+      const { data: existingAssignment, error: checkError } = await supabase
+        .from("Assignments")
+        .select("id")
+        .eq("lecture_id", lectureId)
+        .single();
+
+      if (checkError && checkError.code !== "PGRST116") {
+        handleError(checkError, "과제 정보 조회에 실패했습니다.");
+      }
+
+      if (existingAssignment) {
+        // 기존 과제가 있으면 업데이트
+        await updateAssignment(
+          lectureId,
+          data.assignmentTitle,
+          data.assignment,
+        );
+      } else {
+        // 기존 과제가 없으면 새로 생성
+        await createAssignment(
+          lectureId,
+          data.assignmentTitle,
+          data.assignment,
+        );
+      }
     }
 
     return updatedLecture;
@@ -299,7 +325,7 @@ export async function deleteLecture(lectureId: number) {
 
     if (fetchError) {
       if (fetchError.code === "PGRST116") {
-        throw new Error(`ID가 ${lectureId}인 강의를 찾을 수 없습니다.`);
+        handleError(fetchError, `ID가 ${lectureId}인 강의를 찾을 수 없습니다.`);
       }
       throw fetchError;
     }
@@ -311,7 +337,7 @@ export async function deleteLecture(lectureId: number) {
       .eq("lecture_id", lectureId);
 
     if (challengeDeleteError) {
-      throw challengeDeleteError;
+      handleError(challengeDeleteError, "챌린지 삭제에 실패했습니다.");
     }
 
     // 2. Assignments 삭제
@@ -321,7 +347,7 @@ export async function deleteLecture(lectureId: number) {
       .eq("lecture_id", lectureId);
 
     if (assignmentDeleteError) {
-      throw assignmentDeleteError;
+      handleError(assignmentDeleteError, "과제 삭제에 실패했습니다.");
     }
 
     // 3. Lectures 삭제
@@ -331,7 +357,7 @@ export async function deleteLecture(lectureId: number) {
       .eq("id", lectureId);
 
     if (deleteError) {
-      throw deleteError;
+      handleError(deleteError, "강의 삭제에 실패했습니다.");
     }
 
     // 4. 스토리지 파일 삭제
@@ -401,15 +427,16 @@ export async function getUserLectures(userId: number) {
       )
       .eq("user_id", userId);
 
-    if (challengeError) throw challengeError;
+    if (challengeError)
+      handleError(challengeError, "챌린지 사용자 조회에 실패했습니다.");
     if (!challengeData || challengeData.length === 0) {
-      throw new Error("사용자가 속한 챌린지를 찾을 수 없습니다.");
+      handleError(challengeError, "사용자가 속한 챌린지를 찾을 수 없습니다.");
     }
 
     const { data: serverTime, error: timeError } = await supabase.rpc(
       "get_server_time",
     );
-    if (timeError) throw timeError;
+    if (timeError) handleError(timeError, "서버 시간 조회에 실패했습니다.");
 
     const currentDate = serverTime.split("T")[0];
 
@@ -448,7 +475,8 @@ export async function getUserLectures(userId: number) {
       .in("challenge_id", activeChallengeIds)
       .order("open_at", { ascending: true });
 
-    if (lectureError) throw lectureError;
+    if (lectureError)
+      handleError(lectureError, "강의 목록 조회에 실패했습니다.");
 
     const lectures =
       lectureData?.map((item) => ({
@@ -460,10 +488,9 @@ export async function getUserLectures(userId: number) {
 
     return lectures;
   } catch (error) {
-    throw new Error(
-      error instanceof Error
-        ? error.message
-        : "사용자의 챌린지 강의 목록 조회 중 오류가 발생했습니다.",
+    handleError(
+      error,
+      "사용자의 챌린지 강의 목록 조회 중 오류가 발생했습니다.",
     );
   }
 }
@@ -497,7 +524,7 @@ export async function getLecturesByChallenge(
       .order("sequence", { ascending: true })
       .returns<ChallengeLectures[]>();
 
-    if (error) throw error;
+    if (error) handleError(error, "강의 목록 조회에 실패했습니다.");
 
     const lectures =
       data?.map((item) => ({
@@ -515,6 +542,7 @@ export async function getLecturesByChallenge(
 
     return lectures;
   } catch (error) {
+    handleError(error, "강의 목록 조회에 실패했습니다.");
     return [];
   }
 }
