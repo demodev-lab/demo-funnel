@@ -109,8 +109,8 @@ export default function ClassPage({
     <div className="min-h-screen bg-gradient-to-b from-[#1A1D29] to-[#252A3C] text-white">
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-6xl mx-auto">
-          <div className="mb-16 text-center animate-fade-in">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6 relative inline-block animate-float">
+          <div className="my-16 text-center animate-fade-in">
+            <h1 className="text-4xl md:text-5xl font-bold relative inline-block animate-float">
               <span className="relative z-10">
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#5046E4] to-[#8C7DFF]">
                   demo-funnel
