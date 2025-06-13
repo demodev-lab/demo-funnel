@@ -17,6 +17,7 @@ export interface UserWithChallenges extends User {
 
 export interface SubmissionStatus {
   lectureId: number;
+  challengeLectureId: number;
   isSubmitted: boolean;
   assignments?: {
     url: string;

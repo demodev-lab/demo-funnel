@@ -384,6 +384,7 @@ export async function getStudentSubmissions(
 
             return {
               lectureId: lecture.lecture_id,
+              challengeLectureId: lecture.id,
               isSubmitted,
               assignments: assignments.length > 0 ? assignments : undefined,
             };
