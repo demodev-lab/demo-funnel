@@ -23,6 +23,29 @@ function formatDate(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
+function getLectureTitle(submissions: any[], index: number) {
+  const currentSubmission = submissions[index];
+  const sequence = currentSubmission.sequence;
+
+  // 같은 sequence를 가진 강의들을 찾음
+  const sameSequenceLectures = submissions.filter(
+    (sub) => sub.sequence === sequence,
+  );
+
+  // 같은 sequence의 강의가 여러 개일 경우에만 번호를 붙임
+  if (sameSequenceLectures.length > 1) {
+    // 현재 강의가 같은 sequence 중 몇 번째인지 찾음
+    const order =
+      sameSequenceLectures.findIndex(
+        (sub) =>
+          sub.challengeLectureId === currentSubmission.challengeLectureId,
+      ) + 1;
+    return `${sequence}-${order}강`;
+  }
+
+  return `${sequence}강`;
+}
+
 export function useExportToExcel({
   searchQuery,
   showCompletedOnly,
@@ -71,9 +94,8 @@ export function useExportToExcel({
 
         // 각 강의별 제출 상태 추가
         student.submissions.forEach((submission, idx) => {
-          baseData[`${idx + 1}강 제출여부`] = submission.isSubmitted
-            ? "제출"
-            : "미제출";
+          baseData[`${getLectureTitle(student.submissions, idx)} 제출여부`] =
+            submission.isSubmitted ? "제출" : "미제출";
         });
 
         return baseData;
