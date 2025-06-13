@@ -7,7 +7,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Check, X } from "lucide-react";
-import { StudentSubmission } from "@/types/user";
+import { StudentSubmission, SubmissionStatus } from "@/types/user";
 
 interface StudentTableProps {
   students: StudentSubmission[];
@@ -16,6 +16,29 @@ interface StudentTableProps {
     lectureIndex: number,
   ) => void;
 }
+
+const getLectureTitle = (submissions: SubmissionStatus[], index: number) => {
+  const currentSubmission = submissions[index];
+  const sequence = currentSubmission.sequence;
+
+  // 같은 sequence를 가진 강의들을 찾음
+  const sameSequenceLectures = submissions.filter(
+    (sub) => sub.sequence === sequence,
+  );
+
+  // 같은 sequence의 강의가 여러 개일 경우에만 번호를 붙임
+  if (sameSequenceLectures.length > 1) {
+    // 현재 강의가 같은 sequence 중 몇 번째인지 찾음
+    const order =
+      sameSequenceLectures.findIndex(
+        (sub) =>
+          sub.challengeLectureId === currentSubmission.challengeLectureId,
+      ) + 1;
+    return `${sequence}-${order} 강`;
+  }
+
+  return `${sequence} 강`;
+};
 
 export function StudentTable({
   students,
@@ -85,7 +108,7 @@ export function StudentTable({
                           : "80px",
                     }}
                   >
-                    {index + 1}강
+                    {getLectureTitle(students[0].submissions, index)}
                   </TableHead>
                 ))}
               </TableRow>
