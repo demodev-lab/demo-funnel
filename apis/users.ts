@@ -411,3 +411,103 @@ export async function getStudentSubmissions(
     throw error;
   }
 }
+
+export async function getUserAllAssignmentStatus(
+  userId: number,
+  challengeId: number,
+  challengeLectures?: { id: number; lecture_id: number }[],
+): Promise<{
+  isAllSubmitted: boolean;
+  submissions: {
+    lectureId: number;
+    isSubmitted: boolean;
+    assignments?: {
+      url: string;
+      comment: string;
+    }[];
+  }[];
+}> {
+  try {
+    // 1. 강의 목록이 전달되지 않은 경우에만 조회
+    // (이미 사용자 페이지에서 챌린지의 강의 목록을 가져오고 있어 API 중복 호출 방지를 위함)
+    let lectures = challengeLectures;
+    if (!lectures) {
+      const { data: fetchedLectures, error: challengeLecturesError } =
+        await supabase
+          .from("ChallengeLectures")
+          .select("id, lecture_id")
+          .eq("challenge_id", challengeId)
+          .order("sequence", { ascending: true });
+
+      if (challengeLecturesError) throw challengeLecturesError;
+      if (!fetchedLectures || fetchedLectures.length === 0) {
+        return { isAllSubmitted: false, submissions: [] };
+      }
+      lectures = fetchedLectures;
+    }
+
+    // 2. 과제가 있는 강의만 필터링
+    const { data: assignments, error: assignmentsError } = await supabase
+      .from("Assignments")
+      .select("lecture_id")
+      .in(
+        "lecture_id",
+        lectures.map((cl) => cl.lecture_id),
+      );
+
+    if (assignmentsError) throw assignmentsError;
+
+    const lectureIdsWithAssignments = new Set(
+      assignments?.map((a) => a.lecture_id) || [],
+    );
+
+    const filteredChallengeLectures = lectures.filter((cl) =>
+      lectureIdsWithAssignments.has(cl.lecture_id),
+    );
+
+    if (filteredChallengeLectures.length === 0) {
+      return { isAllSubmitted: false, submissions: [] };
+    }
+
+    // 3. 각 강의별 제출 여부 확인
+    const submissions = await Promise.all(
+      filteredChallengeLectures.map(async (lecture) => {
+        const { data: submissions, error: submissionError } = await supabase
+          .from("Submissions")
+          .select("is_submit, assignment_url, assignment_comment")
+          .eq("user_id", userId)
+          .eq("challenge_lecture_id", lecture.id);
+
+        if (submissionError) throw submissionError;
+
+        const isSubmitted = submissions?.some((sub) => sub.is_submit) ?? false;
+        const assignments =
+          submissions
+            ?.filter((sub) => sub.is_submit)
+            .map((sub) => ({
+              url: sub.assignment_url,
+              comment: sub.assignment_comment,
+            })) ?? [];
+
+        return {
+          lectureId: lecture.lecture_id,
+          isSubmitted,
+          assignments: assignments.length > 0 ? assignments : undefined,
+        };
+      }),
+    );
+
+    // 4. 모든 과제 제출 여부 확인
+    const isAllSubmitted = submissions.every(
+      (submission) => submission.isSubmitted,
+    );
+
+    return {
+      isAllSubmitted,
+      submissions,
+    };
+  } catch (error) {
+    handleError(error, "수강생 과제 제출 현황 조회 실패");
+    throw error;
+  }
+}
