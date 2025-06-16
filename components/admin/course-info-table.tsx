@@ -32,7 +32,6 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { validateFileSize } from "@/utils/files";
-import { Textarea } from "@/components/ui/textarea";
 import { StudentTable } from "./course-info/StudentTable";
 import {
   SubmissionDialogContent,
@@ -257,7 +256,9 @@ export default function CourseInfoTable({
       isSubmitted: submission.isSubmitted,
       dueDate: submission.dueDate,
       submissionId: submission.submissionId,
-      submissionDate: submission.isSubmitted ? "2024-03-19 14:30" : undefined,
+      submissionDate: submission.isSubmitted
+        ? submission.submittedAt
+        : undefined,
       assignments: submission.assignments,
     });
   };
