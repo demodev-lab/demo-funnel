@@ -11,11 +11,13 @@ import { useToast } from "@/components/ui/use-toast";
 import { handleError } from "@/utils/errorHandler";
 
 interface RefundRequestButtonProps {
-  isAllAssignmentsSubmitted: boolean;
+  isAllSubmitted: boolean;
+  isRefundRequested: boolean;
 }
 
 export const RefundRequestButton = ({
-  isAllAssignmentsSubmitted,
+  isAllSubmitted,
+  isRefundRequested,
 }: RefundRequestButtonProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -55,10 +57,10 @@ export const RefundRequestButton = ({
     <div className="border-gray-700/50 bg-[#1A1D29]/30 px-6 pb-16 relative">
       <Button
         onClick={() => setIsOpen(true)}
-        disabled={!isAllAssignmentsSubmitted}
+        disabled={!isAllSubmitted || isRefundRequested}
         className="absolute right-6 w-1/6 bg-[#5046E4] hover:bg-[#4339D1] text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-500 disabled:hover:bg-gray-500"
       >
-        환급신청하기
+        {isRefundRequested ? "환급신청완료" : "환급신청하기"}
       </Button>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
