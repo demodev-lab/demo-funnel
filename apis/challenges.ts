@@ -93,7 +93,8 @@ export async function getUserChallenges(
         )
       `,
       )
-      .eq("user_id", userId);
+      .eq("user_id", userId)
+      .order("challenge_id", { ascending: false });
 
     if (error) throw error;
 
