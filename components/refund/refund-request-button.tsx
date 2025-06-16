@@ -60,7 +60,7 @@ export const RefundRequestButton = ({
         disabled={!isAllSubmitted || isRefundRequested}
         className="absolute right-6 w-1/6 bg-[#5046E4] hover:bg-[#4339D1] text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-500 disabled:hover:bg-gray-500"
       >
-        {isRefundRequested ? "환급신청완료" : "환급신청하기"}
+        {isRefundRequested ? "환급신청 완료" : "환급신청 하기"}
       </Button>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
