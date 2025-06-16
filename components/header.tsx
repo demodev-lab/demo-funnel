@@ -7,10 +7,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { UserChallenges } from '@/types/challenge';
+import { UserChallenges } from "@/types/challenge";
 import { useRouter, usePathname } from "next/navigation";
 
-export default function Header({ challengeList }: { challengeList: UserChallenges[] }) {
+export default function Header({
+  challengeList,
+}: {
+  challengeList: UserChallenges[];
+}) {
   const pathname = usePathname();
   const router = useRouter();
   const currentChallengeId = pathname.split("/").pop();
@@ -22,7 +26,7 @@ export default function Header({ challengeList }: { challengeList: UserChallenge
         <Select
           value={currentChallengeId}
           onValueChange={(value) => {
-            router.push(`/class/${value}`);
+            router.replace(`/class/${value}`);
           }}
         >
           <SelectTrigger className="w-[120px] border-0 bg-transparent focus:ring-0 text-white">
