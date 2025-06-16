@@ -7,27 +7,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { UserChallenges } from "@/types/challenge";
-import { useRouter, usePathname } from "next/navigation";
+
+interface Challenge {
+  id: number;
+  name: string;
+}
+
+interface CohortSelectorProps {
+  challengeList: Challenge[];
+  value: string;
+  onValueChange: (value: string) => void;
+}
 
 export default function CohortSelector({
   challengeList,
-}: {
-  challengeList: UserChallenges[];
-}) {
-  const pathname = usePathname();
-  const router = useRouter();
-  const currentChallengeId = pathname.split("/").pop();
-
+  value,
+  onValueChange,
+}: CohortSelectorProps) {
   return (
     <div className="flex items-center gap-2 bg-[#252A3C] px-3 rounded-lg border border-gray-700/30">
       <div className="text-white font-semibold text-sm">현재 기수</div>
-      <Select
-        value={currentChallengeId}
-        onValueChange={(value) => {
-          router.replace(`/class/${value}`);
-        }}
-      >
+      <Select value={value} onValueChange={onValueChange}>
         <SelectTrigger className="w-[120px] border-0 bg-transparent focus:ring-0 text-white">
           <SelectValue placeholder="기수 선택" />
         </SelectTrigger>
