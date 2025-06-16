@@ -126,7 +126,7 @@ export default function EnrollmentRateDashboard({
                 <TableCell className="font-medium text-gray-300">
                   {type === "submission"
                     ? `${index + 1}. ${item.title}`
-                    : `${index + 1}강: ${item.title}`}{" "}
+                    : `${item.id}강: ${item.title}`}{" "}
                 </TableCell>
                 <TableCell className="text-right">
                   <span
@@ -134,8 +134,8 @@ export default function EnrollmentRateDashboard({
                       item.rate >= 80
                         ? "bg-green-500/10 text-green-400"
                         : item.rate >= 60
-                        ? "bg-yellow-500/10 text-yellow-400"
-                        : "bg-red-500/10 text-red-400"
+                          ? "bg-yellow-500/10 text-yellow-400"
+                          : "bg-red-500/10 text-red-400"
                     }`}
                   >
                     {item.rate}%
