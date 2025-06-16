@@ -21,7 +21,7 @@ export default function ClassPage({
   params: Promise<{ challengeId: string }>;
 }) {
   const router = useRouter();
-  const { data: user, isLoading } = useUser();
+  const { data: user, isLoading: isLoadingUser } = useUser();
   const { challengeId } = use(params);
   const currentChallengeId = Number(challengeId);
 
@@ -33,7 +33,8 @@ export default function ClassPage({
       const data = await getUserChallenges(user.id);
       return data;
     },
-    enabled: !!user?.id,
+    enabled: !isLoadingUser && !!user?.id,
+    staleTime: 1000 * 60 * 5, // 5분 동안 캐시 유지
   });
 
   // 진행 중인 챌린지의 강의 조회
@@ -44,7 +45,7 @@ export default function ClassPage({
       const data = await getUserLectures(user.id);
       return data as unknown as Lecture[];
     },
-    enabled: !!user?.id,
+    enabled: !isLoadingUser && !!user?.id,
   });
 
   // 종료된 챌린지의 강의 조회
@@ -55,6 +56,7 @@ export default function ClassPage({
       return data;
     },
     enabled:
+      !isLoadingUser &&
       !!user?.id &&
       !activeLectures.some(
         (lecture) => Number(lecture.challenge_id) === currentChallengeId,
@@ -85,7 +87,7 @@ export default function ClassPage({
   );
 
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (!isLoadingUser && !user) {
       router.push("/login");
       return;
     }
@@ -114,9 +116,9 @@ export default function ClassPage({
         isMounted = false;
       };
     }
-  }, [user, isLoading, router, lectures]);
+  }, [user, isLoadingUser, router, lectures]);
 
-  if (isLoading) {
+  if (isLoadingUser) {
     return <div>로딩 중...</div>;
   }
 
