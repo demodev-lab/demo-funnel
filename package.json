@@ -4,10 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "dev:msw": "cross-env NEXT_PUBLIC_API_MOCKING=enabled next dev",
     "build": "next build",
     "start": "next start",
-    "start:msw": "cross-env NEXT_PUBLIC_API_MOCKING=enabled next start",
     "lint": "next lint",
     "test": "jest",
     "test:watch": "jest --watch"
@@ -95,10 +93,5 @@
     "ts-jest": "^29.3.4",
     "ts-node": "^10.9.2",
     "typescript": "^5"
-  },
-  "msw": {
-    "workerDirectory": [
-      "public"
-    ]
   }
 }
