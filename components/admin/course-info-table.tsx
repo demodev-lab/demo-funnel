@@ -221,7 +221,6 @@ export default function CourseInfoTable({
     }
 
     if (isEditMode && editSubmissionId) {
-      console.log("수정중임..");
       const imageFile =
         submissionData.imageFile === undefined &&
         selectedSubmission?.assignments?.[0]?.imageUrl

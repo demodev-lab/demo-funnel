@@ -10,20 +10,9 @@ import {
 } from "@/components/ui/select";
 import { Menu, Bell, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
 import { createClient } from "@/utils/supabase/client";
-import { useRouter, usePathname } from "next/navigation";
-import { Badge } from "@/components/ui/badge";
-import { useAuth } from "@/hooks/admin/useAuth";
+import { usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { getChallenges } from "@/apis/challenges";
 import { useChallengeStore } from "@/lib/store/useChallengeStore";
@@ -46,11 +35,8 @@ export default function Header() {
   });
 
   const [selectedCohort, setSelectedCohort] = useState<CohortInfo | null>(null);
-  console.log(selectedCohort);
   const { selectedChallengeId, setSelectedChallengeId } = useChallengeStore();
   const [userName, setUserName] = useState<string>("");
-  const { logout } = useAuth();
-  const router = useRouter();
 
   useEffect(() => {
     if (challenges.length > 0 && !selectedChallengeId) {
@@ -86,7 +72,6 @@ export default function Header() {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      console.log(user);
       if (user) {
         setUserName(user.user_metadata.user_name || user.email || "관리자");
       }
