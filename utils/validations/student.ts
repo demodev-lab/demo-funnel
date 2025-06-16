@@ -1,4 +1,4 @@
-import { type Student } from "@/hooks/useStudents";
+import { type Student } from "@/types/user";
 
 export interface ValidationErrors {
   name?: string;

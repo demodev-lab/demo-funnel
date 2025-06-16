@@ -1,5 +1,5 @@
 import * as XLSX from "xlsx";
-import { type Student } from "@/hooks/useStudents";
+import { type Student } from "@/types/user";
 
 export const parseExcelFile = async (
   file: File,

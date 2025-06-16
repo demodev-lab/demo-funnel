@@ -17,7 +17,7 @@ export async function getUsers() {
   }
 }
 
-export async function createUser(data: UserWithChallenges) {
+export async function createUser(data: Omit<UserWithChallenges, "id">) {
   try {
     const { challenges, ...userData } = data;
 
