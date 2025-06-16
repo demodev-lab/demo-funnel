@@ -76,9 +76,11 @@ export function SubmissionDialogContent({
                       </Button>
                     </div>
                   </div>
-                  <p className="text-gray-300 whitespace-pre-wrap break-all">
-                    {assignment.comment}
-                  </p>
+                  <div className="bg-[#1A1D29]/80 p-4 rounded-lg border border-gray-700/30">
+                    <p className="text-gray-300 whitespace-pre-wrap break-all">
+                      {assignment.comment}
+                    </p>
+                  </div>
                 </div>
               )}
               {assignment.imageUrl ? (
