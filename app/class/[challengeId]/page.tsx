@@ -56,6 +56,7 @@ export default function ClassPage({
       return data;
     },
     enabled:
+      !isLoadingUser &&
       !!user?.id &&
       !activeLectures.some(
         (lecture) => Number(lecture.challenge_id) === currentChallengeId,
