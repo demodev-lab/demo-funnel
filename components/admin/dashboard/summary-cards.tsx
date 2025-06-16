@@ -17,7 +17,7 @@ export default function SummaryCards({
   submissionRateChange,
 }: SummaryCardsProps) {
   return (
-    <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 animate-slide-up">
+    <div className="grid gap-5 grid-cols-2 animate-slide-up">
       <SummaryCard
         title="총 수강생"
         value={totalStudent !== undefined ? `${totalStudent}명` : "-"}
@@ -40,12 +40,12 @@ export default function SummaryCards({
             : undefined
         }
       />
-      <SummaryCard
+      {/* <SummaryCard
         title="평균 강의 수강률"
         value="85%"
         icon={PlayCircle}
         change={{ value: "-1%", isPositive: false }}
-      />
+      /> */}
     </div>
   );
 }
