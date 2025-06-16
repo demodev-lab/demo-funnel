@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/components/ui/use-toast";
+import { useUser } from "@/hooks/auth/use-user";
 
 interface RefundRequestFormProps {
   onSubmit: (data: RefundFormData) => Promise<void>;
@@ -27,11 +28,12 @@ export function RefundRequestForm({
   isSubmitting,
 }: RefundRequestFormProps) {
   const { toast } = useToast();
+  const { data: user } = useUser();
   const [formData, setFormData] = useState<RefundFormData>({
-    name: "",
+    name: user?.name ?? "",
     account: "",
-    email: "",
-    phone: "",
+    email: user?.email ?? "",
+    phone: user?.phone ?? "",
     assignmentLink: "",
     wantsCoffeeChat: false,
     coffeeChatContent: "",
@@ -79,16 +81,14 @@ export function RefundRequestForm({
       <div className="space-y-4">
         <div className="flex space-x-4">
           <div className="flex-1/2">
-            <Label htmlFor="name">
-              이름<span className="text-red-500 ml-1">*</span>
-            </Label>
+            <Label htmlFor="name">이름</Label>
             <Input
               id="name"
               value={formData.name}
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
               }
-              required
+              disabled
               className="bg-[#1C1F2B] border-gray-700"
             />
           </div>
@@ -108,9 +108,7 @@ export function RefundRequestForm({
           </div>
         </div>
         <div>
-          <Label htmlFor="email">
-            이메일<span className="text-red-500 ml-1">*</span>
-          </Label>
+          <Label htmlFor="email">이메일</Label>
           <Input
             id="email"
             type="email"
@@ -118,7 +116,7 @@ export function RefundRequestForm({
             onChange={(e) =>
               setFormData({ ...formData, email: e.target.value })
             }
-            required
+            disabled
             className="bg-[#1C1F2B] border-gray-700"
           />
         </div>
