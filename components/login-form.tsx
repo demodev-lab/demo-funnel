@@ -1,6 +1,5 @@
 "use client";
 
-import { userLogin } from "@/apis/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -13,44 +12,56 @@ import {
 } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { FormEvent, useState } from "react";
 import { CheckCircle } from "lucide-react";
 import { IcEmail, IcLoadingSpinner } from "./icons";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { userLogin } from "@/apis/auth";
+import { getUserChallenges } from "@/apis/challenges";
 
 export function LoginForm() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
   const queryClient = useQueryClient();
+  const [email, setEmail] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
 
   const loginMutation = useMutation({
     mutationFn: (email: string) => userLogin(email),
-    onSuccess: (response) => {
-      if (!response.success) {
+    onSuccess: async (response) => {
+      if (!response.success || !response.user) {
         toast.error("로그인 실패", {
-          description: response.error,
+          description: response.error || "로그인에 실패했습니다.",
         });
         return;
       }
 
-      if (response.user) {
-        // 사용자 정보를 쿼리 캐시에 저장
-        queryClient.setQueryData(["user"], response.user);
-        setIsSuccess(true);
+      // 사용자 정보를 쿼리 캐시에 저장
+      queryClient.setQueryData(["user"], response.user);
 
-        toast.success("로그인 성공", {
-          description: "강의실로 이동합니다.",
-        });
+      // 챌린지 목록을 쿼리 캐시에 저장
+      const challenges = await getUserChallenges(response.user.id);
+      queryClient.setQueryData(
+        ["challenge-list", response.user.id],
+        challenges,
+      );
+      setIsSuccess(true);
 
-        setTimeout(() => {
-          router.push("/class");
-        }, 1500);
-      }
+      toast.success("로그인 성공", {
+        description: "강의실로 이동합니다.",
+      });
+
+      setTimeout(() => {
+        if (challenges.length > 0) {
+          router.push(`/class/${challenges[0].id}`);
+        }
+      }, 1500);
     },
     onError: (error) => {
       toast.error("로그인 실패", {
-        description: "로그인 처리 중 오류가 발생했습니다.",
+        description:
+          error instanceof Error
+            ? error.message
+            : "로그인 처리 중 오류가 발생했습니다.",
       });
     },
   });
