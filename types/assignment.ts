@@ -16,4 +16,5 @@ export interface DashboardAssignmentStat {
   submissionRate: number;
   submittedCount: number;
   totalParticipants: number;
+  sequence: number;
 }

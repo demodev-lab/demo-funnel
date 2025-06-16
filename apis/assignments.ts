@@ -223,6 +223,7 @@ export async function getAssignmentStats(challengeId: number) {
         `
         id,
         lecture_id,
+        sequence,
         Lectures!inner (
           id,
           name
@@ -231,7 +232,7 @@ export async function getAssignmentStats(challengeId: number) {
       )
       .eq("challenge_id", challengeId)
       .order("sequence", { ascending: true })) as {
-      data: ChallengeLecture[] | null;
+      data: (ChallengeLecture & { sequence: number })[] | null;
       error: any;
     };
 
@@ -247,43 +248,47 @@ export async function getAssignmentStats(challengeId: number) {
     const totalParticipants = challengeUsers.length;
 
     // 3. 각 강의별 제출 현황과 과제 정보 조회
-    const submissionRates = await Promise.all(
-      (challengeLectures || []).map(async (lecture) => {
-        // 과제 정보 조회
-        const { data: assignment, error: assignmentError } = await supabase
-          .from("Assignments")
-          .select("title")
-          .eq("lecture_id", lecture.lecture_id)
-          .maybeSingle();
+    const submissionRates = (
+      await Promise.all(
+        (challengeLectures || []).map(async (lecture) => {
+          // 과제 정보 조회
+          const { data: assignment, error: assignmentError } = await supabase
+            .from("Assignments")
+            .select("title")
+            .eq("lecture_id", lecture.lecture_id)
+            .maybeSingle();
 
-        if (assignmentError) throw assignmentError;
+          if (assignmentError) throw assignmentError;
 
-        // 제출 현황 조회
-        const { data: submissions, error: submissionError } = await supabase
-          .from("Submissions")
-          .select("user_id")
-          .eq("challenge_lecture_id", lecture.id);
+          // 과제가 없는 경우 null 반환
+          if (!assignment) return null;
 
-        if (submissionError) throw submissionError;
+          // 제출 현황 조회
+          const { data: submissions, error: submissionError } = await supabase
+            .from("Submissions")
+            .select("user_id")
+            .eq("challenge_lecture_id", lecture.id);
 
-        const submittedCount = submissions.length;
-        const submissionRate =
-          totalParticipants > 0
-            ? Math.round((submittedCount / totalParticipants) * 100)
-            : 0;
+          if (submissionError) throw submissionError;
 
-        return {
-          lectureId: lecture.lecture_id,
-          lectureName: lecture.Lectures.name,
-          totalParticipants,
-          submittedCount,
-          submissionRate,
-          assignmentTitle:
-            // TODO: 과제가 없을 경우의 처리 필요
-            assignment?.title || "해당 강의에 등록된 과제가 없습니다",
-        };
-      }),
-    );
+          const submittedCount = submissions.length;
+          const submissionRate =
+            totalParticipants > 0
+              ? Math.round((submittedCount / totalParticipants) * 100)
+              : 0;
+
+          return {
+            lectureId: lecture.lecture_id,
+            lectureName: lecture.Lectures.name,
+            sequence: lecture.sequence,
+            totalParticipants,
+            submittedCount,
+            submissionRate,
+            assignmentTitle: assignment.title,
+          };
+        }),
+      )
+    ).filter((item): item is NonNullable<typeof item> => item !== null);
 
     return submissionRates;
   } catch (error) {

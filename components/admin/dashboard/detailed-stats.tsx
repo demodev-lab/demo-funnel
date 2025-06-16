@@ -18,21 +18,21 @@ export default function DetailedStats({ assignmentStats }: DetailedStatsProps) {
             >
               과제 제출률
             </TabsTrigger>
-            <TabsTrigger
+            {/* <TabsTrigger
               value="lecture"
               className="data-[state=active]:bg-[#5046E4] data-[state=active]:text-white"
             >
               강의 수강률
-            </TabsTrigger>
+            </TabsTrigger> */}
           </TabsList>
         </div>
         <div className="p-6">
           <TabsContent value="submission">
             <EnrollmentRateDashboard type="submission" data={assignmentStats} />
           </TabsContent>
-          <TabsContent value="lecture">
+          {/* <TabsContent value="lecture">
             <EnrollmentRateDashboard type="lecture" />
-          </TabsContent>
+          </TabsContent> */}
         </div>
       </Tabs>
     </div>

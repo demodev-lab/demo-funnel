@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import "./globals.css";
 import ReactQueryProvider from "@/lib/providers/react-query-provider";
 import { Toaster } from "sonner";
-import MSWBootstrap from "@/lib/msw/msw-bootstrap";
 
 export const metadata: Metadata = {
   title: "demo funnel",
@@ -35,10 +34,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body suppressHydrationWarning>
-        <MSWBootstrap>
-          <ReactQueryProvider>{children}</ReactQueryProvider>
-          <Toaster position="top-right" richColors />
-        </MSWBootstrap>
+        <ReactQueryProvider>{children}</ReactQueryProvider>
+        <Toaster position="top-right" richColors />
       </body>
     </html>
   );
