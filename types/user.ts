@@ -5,10 +5,10 @@ export interface userInfo {
 }
 
 export interface User {
-  id?: number;
+  id: number;
   name: string;
   email: string;
-  phone: string;
+  phone?: string;
 }
 
 export interface UserWithChallenges extends User {
