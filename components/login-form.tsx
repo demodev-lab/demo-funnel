@@ -72,7 +72,7 @@ export function LoginForm() {
 
       setTimeout(() => {
         if (challenges.length > 0) {
-          router.replace(`/class/${challenges[0].id}`);
+          router.push(`/class/${challenges[0].id}`);
         }
       }, 1500);
     },
