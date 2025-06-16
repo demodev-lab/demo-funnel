@@ -1,11 +1,6 @@
 import { supabase } from "./supabase";
 import { handleError } from "@/utils/errorHandler";
-
-export interface User {
-  id: number;
-  name: string;
-  email: string;
-}
+import { User } from "@/types/user";
 
 interface LoginResponse {
   success: boolean;
@@ -80,7 +75,7 @@ export async function getCurrentUser(): Promise<User | null> {
   try {
     const { data: user, error } = await supabase
       .from("Users")
-      .select("id, name, email")
+      .select("id, name, email, phone")
       .eq("email", email)
       .single();
 
@@ -93,6 +88,7 @@ export async function getCurrentUser(): Promise<User | null> {
       id: user.id,
       name: user.name,
       email: user.email,
+      phone: user.phone,
     };
   } catch (error) {
     console.error("사용자 정보 조회 실패:", error);

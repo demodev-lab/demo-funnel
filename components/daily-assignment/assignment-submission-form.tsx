@@ -52,6 +52,9 @@ export function AssignmentSubmissionForm({
       queryClient.invalidateQueries({
         queryKey: ["submitted-assignment", userInfo.id, challengeLectureId],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["all-assignment-status", userInfo.id],
+      });
       resetForm();
       setIsConfetti(true);
       toast.success("과제가 성공적으로 제출되었습니다.");
