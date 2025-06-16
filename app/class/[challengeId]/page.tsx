@@ -141,7 +141,7 @@ export default function ClassPage({
             </h1>
           </div>
 
-          <div className="flex justify-end w-full">
+          <div className="flex justify-end w-full px-6 py-4">
             <CohortSelector challengeList={challengeList} />
           </div>
 
