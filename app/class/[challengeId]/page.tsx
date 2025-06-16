@@ -11,7 +11,7 @@ import { Lecture, LectureWithSequence } from "@/types/lecture";
 import { useSelectedLectureStore } from "@/lib/store/useSelectedLectureStore";
 import { checkIsTodayLecture } from "@/utils/date/serverTime";
 import Header from "@/components/header";
-import { useUserChallengeStore } from "@/lib/store/useUserChallengeStore";
+import { getUserChallenges } from "@/apis/challenges";
 
 export default function ClassPage({
   params,
@@ -19,23 +19,31 @@ export default function ClassPage({
   params: Promise<{ challengeId: string }>;
 }) {
   const router = useRouter();
-  const { data: user, isLoading } = useUser();
+  const { data: user, isLoading: isLoadingUser } = useUser();
   const { challengeId } = use(params);
   const currentChallengeId = Number(challengeId);
-  const { setSelectedChallengeId } = useUserChallengeStore();
 
-  useEffect(() => {
-    setSelectedChallengeId(currentChallengeId);
-  }, [currentChallengeId]);
+  // 로그인에서 저장한 쿼리 캐시의 챌린지 목록 사용
+  const { data: challengeList = [] } = useQuery({
+    queryKey: ["challenge-list", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const data = await getUserChallenges(user.id);
+      return data;
+    },
+    enabled: !isLoadingUser && !!user?.id,
+    staleTime: 1000 * 60 * 5, // 5분 동안 캐시 유지
+  });
 
   // 진행 중인 챌린지의 강의 조회
   const { data: activeLectures = [] } = useQuery<Lecture[]>({
     queryKey: ["daily-lectures", user?.id],
     queryFn: async () => {
+      if (!user?.id) return [];
       const data = await getUserLectures(user.id);
       return data as unknown as Lecture[];
     },
-    enabled: !!user?.id,
+    enabled: !isLoadingUser && !!user?.id,
   });
 
   // 종료된 챌린지의 강의 조회
@@ -46,6 +54,7 @@ export default function ClassPage({
       return data;
     },
     enabled:
+      !isLoadingUser &&
       !!user?.id &&
       !activeLectures.some(
         (lecture) => Number(lecture.challenge_id) === currentChallengeId,
@@ -66,7 +75,7 @@ export default function ClassPage({
   );
 
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (!isLoadingUser && !user) {
       router.push("/login");
       return;
     }
@@ -95,9 +104,9 @@ export default function ClassPage({
         isMounted = false;
       };
     }
-  }, [user, isLoading, router, lectures]);
+  }, [user, isLoadingUser, router, lectures]);
 
-  if (isLoading) {
+  if (isLoadingUser) {
     return <div>로딩 중...</div>;
   }
 
@@ -121,7 +130,7 @@ export default function ClassPage({
           </div>
 
           <div className="flex justify-end w-full">
-            <Header />
+            <Header challengeList={challengeList} />
           </div>
 
           <div>

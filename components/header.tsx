@@ -7,14 +7,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useUserChallengeStore } from "@/lib/store/useUserChallengeStore";
+import { UserChallenges } from "@/types/challenge";
 import { useRouter, usePathname } from "next/navigation";
 
-export default function Header() {
+export default function Header({
+  challengeList,
+}: {
+  challengeList: UserChallenges[];
+}) {
   const pathname = usePathname();
   const router = useRouter();
   const currentChallengeId = pathname.split("/").pop();
-  const { challengeList } = useUserChallengeStore();
 
   return (
     <header className="py-4 w-full flex justify-end pr-4">
@@ -23,7 +26,7 @@ export default function Header() {
         <Select
           value={currentChallengeId}
           onValueChange={(value) => {
-            router.push(`/class/${value}`);
+            router.replace(`/class/${value}`);
           }}
         >
           <SelectTrigger className="w-[120px] border-0 bg-transparent focus:ring-0 text-white">
