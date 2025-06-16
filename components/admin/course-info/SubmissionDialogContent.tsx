@@ -37,9 +37,36 @@ export function SubmissionDialogContent({
         <h3 className="font-medium text-gray-200">
           {submission.studentName} - {submission.lectureNumber}강 과제
         </h3>
-        <p className="text-sm text-gray-400">
-          제출일: {submission.submissionDate}
-        </p>
+        <div className="flex items-center justify-between mt-1">
+          <p className="text-sm text-gray-400">
+            제출일: {submission.submissionDate}
+          </p>
+          {submission.assignments?.find((a) => a.url) && (
+            <a
+              href={submission.assignments.find((a) => a.url)?.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center text-sm text-[#8C7DFF] hover:text-[#6A5AFF] transition-colors gap-1"
+            >
+              과제 보러가기
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="stroke-current"
+              >
+                <path
+                  d="M7 17L17 7M17 7H7M17 7V17"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </a>
+          )}
+        </div>
       </div>
       <div className="space-y-4">
         {submission.assignments?.map((assignment, index) => (
@@ -50,7 +77,7 @@ export function SubmissionDialogContent({
             <div className="space-y-3">
               {assignment.comment && (
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center">
                     <p className="text-sm font-medium text-gray-300">
                       과제 설명{" "}
                       {submission.assignments!.length > 1
@@ -58,31 +85,16 @@ export function SubmissionDialogContent({
                         : ""}
                       :
                     </p>
-                    <div className="flex gap-2">
-                      <Button
-                        className="bg-[#5046E4] hover:bg-[#6A5AFF] text-white"
-                        onClick={() =>
-                          onEdit(assignment.url || "", assignment.comment || "")
-                        }
-                      >
-                        수정
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        className="bg-[#3A2438] hover:bg-[#4E2D4A] text-[#FF9898] border-0"
-                        onClick={() => onDelete(submission.submissionId || 0)}
-                      >
-                        삭제
-                      </Button>
-                    </div>
                   </div>
-                  <p className="text-gray-300 whitespace-pre-wrap break-all">
-                    {assignment.comment}
-                  </p>
+                  <div className="bg-[#1A1D29]/80 p-4 rounded-lg border border-gray-700/30">
+                    <p className="text-gray-300 whitespace-pre-wrap break-all">
+                      {assignment.comment}
+                    </p>
+                  </div>
                 </div>
               )}
               {assignment.imageUrl ? (
-                <div className="mt-4">
+                <div>
                   <p className="text-sm font-medium text-gray-300 mb-2">
                     제출된 이미지:
                   </p>
@@ -93,7 +105,7 @@ export function SubmissionDialogContent({
                   />
                 </div>
               ) : (
-                <div className="mt-4">
+                <div>
                   <p className="text-sm font-medium text-gray-300 mb-2">
                     제출된 이미지:
                   </p>
@@ -102,33 +114,23 @@ export function SubmissionDialogContent({
                   </div>
                 </div>
               )}
-              {assignment.url && (
-                <div className="flex justify-end mt-4">
-                  <a
-                    href={assignment.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#5046E4] hover:bg-[#6A5AFF] transition-colors text-white font-medium"
-                  >
-                    과제 보러가기
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="stroke-current"
-                    >
-                      <path
-                        d="M7 17L17 7M17 7H7M17 7V17"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </a>
-                </div>
-              )}
+              <div className="grid grid-cols-2 gap-2 pt-2">
+                <Button
+                  className="bg-[#5046E4] hover:bg-[#6A5AFF] text-white w-full"
+                  onClick={() =>
+                    onEdit(assignment.url || "", assignment.comment || "")
+                  }
+                >
+                  수정
+                </Button>
+                <Button
+                  variant="destructive"
+                  className="bg-[#3A2438] hover:bg-[#4E2D4A] text-[#FF9898] border-0 w-full"
+                  onClick={() => onDelete(submission.submissionId || 0)}
+                >
+                  삭제
+                </Button>
+              </div>
             </div>
           </div>
         ))}
