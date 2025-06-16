@@ -22,9 +22,9 @@ export function useRefundStatus(
     return true;
   })();
 
-  const { data: allAssignmentStatus, error } = useQuery<{
+  const { data, error } = useQuery<{
     isAllSubmitted: boolean;
-    submissions: any[];
+    isRefundRequested: boolean;
   }>({
     queryKey: [
       "all-assignment-status",
@@ -49,5 +49,8 @@ export function useRefundStatus(
     enabled: isQueryReady,
   });
 
-  return allAssignmentStatus?.isAllSubmitted ?? false;
+  return {
+    isAllSubmitted: data?.isAllSubmitted ?? false,
+    isRefundRequested: data?.isRefundRequested ?? false,
+  };
 }

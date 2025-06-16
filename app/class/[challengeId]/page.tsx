@@ -72,7 +72,7 @@ export default function ClassPage({
     lecture_id: lecture.id,
   }));
 
-  const isAllAssignmentsSubmitted = useRefundStatus(
+  const { isAllSubmitted, isRefundRequested } = useRefundStatus(
     user?.id,
     challengeLectures,
   );
@@ -148,7 +148,8 @@ export default function ClassPage({
               <AssignmentSubmissionSection userInfo={user} />
 
               <RefundRequestButton
-                isAllAssignmentsSubmitted={isAllAssignmentsSubmitted}
+                isAllSubmitted={isAllSubmitted}
+                isRefundRequested={isRefundRequested}
               />
             </div>
           </div>
