@@ -41,9 +41,11 @@ export function useRefundStatus(
         );
         return data;
       } catch (error) {
-        // TODO: 에러 핸들링
-        console.error(error, "Failed to fetch assignment status:");
-        throw error;
+        // 기본값 반환
+        return {
+          isAllSubmitted: false,
+          isRefundRequested: false,
+        };
       }
     },
     enabled: isQueryReady,
