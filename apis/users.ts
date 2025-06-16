@@ -1,7 +1,5 @@
 import { supabase } from "./supabase";
-import { UserChallenges } from "@/types/challenge";
 import { User, UserWithChallenges, StudentSubmission } from "@/types/user";
-import { ChallengeLecture } from "@/types/lecture";
 import { handleError } from "@/utils/errorHandler";
 
 export async function getUsers() {
@@ -302,7 +300,7 @@ export async function getStudentSubmissions(
 
       const submissionResults = await Promise.all(submissionPromises);
       const submittedUserIds = submissionResults
-        .slice(1) // 강의1 제출자 제외(첫번째 챌린지만. 추후 꼭 삭제할 것.)
+        // .slice(1) // 강의1 제출자 제외(첫번째 챌린지만. 추후 꼭 삭제할 것.)
         .map((result) => result.data?.map((sub) => sub.user_id) || []);
 
       // 모든 강의에 대해 과제를 제출한 사용자 ID만 필터링
@@ -364,7 +362,7 @@ export async function getStudentSubmissions(
             const { data: submissions, error: submissionError } = await supabase
               .from("Submissions")
               .select(
-                "id, is_submit, assignment_url, assignment_comment, image_url",
+                "id, is_submit, assignment_url, assignment_comment, image_url, submitted_at",
               )
               .eq("user_id", user.user_id)
               .eq("challenge_lecture_id", lecture.id);
@@ -388,6 +386,21 @@ export async function getStudentSubmissions(
               dueDate: lecture.due_at,
               isSubmitted,
               submissionId: submissions?.[0]?.id,
+              submittedAt: submissions?.[0]?.submitted_at
+                ? new Date(submissions[0].submitted_at)
+                    .toLocaleString("ko-KR", {
+                      year: "numeric",
+                      month: "2-digit",
+                      day: "2-digit",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: false,
+                    })
+                    .replace(/\. /g, "-")
+                    .replace(/\./g, "")
+                    .replace(",", "")
+                    .replace(/(\d{4}-\d{2}-\d{2})-/, "$1 ")
+                : undefined,
               sequence: lecture.sequence,
               assignments: assignments.length > 0 ? assignments : undefined,
             };
