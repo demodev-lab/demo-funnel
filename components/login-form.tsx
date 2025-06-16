@@ -18,13 +18,9 @@ import { IcEmail, IcLoadingSpinner } from "./icons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { userLogin } from "@/apis/auth";
 import { getUserChallenges } from "@/apis/challenges";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { userLogin } from "@/apis/auth";
-import { getUserChallenges } from "@/apis/challenges";
 
 export function LoginForm() {
   const router = useRouter();
-  const queryClient = useQueryClient();
   const queryClient = useQueryClient();
   const [email, setEmail] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
@@ -33,10 +29,7 @@ export function LoginForm() {
     mutationFn: (email: string) => userLogin(email),
     onSuccess: async (response) => {
       if (!response.success || !response.user) {
-    onSuccess: async (response) => {
-      if (!response.success || !response.user) {
         toast.error("로그인 실패", {
-          description: response.error || "로그인에 실패했습니다.",
           description: response.error || "로그인에 실패했습니다.",
         });
         return;
@@ -52,36 +45,19 @@ export function LoginForm() {
         challenges,
       );
       setIsSuccess(true);
-      // 사용자 정보를 쿼리 캐시에 저장
-      queryClient.setQueryData(["user"], response.user);
 
-      // 챌린지 목록을 쿼리 캐시에 저장
-      const challenges = await getUserChallenges(response.user.id);
-      queryClient.setQueryData(
-        ["challenge-list", response.user.id],
-        challenges,
-      );
-      setIsSuccess(true);
-
-      toast.success("로그인 성공", {
-        description: "강의실로 이동합니다.",
-      });
       toast.success("로그인 성공", {
         description: "강의실로 이동합니다.",
       });
 
       setTimeout(() => {
         if (challenges.length > 0) {
-          router.push(`/class/${challenges[0].id}`);
+          router.replace(`/class/${challenges[0].id}`);
         }
       }, 1500);
     },
     onError: (error) => {
       toast.error("로그인 실패", {
-        description:
-          error instanceof Error
-            ? error.message
-            : "로그인 처리 중 오류가 발생했습니다.",
         description:
           error instanceof Error
             ? error.message
