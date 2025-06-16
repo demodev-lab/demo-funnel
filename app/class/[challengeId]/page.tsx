@@ -67,9 +67,14 @@ export default function ClassPage({
     (state) => state.setSelectedLecture,
   );
 
+  const challengeLectures = lectures.map((lecture) => ({
+    id: lecture.challenge_lecture_id,
+    lecture_id: lecture.id,
+  }));
+
   const isAllAssignmentsSubmitted = useRefundStatus(
     user?.id,
-    lectures as any[],
+    challengeLectures,
   );
 
   useEffect(() => {
