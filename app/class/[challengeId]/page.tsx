@@ -11,7 +11,7 @@ import { Lecture, LectureWithSequence } from "@/types/lecture";
 import { useSelectedLectureStore } from "@/lib/store/useSelectedLectureStore";
 import { checkIsTodayLecture } from "@/utils/date/serverTime";
 import Header from "@/components/header";
-import { getUserChallenges } from '@/apis/challenges';
+import { getUserChallenges } from "@/apis/challenges";
 
 export default function ClassPage({
   params,
@@ -23,10 +23,11 @@ export default function ClassPage({
   const { challengeId } = use(params);
   const currentChallengeId = Number(challengeId);
 
-  // 사용자가 참여한 챌린지 목록 조회
+  // 로그인에서 저장한 쿼리 캐시의 챌린지 목록 사용
   const { data: challengeList = [] } = useQuery({
     queryKey: ["challenge-list", user?.id],
     queryFn: async () => {
+      if (!user?.id) return [];
       const data = await getUserChallenges(user.id);
       return data;
     },
@@ -37,6 +38,7 @@ export default function ClassPage({
   const { data: activeLectures = [] } = useQuery<Lecture[]>({
     queryKey: ["daily-lectures", user?.id],
     queryFn: async () => {
+      if (!user?.id) return [];
       const data = await getUserLectures(user.id);
       return data as unknown as Lecture[];
     },
@@ -76,11 +78,6 @@ export default function ClassPage({
       return;
     }
 
-    if (challengeList && challengeList.length > 0) {
-      // 가장 최근 챌린지로 리다이렉트
-      router.push(`/class/${challengeList[0].id}`);
-    }
-
     if (lectures && lectures.length > 0) {
       let isMounted = true;
 
@@ -105,7 +102,7 @@ export default function ClassPage({
         isMounted = false;
       };
     }
-  }, [user, isLoading, router, lectures, challengeList]);
+  }, [user, isLoading, router, lectures]);
 
   if (isLoading) {
     return <div>로딩 중...</div>;
