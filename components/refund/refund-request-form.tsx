@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -6,6 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/components/ui/use-toast";
 import { useUser } from "@/hooks/auth/use-user";
+import { updateRefundRequestStatus } from "@/apis/users";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface RefundRequestFormProps {
   onSubmit: (data: RefundFormData) => Promise<void>;
@@ -29,6 +32,9 @@ export function RefundRequestForm({
 }: RefundRequestFormProps) {
   const { toast } = useToast();
   const { data: user } = useUser();
+  const queryClient = useQueryClient();
+  const params = useParams();
+  const challengeId = Number(params.challengeId);
   const [formData, setFormData] = useState<RefundFormData>({
     name: user?.name ?? "",
     account: "",
@@ -67,6 +73,15 @@ export function RefundRequestForm({
 
     try {
       await onSubmit(formData);
+
+      // 환급 신청 상태 업데이트
+      if (user?.id) {
+        await updateRefundRequestStatus(user.id, challengeId);
+        // 쿼리키 무효화
+        queryClient.invalidateQueries({
+          queryKey: ["all-assignment-status", user.id, challengeId],
+        });
+      }
     } catch (error) {
       toast({
         title: "오류가 발생했습니다",
