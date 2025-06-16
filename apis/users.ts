@@ -418,14 +418,7 @@ export async function getUserAllAssignmentStatus(
   challengeLectures?: { id: number; lecture_id: number }[],
 ): Promise<{
   isAllSubmitted: boolean;
-  submissions: {
-    lectureId: number;
-    isSubmitted: boolean;
-    assignments?: {
-      url: string;
-      comment: string;
-    }[];
-  }[];
+  isRefundRequested: boolean;
 }> {
   try {
     // 1. 강의 목록이 전달되지 않은 경우에만 조회
@@ -441,7 +434,10 @@ export async function getUserAllAssignmentStatus(
 
       if (challengeLecturesError) throw challengeLecturesError;
       if (!fetchedLectures || fetchedLectures.length === 0) {
-        return { isAllSubmitted: false, submissions: [] };
+        return {
+          isAllSubmitted: false,
+          isRefundRequested: false,
+        };
       }
       lectures = fetchedLectures;
     }
@@ -466,7 +462,10 @@ export async function getUserAllAssignmentStatus(
     );
 
     if (filteredChallengeLectures.length === 0) {
-      return { isAllSubmitted: false, submissions: [] };
+      return {
+        isAllSubmitted: false,
+        isRefundRequested: false,
+      };
     }
 
     // 3. 각 강의별 제출 여부 확인
@@ -474,40 +473,56 @@ export async function getUserAllAssignmentStatus(
       filteredChallengeLectures.map(async (lecture) => {
         const { data: submissions, error: submissionError } = await supabase
           .from("Submissions")
-          .select("is_submit, assignment_url, assignment_comment")
+          .select("is_submit")
           .eq("user_id", userId)
           .eq("challenge_lecture_id", lecture.id);
 
         if (submissionError) throw submissionError;
 
-        const isSubmitted = submissions?.some((sub) => sub.is_submit) ?? false;
-        const assignments =
-          submissions
-            ?.filter((sub) => sub.is_submit)
-            .map((sub) => ({
-              url: sub.assignment_url,
-              comment: sub.assignment_comment,
-            })) ?? [];
-
-        return {
-          lectureId: lecture.lecture_id,
-          isSubmitted,
-          assignments: assignments.length > 0 ? assignments : undefined,
-        };
+        return submissions?.some((sub) => sub.is_submit) ?? false;
       }),
     );
 
     // 4. 모든 과제 제출 여부 확인
-    const isAllSubmitted = submissions.every(
-      (submission) => submission.isSubmitted,
-    );
+    const isAllSubmitted = submissions.every((isSubmitted) => isSubmitted);
+
+    // ChallengeUsers 테이블에서 refund_requested 상태 확인
+    const { data: challengeUser, error: challengeUserError } = await supabase
+      .from("ChallengeUsers")
+      .select("refund_requested")
+      .eq("user_id", userId)
+      .eq("challenge_id", challengeId)
+      .single();
+
+    if (challengeUserError) throw challengeUserError;
 
     return {
       isAllSubmitted,
-      submissions,
+      isRefundRequested: challengeUser?.refund_requested ?? false,
     };
   } catch (error) {
     handleError(error, "수강생 과제 제출 현황 조회 실패");
+    throw error;
+  }
+}
+
+export async function updateRefundRequestStatus(
+  userId: number,
+  challengeId: number,
+) {
+  try {
+    const { data, error } = await supabase
+      .from("ChallengeUsers")
+      .update({ refund_requested: true })
+      .eq("user_id", userId)
+      .eq("challenge_id", challengeId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    handleError(error, "환급 신청 상태 업데이트 실패");
     throw error;
   }
 }
