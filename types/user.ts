@@ -22,6 +22,7 @@ export interface SubmissionStatus {
   dueDate: string;
   submissionId?: number;
   sequence: number;
+  submittedAt?: string;
   assignments?: {
     url: string;
     comment: string;

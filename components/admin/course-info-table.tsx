@@ -256,7 +256,9 @@ export default function CourseInfoTable({
       isSubmitted: submission.isSubmitted,
       dueDate: submission.dueDate,
       submissionId: submission.submissionId,
-      submissionDate: submission.isSubmitted ? "2024-03-19 14:30" : undefined,
+      submissionDate: submission.isSubmitted
+        ? submission.submittedAt
+        : undefined,
       assignments: submission.assignments,
     });
   };
