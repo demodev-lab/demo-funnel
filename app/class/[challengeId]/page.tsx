@@ -32,7 +32,8 @@ export default function ClassPage({
       const data = await getUserChallenges(user.id);
       return data;
     },
-    enabled: !!user?.id,
+    enabled: !isLoadingUser && !!user?.id,
+    staleTime: 1000 * 60 * 5, // 5분 동안 캐시 유지
   });
 
   // 진행 중인 챌린지의 강의 조회
@@ -114,7 +115,7 @@ export default function ClassPage({
         isMounted = false;
       };
     }
-  }, [user, isLoading, router, lectures]);
+  }, [user, isLoadingUser, router, lectures]);
 
   if (isLoadingUser) {
     return <div>로딩 중...</div>;
