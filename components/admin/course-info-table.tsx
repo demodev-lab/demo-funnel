@@ -32,7 +32,6 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { validateFileSize } from "@/utils/files";
-import { Textarea } from "@/components/ui/textarea";
 import { StudentTable } from "./course-info/StudentTable";
 import {
   SubmissionDialogContent,
