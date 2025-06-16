@@ -76,7 +76,7 @@ export function SubmissionDialogContent({
                       </Button>
                     </div>
                   </div>
-                  <p className="text-gray-300 whitespace-pre-wrap">
+                  <p className="text-gray-300 whitespace-pre-wrap break-all">
                     {assignment.comment}
                   </p>
                 </div>
