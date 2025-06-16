@@ -80,11 +80,6 @@ export default function ClassPage({
       return;
     }
 
-    if (challengeList && challengeList.length > 0) {
-      // 가장 최근 챌린지로 리다이렉트
-      router.push(`/class/${challengeList[0].id}`);
-    }
-
     if (lectures && lectures.length > 0) {
       let isMounted = true;
 
