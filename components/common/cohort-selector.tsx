@@ -10,7 +10,7 @@ import {
 import { UserChallenges } from "@/types/challenge";
 import { useRouter, usePathname } from "next/navigation";
 
-export default function Header({
+export default function CohortSelector({
   challengeList,
 }: {
   challengeList: UserChallenges[];
@@ -20,7 +20,7 @@ export default function Header({
   const currentChallengeId = pathname.split("/").pop();
 
   return (
-    <header className="py-4 w-full flex justify-end pr-4">
+    <div className="py-4 w-full flex justify-end pr-4">
       <div className="flex items-center gap-2 bg-[#252A3C] px-3 rounded-lg border border-gray-700/30">
         <div className="text-white font-semibold text-sm">현재 기수</div>
         <Select
@@ -45,6 +45,6 @@ export default function Header({
           </SelectContent>
         </Select>
       </div>
-    </header>
+    </div>
   );
 }

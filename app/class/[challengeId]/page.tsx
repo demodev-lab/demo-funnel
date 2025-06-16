@@ -10,8 +10,8 @@ import { getUserLectures, getLecturesByChallenge } from "@/apis/lectures";
 import { Lecture, LectureWithSequence } from "@/types/lecture";
 import { useSelectedLectureStore } from "@/lib/store/useSelectedLectureStore";
 import { checkIsTodayLecture } from "@/utils/date/serverTime";
-import Header from "@/components/header";
 import { getUserChallenges } from "@/apis/challenges";
+import CohortSelector from "@/components/common/cohort-selector";
 import { RefundRequestButton } from "@/components/refund/refund-request-button";
 import { useRefundStatus } from "@/hooks/useRefundStatus";
 
@@ -142,7 +142,7 @@ export default function ClassPage({
           </div>
 
           <div className="flex justify-end w-full">
-            <Header challengeList={challengeList} />
+            <CohortSelector challengeList={challengeList} />
           </div>
 
           <div>
