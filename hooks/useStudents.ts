@@ -11,16 +11,7 @@ import {
   deleteUser,
   getChallengeUsers,
 } from "@/apis/users";
-import { User } from "@/types/user";
-
-// 공통 데이터 모듈에서 타입 가져오기
-export interface Student {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  challenges?: number[];
-}
+import { Student } from "@/types/user";
 
 interface ApiResponse<T> {
   data: T;

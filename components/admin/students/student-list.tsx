@@ -16,7 +16,6 @@ import {
   useCreateStudent,
   useUpdateStudent,
   useDeleteStudent,
-  type Student,
 } from "@/hooks/useStudents";
 import { useQueryClient } from "@tanstack/react-query";
 import StudentFormDialog from "./student-form-dialog";
@@ -28,6 +27,7 @@ import {
 import { StudentListState } from "./student-list-state";
 import ExcelUploadDialog from "./excel-upload-dialog";
 import StudentTable from "./student-table";
+import { type Student } from "@/types/user";
 
 export default function StudentList() {
   // React Query 훅들

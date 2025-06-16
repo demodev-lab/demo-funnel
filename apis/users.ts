@@ -17,7 +17,7 @@ export async function getUsers() {
   }
 }
 
-export async function createUser(data: UserWithChallenges) {
+export async function createUser(data: Omit<UserWithChallenges, "id">) {
   try {
     const { challenges, ...userData } = data;
 
@@ -422,6 +422,121 @@ export async function getStudentSubmissions(
     };
   } catch (error) {
     handleError(error, "수강생 제출 현황 조회 실패");
+    throw error;
+  }
+}
+
+export async function getUserAllAssignmentStatus(
+  userId: number,
+  challengeId: number,
+  challengeLectures?: { id: number; lecture_id: number }[],
+): Promise<{
+  isAllSubmitted: boolean;
+  isRefundRequested: boolean;
+}> {
+  try {
+    // 1. 강의 목록이 전달되지 않은 경우에만 조회
+    // (이미 사용자 페이지에서 챌린지의 강의 목록을 가져오고 있어 API 중복 호출 방지를 위함)
+    let lectures = challengeLectures;
+    if (!lectures) {
+      const { data: fetchedLectures, error: challengeLecturesError } =
+        await supabase
+          .from("ChallengeLectures")
+          .select("id, lecture_id")
+          .eq("challenge_id", challengeId)
+          .order("sequence", { ascending: true });
+
+      if (challengeLecturesError) throw challengeLecturesError;
+      if (!fetchedLectures || fetchedLectures.length === 0) {
+        return {
+          isAllSubmitted: false,
+          isRefundRequested: false,
+        };
+      }
+      lectures = fetchedLectures;
+    }
+
+    // 2. 과제가 있는 강의만 필터링
+    const { data: assignments, error: assignmentsError } = await supabase
+      .from("Assignments")
+      .select("lecture_id")
+      .in(
+        "lecture_id",
+        lectures.map((cl) => cl.lecture_id),
+      );
+
+    if (assignmentsError) throw assignmentsError;
+
+    const lectureIdsWithAssignments = new Set(
+      assignments?.map((a) => a.lecture_id) || [],
+    );
+
+    const filteredChallengeLectures = lectures.filter((cl) =>
+      lectureIdsWithAssignments.has(cl.lecture_id),
+    );
+
+    if (filteredChallengeLectures.length === 0) {
+      return {
+        isAllSubmitted: false,
+        isRefundRequested: false,
+      };
+    }
+
+    // 3. 각 강의별 제출 여부 확인
+    const submissions = await Promise.all(
+      filteredChallengeLectures.map(async (lecture) => {
+        const { data: submissions, error: submissionError } = await supabase
+          .from("Submissions")
+          .select("is_submit")
+          .eq("user_id", userId)
+          .eq("challenge_lecture_id", lecture.id);
+
+        if (submissionError) throw submissionError;
+
+        return submissions?.some((sub) => sub.is_submit) ?? false;
+      }),
+    );
+
+    // 4. 모든 과제 제출 여부 확인
+    const isAllSubmitted = submissions.every((isSubmitted) => isSubmitted);
+
+    // ChallengeUsers 테이블에서 refund_requested 상태 확인
+    const { data: challengeUser, error: challengeUserError } = await supabase
+      .from("ChallengeUsers")
+      .select("refund_requested")
+      .eq("user_id", userId)
+      .eq("challenge_id", challengeId)
+      .single();
+
+    if (challengeUserError) throw challengeUserError;
+
+    return {
+      isAllSubmitted,
+      isRefundRequested: challengeUser?.refund_requested ?? false,
+    };
+  } catch (error) {
+    handleError(error, "수강생 과제 제출 현황 조회 실패");
+    throw error;
+  }
+}
+
+export async function updateRefundRequestStatus(
+  userId: number,
+  challengeId: number,
+) {
+  try {
+    const { data, error } = await supabase
+      .from("ChallengeUsers")
+      .update({ refund_requested: true })
+      .eq("user_id", userId)
+      .eq("challenge_id", challengeId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    handleError(error, "환급 신청 상태 업데이트 실패");
     throw error;
   }
 }

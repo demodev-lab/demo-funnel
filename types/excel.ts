@@ -1,4 +1,4 @@
-import { Student } from "@/hooks/useStudents";
+import { Student } from "@/types/user";
 
 export interface ExcelStudent extends Omit<Student, "id"> {
   isValid: boolean;
