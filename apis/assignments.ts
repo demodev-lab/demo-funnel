@@ -223,6 +223,7 @@ export async function getAssignmentStats(challengeId: number) {
         `
         id,
         lecture_id,
+        sequence,
         Lectures!inner (
           id,
           name
@@ -231,7 +232,7 @@ export async function getAssignmentStats(challengeId: number) {
       )
       .eq("challenge_id", challengeId)
       .order("sequence", { ascending: true })) as {
-      data: ChallengeLecture[] | null;
+      data: (ChallengeLecture & { sequence: number })[] | null;
       error: any;
     };
 
@@ -279,6 +280,7 @@ export async function getAssignmentStats(challengeId: number) {
           return {
             lectureId: lecture.lecture_id,
             lectureName: lecture.Lectures.name,
+            sequence: lecture.sequence,
             totalParticipants,
             submittedCount,
             submissionRate,
