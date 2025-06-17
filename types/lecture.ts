@@ -36,7 +36,9 @@ export interface LectureData {
 }
 
 export interface ChallengeLectures {
+  id: number;
   lecture_id: number;
+  challenge_id: number;
   sequence: number;
   open_at: string;
   Lectures: {
@@ -79,15 +81,18 @@ export interface LectureDetail {
 
 export interface LectureWithSequence {
   id: number;
+  challenge_lecture_id: number;
   name: string;
   description: string;
   url: string;
   upload_type: number;
+  open_at: string;
   created_at: string;
   updated_at: string;
   sequence: number;
   assignment_title: string;
   assignment: string;
+  challenge_id: number;
 }
 
 export interface LectureFormInitialData {
