@@ -28,8 +28,13 @@ export default function CohortSelector({
     <div className="flex items-center gap-2 bg-[#252A3C] px-3 rounded-lg border border-gray-700/30">
       <div className="text-white font-semibold text-sm">현재 기수</div>
       <Select value={value} onValueChange={onValueChange}>
-        <SelectTrigger className="w-[120px] border-0 bg-transparent focus:ring-0 text-white">
-          <SelectValue placeholder="기수 선택" />
+        <SelectTrigger className="w-[120px] border-0 bg-transparent focus:outline-none focus:ring-0 text-white truncate overflow-hidden whitespace-nowrap">
+          <div className="w-full truncate">
+            <SelectValue
+              placeholder="기수 선택"
+              className="pointer-events-none select-none truncate"
+            />
+          </div>
         </SelectTrigger>
         <SelectContent className="bg-[#252A3C] border border-gray-700/50 text-white min-w-[160px]">
           {challengeList.map((challenge) => (
