@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Lock, Calendar } from "lucide-react";
-import { getUploadTypeFromUrl, getVideoThumbnailUrl } from "@/utils/youtube";
+import { getVideoThumbnailUrl } from "@/utils/youtube";
 import { LectureWithSequence } from "@/types/lecture";
 import { isLectureOpen } from "@/utils/date/serverTime";
 
@@ -20,7 +20,6 @@ export default function DailyLectureItem({
   videoIndex,
   isActiveChallenge,
 }: DailyLectureItemProps) {
-  const upload_type = getUploadTypeFromUrl(dailyLecture.url);
   const [isLocked, setIsLocked] = useState(false);
 
   useEffect(() => {
@@ -43,11 +42,14 @@ export default function DailyLectureItem({
       }
     >
       <div className="aspect-video bg-gray-800 relative transform group-hover:-translate-y-1 transition-transform duration-300">
-        {upload_type === 0 ? (
+        {dailyLecture.upload_type === 0 ? (
           // YouTube 동영상인 경우 Image 태그 사용
           <Image
             src={
-              getVideoThumbnailUrl(upload_type, dailyLecture.url) || undefined
+              getVideoThumbnailUrl(
+                dailyLecture.upload_type,
+                dailyLecture.url,
+              ) || undefined
             }
             alt={dailyLecture.name}
             fill

@@ -32,6 +32,7 @@ export default function DailyLectureSection({
     title: string;
     description: string;
     lectureUrl: string;
+    upload_type: number;
     isLocked: boolean;
   } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -59,6 +60,7 @@ export default function DailyLectureSection({
             title: lectures[selectedVideoIdx].name,
             description: lectures[selectedVideoIdx].description,
             lectureUrl: lectures[selectedVideoIdx].url,
+            upload_type: lectures[selectedVideoIdx].upload_type,
             isLocked,
           });
         } else {
@@ -107,6 +109,7 @@ export default function DailyLectureSection({
               title={mainLecture.title}
               description={mainLecture.description}
               lectureUrl={mainLecture.lectureUrl}
+              upload_type={mainLecture.upload_type}
               isPlaying={isPlaying}
               onTogglePlay={togglePlay}
             />
