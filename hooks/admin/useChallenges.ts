@@ -226,15 +226,46 @@ export const useChallenges = () => {
       return;
     }
 
-    modifyChallenge({
-      id: editingChallenge.id,
-      data: {
-        name: editingChallenge.name,
-        open_date: editingChallenge.startDate.toISOString().split("T")[0],
-        close_date: editingChallenge.endDate.toISOString().split("T")[0],
-        lecture_num: editingChallenge.lectureCount || 0,
-      },
-    });
+    // 원본 챌린지 데이터 조회
+    const originalChallenge = challenges.find(
+      (c) => c.id === editingChallenge.id,
+    );
+    if (!originalChallenge) return;
+
+    // 변경된 필드만 업데이트하기 위한 객체
+    const updatedFields: Partial<Challenge> = {};
+
+    // 이름이 변경된 경우에만 업데이트
+    if (editingChallenge.name !== originalChallenge.name) {
+      updatedFields.name = editingChallenge.name;
+    }
+
+    // 날짜 형식을 YYYY-MM-DD로 변환
+    const newOpenDate = editingChallenge.startDate.toISOString().split("T")[0];
+    const newCloseDate = editingChallenge.endDate.toISOString().split("T")[0];
+
+    // 시작일이 변경된 경우에만 업데이트
+    if (newOpenDate !== originalChallenge.open_date) {
+      updatedFields.open_date = newOpenDate;
+    }
+    // 종료일이 변경된 경우에만 업데이트
+    if (newCloseDate !== originalChallenge.close_date) {
+      updatedFields.close_date = newCloseDate;
+    }
+    if (editingChallenge.lectureCount !== originalChallenge.lecture_num) {
+      updatedFields.lecture_num = editingChallenge.lectureCount;
+    }
+
+    if (Object.keys(updatedFields).length > 0) {
+      modifyChallenge({
+        id: editingChallenge.id,
+        data: updatedFields,
+      });
+    } else {
+      toast.info("변경된 내용이 없습니다.");
+      setIsEditDialogOpen(false);
+      setEditingChallenge(null);
+    }
   };
 
   return {
