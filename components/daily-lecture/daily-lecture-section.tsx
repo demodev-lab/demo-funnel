@@ -27,7 +27,6 @@ export default function DailyLectureSection({
   const [isPlaying, setIsPlaying] = useState(false);
   const [selectedVideoIdx, setSelectedVideoIdx] = useState(0);
   const [isLockedModalOpen, setIsLockedModalOpen] = useState(false);
-  const [lockedVideoTitle, setLockedVideoTitle] = useState("");
   const [mainLecture, setMainLecture] = useState<{
     title: string;
     description: string;
@@ -87,7 +86,6 @@ export default function DailyLectureSection({
   };
 
   const handleLockedClick = (title: string) => {
-    setLockedVideoTitle(title);
     setIsLockedModalOpen(true);
   };
 
@@ -149,7 +147,9 @@ export default function DailyLectureSection({
               <div
                 key={lecture.id}
                 className="group"
-                onClick={() => onSelectedLecture(lecture as LectureWithSequence)}
+                onClick={() =>
+                  onSelectedLecture(lecture as LectureWithSequence)
+                }
               >
                 <DailyLectureItem
                   dailyLecture={lecture}
