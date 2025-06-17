@@ -21,51 +21,91 @@ export async function createUser(data: Omit<UserWithChallenges, "id">) {
   try {
     const { challenges, ...userData } = data;
 
-    // 이메일 중복 체크
+    // 이메일 중복 체크와 함께 기존 챌린지 목록도 함께 조회
     const { data: existingUser, error: checkError } = await supabase
       .from("Users")
-      .select("id")
+      .select(
+        `
+        id,
+        ChallengeUsers (
+          challenge_id
+        )
+      `,
+      )
       .eq("email", userData.email)
       .single();
 
     if (checkError && checkError.code !== "PGRST116") {
-      // PGRST116는 결과가 없을 때의 에러 코드
       handleError(checkError, "이메일 중복 체크 실패");
     }
 
+    let userId: number;
+
     if (existingUser) {
-      handleError(
-        new Error("이미 존재하는 이메일입니다."),
-        "이미 존재하는 이메일입니다.",
+      // 기존 사용자가 있는 경우
+      userId = existingUser.id;
+
+      // 기존 챌린지 ID 목록
+      const existingChallengeIds = existingUser.ChallengeUsers.map(
+        (cu: { challenge_id: number }) => cu.challenge_id,
       );
+
+      // 추가하려는 챌린지 중 이미 등록된 챌린지가 있는지 확인
+      const duplicatedChallenges = challenges?.filter((challengeId) =>
+        existingChallengeIds.includes(challengeId),
+      );
+
+      if (duplicatedChallenges && duplicatedChallenges.length > 0) {
+        throw new Error("이미 등록된 챌린지가 있습니다.");
+      }
+
+      // 새로운 챌린지만 필터링
+      const newChallenges = challenges?.filter(
+        (challengeId) => !existingChallengeIds.includes(challengeId),
+      );
+
+      if (newChallenges && newChallenges.length > 0) {
+        const challengeUsers = newChallenges.map((challengeId: number) => ({
+          user_id: userId,
+          challenge_id: challengeId,
+          enrolled_at: new Date().toISOString(),
+        }));
+
+        const { error: challengeError } = await supabase
+          .from("ChallengeUsers")
+          .insert(challengeUsers);
+
+        if (challengeError) throw challengeError;
+      }
+    } else {
+      // 새로운 사용자인 경우
+      const { data: newUser, error: userError } = await supabase
+        .from("Users")
+        .insert(userData)
+        .select()
+        .single();
+
+      if (userError) throw userError;
+      userId = newUser.id;
+
+      if (challenges && Array.isArray(challenges)) {
+        const challengeUsers = challenges.map((challengeId: number) => ({
+          user_id: userId,
+          challenge_id: challengeId,
+          enrolled_at: new Date().toISOString(),
+        }));
+
+        const { error: challengeError } = await supabase
+          .from("ChallengeUsers")
+          .insert(challengeUsers);
+
+        if (challengeError) throw challengeError;
+      }
     }
 
-    const { data: newUser, error: userError } = await supabase
-      .from("Users")
-      .insert(userData)
-      .select()
-      .single();
-
-    if (userError) throw userError;
-
-    if (challenges && Array.isArray(challenges)) {
-      const challengeUsers = challenges.map((challengeId: number) => ({
-        user_id: newUser.id,
-        challenge_id: challengeId,
-        enrolled_at: new Date().toISOString(),
-      }));
-
-      const { error: challengeError } = await supabase
-        .from("ChallengeUsers")
-        .insert(challengeUsers);
-
-      if (challengeError) throw challengeError;
-    }
-
-    return newUser;
+    return;
   } catch (error) {
     handleError(error, "사용자 데이터 패칭 실패");
-    throw error;
   }
 }
 
