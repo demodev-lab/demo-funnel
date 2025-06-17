@@ -111,26 +111,26 @@ export function AssignmentSubmissionForm({
     <div className="relative">
       <form onSubmit={onSubmit} className="p-4 border-b border-gray-700">
         <div className="space-y-3">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 flex-1">
+          <div className="flex flex-col lg:flex-row items-center gap-4">
+            <div className="flex items-center gap-2 w-full lg:flex-1">
               <LinkIcon className="h-4 w-4 text-gray-400" />
               <Input
                 type="url"
                 value={submissionLink}
                 onChange={(e) => setSubmissionLink(e.target.value)}
                 placeholder="과제 링크 (GitHub, CodeSandbox, CodePen 등)"
-                className="bg-[#1C1F2B] border-gray-700"
+                className="bg-[#1C1F2B] border-gray-700 w-full"
                 required
               />
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 w-full lg:w-auto">
               <ImageIcon className="h-5 w-5 text-gray-400" />
               <Input
                 type="file"
                 accept="image/*"
                 onChange={handleImageChange}
                 ref={fileInputRef}
-                className="bg-[#1C1F2B] border-gray-700 file:text-white file:cursor-pointer file:hover:text-gray-700 file:transition-colors file:duration-300"
+                className="bg-[#1C1F2B] border-gray-700 file:text-white file:cursor-pointer file:hover:text-gray-700 file:transition-colors file:duration-300 w-full"
               />
               <div className="h-14 w-14 rounded-lg border border-gray-700 flex items-center justify-center shrink-0 relative group">
                 {imagePreview ? (
@@ -143,6 +143,11 @@ export function AssignmentSubmissionForm({
                 )}
               </div>
             </div>
+          </div>
+          <div className="flex justify-end">
+            <p className="text-xs text-gray-400">
+              3MB 이하의 이미지 파일만 업로드 가능합니다.
+            </p>
           </div>
           <div className="flex gap-2">
             <Textarea
