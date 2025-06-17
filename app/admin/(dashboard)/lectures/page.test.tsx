@@ -6,7 +6,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import LecturesPage from "./page";
 import { useChallengeStore } from "@/lib/store/useChallengeStore";
-import { getLecturesByChallenge, deleteLecture } from "@/apis/lectures";
+import { deleteLecture } from "@/apis/lectures";
 
 // ─── Jest 모킹 설정 ──────────────────────────────────────────────────────────
 
