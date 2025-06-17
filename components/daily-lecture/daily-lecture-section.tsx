@@ -11,14 +11,12 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { PlayCircle, Lock, Calendar } from "lucide-react";
-import { Lecture, LectureWithSequence } from "@/types/lecture";
+import { LectureWithSequence } from "@/types/lecture";
 import { useSelectedLectureStore } from "@/lib/store/useSelectedLectureStore";
 import { isLectureOpen } from "@/utils/date/serverTime";
 
-type UnifiedLecture = Lecture | LectureWithSequence;
-
 interface DailyLectureSectionProps {
-  lectures: UnifiedLecture[];
+  lectures: LectureWithSequence[];
   isActiveChallenge: boolean;
 }
 
