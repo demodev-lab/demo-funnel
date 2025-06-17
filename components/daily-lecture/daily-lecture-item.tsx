@@ -2,13 +2,11 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Lock, Calendar } from "lucide-react";
 import { getUploadTypeFromUrl, getVideoThumbnailUrl } from "@/utils/youtube";
-import { Lecture, LectureWithSequence } from "@/types/lecture";
+import { LectureWithSequence } from "@/types/lecture";
 import { isLectureOpen } from "@/utils/date/serverTime";
 
-type UnifiedLecture = Lecture | LectureWithSequence;
-
 interface DailyLectureItemProps {
-  dailyLecture: UnifiedLecture;
+  dailyLecture: LectureWithSequence;
   onLockedClick: (title: string) => void;
   onVideoSelect: (index: number) => void;
   videoIndex: number;
