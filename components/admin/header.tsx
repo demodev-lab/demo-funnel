@@ -1,14 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Menu, Bell, Calendar } from "lucide-react";
+import { Menu, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
 import { createClient } from "@/utils/supabase/client";
@@ -16,6 +9,7 @@ import { usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { getChallenges } from "@/apis/challenges";
 import { useChallengeStore } from "@/lib/store/useChallengeStore";
+import CohortSelector from "@/components/common/cohort-selector";
 
 // 기수와 날짜 정보를 담은 타입 정의
 type CohortInfo = {
@@ -109,43 +103,24 @@ export default function Header() {
 
           {showCohortSelector && selectedCohort && (
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 bg-[#252A3C]  px-3 rounded-lg border border-gray-700/30">
-                <div className="text-white font-semibold text-sm">
-                  현재 기수
-                </div>
-                <Select
-                  value={String(selectedChallengeId)}
-                  onValueChange={(value) => {
-                    setSelectedChallengeId(Number(value));
-                    const challenge = challenges.find(
-                      (c) => String(c.id) === value,
-                    );
-                    if (challenge) {
-                      setSelectedCohort({
-                        id: String(challenge.id),
-                        name: challenge.name,
-                        startDate: new Date(challenge.start_date || Date.now()),
-                        endDate: new Date(challenge.end_date || Date.now()),
-                      });
-                    }
-                  }}
-                >
-                  <SelectTrigger className="w-[120px] border-0 bg-transparent focus:ring-0 text-white">
-                    <SelectValue placeholder="기수 선택" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-[#252A3C] border border-gray-700/50 text-white min-w-[160px]">
-                    {challenges.map((challenge) => (
-                      <SelectItem
-                        key={String(challenge.id)}
-                        value={String(challenge.id)}
-                        className="hover:bg-[#1C1F2B] text-white"
-                      >
-                        {challenge.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              <CohortSelector
+                challengeList={challenges}
+                value={String(selectedChallengeId)}
+                onValueChange={(value) => {
+                  setSelectedChallengeId(Number(value));
+                  const challenge = challenges.find(
+                    (c) => String(c.id) === value,
+                  );
+                  if (challenge) {
+                    setSelectedCohort({
+                      id: String(challenge.id),
+                      name: challenge.name,
+                      startDate: new Date(challenge.start_date || Date.now()),
+                      endDate: new Date(challenge.end_date || Date.now()),
+                    });
+                  }
+                }}
+              />
 
               <div className="hidden md:flex items-center text-sm text-gray-400 px-3 py-1.5 ">
                 <Calendar className="h-4 w-4 mr-2 text-[#8C7DFF]" />
