@@ -3,7 +3,7 @@
 import { useState } from "react";
 import PageTitle from "@/components/ui/page-title";
 import SearchFilter from "@/components/admin/course-info/search-filter";
-import MainContent from "@/components/admin/course-info/main-content";
+import CourseInfoTable from "@/components/admin/course-info-table";
 
 export default function CourseInfoPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -18,10 +18,12 @@ export default function CourseInfoPage() {
         showCompletedOnly={showCompletedOnly}
         onCompletedChange={setShowCompletedOnly}
       />
-      <MainContent
-        searchQuery={searchQuery}
-        showCompletedOnly={showCompletedOnly}
-      />
+      <div className="bg-[#252A3C] border border-gray-700/30 rounded-xl overflow-hidden shadow-lg">
+        <CourseInfoTable
+          searchQuery={searchQuery}
+          showCompletedOnly={showCompletedOnly}
+        />
+      </div>
     </div>
   );
 }
