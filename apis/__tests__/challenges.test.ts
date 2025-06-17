@@ -98,6 +98,11 @@ describe("Challenges API", () => {
       };
 
       const mockResponse = { id: 1, ...mockUpdate };
+      const mockLectures = [
+        { id: 1, sequence: 1 },
+        { id: 2, sequence: 2 },
+      ];
+
       (supabase.from as jest.Mock).mockImplementation((table) => {
         if (table === "Challenges") {
           return {
@@ -108,6 +113,17 @@ describe("Challenges API", () => {
               data: mockResponse,
               error: null,
             }),
+          };
+        }
+        if (table === "ChallengeLectures") {
+          return {
+            select: jest.fn().mockReturnThis(),
+            eq: jest.fn().mockReturnThis(),
+            order: jest.fn().mockResolvedValue({
+              data: mockLectures,
+              error: null,
+            }),
+            update: jest.fn().mockReturnThis(),
           };
         }
         return {};
