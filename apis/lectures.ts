@@ -515,6 +515,7 @@ export async function getLecturesByChallenge(
         `
         lecture_id,
         sequence,
+        open_at,
         Lectures (
           id,
           name,
@@ -546,6 +547,7 @@ export async function getLecturesByChallenge(
         created_at: item.Lectures.created_at,
         updated_at: item.Lectures.updated_at,
         sequence: item.sequence,
+        open_at: item.open_at,
         assignment_title: item.Lectures.Assignments?.[0]?.title || "",
         assignment: item.Lectures.Assignments?.[0]?.contents || "",
       })) || [];
