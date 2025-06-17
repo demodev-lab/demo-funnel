@@ -1,6 +1,6 @@
 "use client";
 
-import { BarChart3, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import SummaryCards from "./summary-cards";
 import DetailedStats from "./detailed-stats";
 import { useQuery } from "@tanstack/react-query";
@@ -18,14 +18,6 @@ export default function DashboardPage() {
       queryFn: async () => {
         const data = await getAssignmentStats(selectedChallengeId);
         return data;
-        // TEST: MSW로 확인
-        // const response = await fetch(
-        //   `/api/admin/assignments/stats/${selectedChallengeId}`,
-        // );
-        // if (!response.ok) {
-        //   throw new Error("과제 통계 조회에 실패했습니다.");
-        // }
-        // return response.json();
       },
       enabled: !!selectedChallengeId,
     });
@@ -42,14 +34,6 @@ export default function DashboardPage() {
       queryFn: async () => {
         const data = await getAssignmentStats(previousChallengeId);
         return data;
-        // TEST: MSW로 확인
-        //   const response = await fetch(
-        //     `/api/admin/assignments/stats/${previousChallengeId}`,
-        //   );
-        //   if (!response.ok) {
-        //     throw new Error("과제 통계 조회에 실패했습니다.");
-        //   }
-        //   return response.json();
       },
       enabled: !!previousChallengeId,
     });
@@ -57,7 +41,6 @@ export default function DashboardPage() {
   const {
     currentValue: currentTotalStudent,
     formattedChange: totalStudentChange,
-    lastUpdated,
   } = usePeriodComparison(
     currentAssignmentState,
     previousAssignmentState,
@@ -81,17 +64,11 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col min-h-screen">
       <div className="p-6 md:p-8 space-y-6 animate-fade-in">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <h1 className="text-2xl md:text-3xl font-bold">
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#5046E4] to-[#8C7DFF]">
-              demo-funnel 관리자 대시보드
-            </span>
-          </h1>
-          <div className="text-sm text-gray-400 bg-[#252A3C] px-3 py-1.5 rounded-lg border border-gray-700/30 inline-flex items-center">
-            <BarChart3 className="h-4 w-4 mr-2 text-[#8C7DFF]" />
-            최근 업데이트: {lastUpdated}
-          </div>
-        </div>
+        <h1 className="text-2xl md:text-3xl font-bold">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#5046E4] to-[#8C7DFF]">
+            demo-funnel 관리자 대시보드
+          </span>
+        </h1>
 
         {isLoading ? (
           <div className="flex justify-center items-center py-8">
