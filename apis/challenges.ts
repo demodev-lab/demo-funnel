@@ -48,6 +48,37 @@ export async function updateChallenge(
     if (error) throw error;
     if (!updatedChallenge) throw new Error("챌린지를 찾을 수 없습니다.");
 
+    // 챌린지의 open_date가 변경되었는지 확인
+    if (data.open_date) {
+      // 해당 챌린지의 모든 강의 조회
+      const { data: lectures, error: lectureError } = await supabase
+        .from("ChallengeLectures")
+        .select("*")
+        .eq("challenge_id", id)
+        .order("sequence", { ascending: true });
+
+      if (lectureError) throw lectureError;
+
+      // 각 강의의 날짜 업데이트
+      for (const lecture of lectures) {
+        const openAt = new Date(data.open_date);
+        openAt.setDate(openAt.getDate() + (lecture.sequence - 1));
+
+        const dueAt = new Date(openAt);
+        dueAt.setDate(dueAt.getDate() + 1);
+
+        const { error: updateError } = await supabase
+          .from("ChallengeLectures")
+          .update({
+            open_at: openAt.toISOString(),
+            due_at: dueAt.toISOString(),
+          })
+          .eq("id", lecture.id);
+
+        if (updateError) throw updateError;
+      }
+    }
+
     return updatedChallenge;
   } catch (error) {
     handleError(error, "챌린지 수정 중 오류가 발생했습니다.");
