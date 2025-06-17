@@ -149,14 +149,6 @@ export default function ClassPage({
                 router.replace(`/class/${value}`);
               }}
             />
-          <div className="flex justify-end w-full px-6 py-4">
-            <CohortSelector
-              challengeList={challengeList}
-              value={String(challengeId)}
-              onValueChange={(value) => {
-                router.replace(`/class/${value}`);
-              }}
-            />
           </div>
 
           <div>
