@@ -4,13 +4,19 @@ export async function POST(request: Request) {
   try {
     const data = await request.json();
 
+    // wantCoffeeChat 값을 'O'/'X'로 변환
+    const transformedData = {
+      ...data,
+      wantCoffeeChat: data.wantCoffeeChat ? "O" : "X",
+    };
+
     const response = await fetch(
       // TODO 회사 스프레드 시트랑 연동 필
       "https://script.google.com/macros/s/AKfycbxMDzoFq2FuMk1sz2h_af5d_u6z_6Oku2P0xZq-IBuD1tB92ZyVJE4jZchdLTBG86ax/exec",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(transformedData),
       },
     );
 

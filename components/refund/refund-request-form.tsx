@@ -21,7 +21,7 @@ export interface RefundFormData {
   email: string;
   account: string;
   assignmentLink: string;
-  wantsCoffeeChat: boolean;
+  wantCoffeeChat: boolean;
   coffeeChatContent: string;
   futureContent: string;
 }
@@ -41,7 +41,7 @@ export function RefundRequestForm({
     email: user?.email ?? "",
     phone: user?.phone ?? "",
     assignmentLink: "",
-    wantsCoffeeChat: false,
+    wantCoffeeChat: false,
     coffeeChatContent: "",
     futureContent: "",
   });
@@ -166,9 +166,9 @@ export function RefundRequestForm({
         <div className="flex items-center space-x-2">
           <Switch
             id="wantsCoffeeChat"
-            checked={formData.wantsCoffeeChat}
+            checked={formData.wantCoffeeChat}
             onCheckedChange={(checked) =>
-              setFormData({ ...formData, wantsCoffeeChat: checked })
+              setFormData({ ...formData, wantCoffeeChat: checked })
             }
             className="data-[state=checked]:bg-[#5046E4] bg-gray-700"
           />
@@ -176,7 +176,7 @@ export function RefundRequestForm({
           <span className="text-red-500 ml-1">*</span>
         </div>
 
-        {formData.wantsCoffeeChat && (
+        {formData.wantCoffeeChat && (
           <div>
             <Label htmlFor="coffeeChatContent">
               1대1 커피챗 다루고 싶은 내용
