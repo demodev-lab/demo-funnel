@@ -10,8 +10,8 @@ import { getUserLectures, getLecturesByChallenge } from "@/apis/lectures";
 import { Lecture, LectureWithSequence } from "@/types/lecture";
 import { useSelectedLectureStore } from "@/lib/store/useSelectedLectureStore";
 import { checkIsTodayLecture } from "@/utils/date/serverTime";
-import Header from "@/components/header";
 import { getUserChallenges } from "@/apis/challenges";
+import CohortSelector from "@/components/common/cohort-selector";
 import { RefundRequestButton } from "@/components/refund/refund-request-button";
 import { useRefundStatus } from "@/hooks/useRefundStatus";
 
@@ -141,8 +141,14 @@ export default function ClassPage({
             </h1>
           </div>
 
-          <div className="flex justify-end w-full">
-            <Header challengeList={challengeList} />
+          <div className="flex justify-end w-full px-6 py-4">
+            <CohortSelector
+              challengeList={challengeList}
+              value={String(challengeId)}
+              onValueChange={(value) => {
+                router.replace(`/class/${value}`);
+              }}
+            />
           </div>
 
           <div>
