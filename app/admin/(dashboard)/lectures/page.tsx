@@ -52,7 +52,6 @@ export default function LecturesPage() {
       setSelectedLecture(null);
       setIsOpen(false);
     } catch (error) {
-      console.error("강의 삭제 실패:", error);
       toast.error("강의 삭제에 실패했습니다.");
     } finally {
       setIsDeleting(false);

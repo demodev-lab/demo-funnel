@@ -39,7 +39,7 @@ jest.mock("@/components/admin/course-info/search-filter", () => {
   };
 });
 
-jest.mock("@/components/admin/course-info/main-content", () => {
+jest.mock("@/components/admin/course-info-table", () => {
   return function MockMainContent({
     searchQuery,
     showCompletedOnly,

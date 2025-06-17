@@ -190,38 +190,36 @@ export default function StudentFormDialog({
             </Select>
 
             {selectedChallenges.length > 0 && (
-              <div className="mt-2 space-y-2">
-                <div className="flex flex-wrap gap-2">
-                  {selectedChallenges.map((challengeId) => {
-                    const challenge = challenges.find(
-                      (c) => c.id === challengeId,
-                    );
-                    return (
-                      <div
-                        key={challengeId}
-                        className="flex items-center gap-2"
+              <div key="selected-challenges-outer" className="mt-2 space-y-2">
+                {selectedChallenges.map((challengeId) => {
+                  const challenge = challenges.find(
+                    (c) => c.id === challengeId,
+                  );
+                  return (
+                    <div
+                      key={`challenge-${challengeId}`}
+                      className="flex items-center gap-2"
+                    >
+                      <span className="text-sm text-gray-500">
+                        {challenge?.name}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-4 w-4"
+                        onClick={() => {
+                          setSelectedChallenges(
+                            selectedChallenges.filter(
+                              (id) => id !== challengeId,
+                            ),
+                          );
+                        }}
                       >
-                        <span className="text-sm text-gray-500">
-                          {challenge?.name}
-                        </span>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-4 w-4"
-                          onClick={() => {
-                            setSelectedChallenges(
-                              selectedChallenges.filter(
-                                (id) => id !== challengeId,
-                              ),
-                            );
-                          }}
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    );
-                  })}
-                </div>
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
