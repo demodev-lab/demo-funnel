@@ -1,4 +1,3 @@
-import Header from "@/components/admin/header";
 import StudentList from "@/components/admin/student-list";
 import PageTitle from "@/components/ui/page-title";
 
