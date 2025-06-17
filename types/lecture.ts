@@ -38,6 +38,7 @@ export interface LectureData {
 export interface ChallengeLectures {
   lecture_id: number;
   sequence: number;
+  open_at: string;
   Lectures: {
     id: number;
     name: string;
