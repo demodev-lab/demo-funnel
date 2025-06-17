@@ -63,13 +63,7 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <div className="p-6 md:p-8 space-y-6 animate-fade-in">
-        <h1 className="text-2xl md:text-3xl font-bold">
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#5046E4] to-[#8C7DFF]">
-            demo-funnel 관리자 대시보드
-          </span>
-        </h1>
-
+      <div className=" space-y-6 animate-fade-in">
         {isLoading ? (
           <div className="flex justify-center items-center py-8">
             <Loader2 className="h-8 w-8 animate-spin text-[#8C7DFF]" />

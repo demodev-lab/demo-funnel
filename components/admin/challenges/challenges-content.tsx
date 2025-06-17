@@ -8,7 +8,6 @@ import AddChallengeDialog from "./add-challenge-dialog";
 import EditChallengeDialog from "./edit-challenge-dialog";
 import InfoTable from "@/components/admin/info-table";
 import { Button } from "@/components/ui/button";
-import PageTitle from "@/components/ui/page-title";
 import {
   ChallengesState,
   ChallengesStatus,
@@ -82,7 +81,6 @@ export default function ChallengesContent({
 
   return (
     <div className="space-y-4">
-      <PageTitle title="챌린지 관리" />
       <div className="flex justify-end">
         <AddChallengeDialog
           isOpen={dialog.isAddDialogOpen}

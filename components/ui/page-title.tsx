@@ -1,8 +1,23 @@
-export default function PageTitle({ title }: { title: string }) {
+"use client";
+
+import { usePathname } from "next/navigation";
+import { ADMIN_TITLE } from "@/constants/admin-title";
+
+type AdminTitleKey = keyof typeof ADMIN_TITLE;
+
+export default function PageTitle({ title }: { title?: string }) {
+  const pathname = usePathname();
+  const getAdminTitle = () => {
+    if (title) return title;
+
+    const path = pathname.split("/").pop()?.toUpperCase() as AdminTitleKey;
+    return ADMIN_TITLE[path] || "관리자";
+  };
+
   return (
     <h1 className="text-2xl font-bold">
       <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#5046E4] to-[#8C7DFF]">
-        {title}
+        {getAdminTitle()}
       </span>
     </h1>
   );

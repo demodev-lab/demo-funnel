@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import PageTitle from "@/components/ui/page-title";
 import SearchFilter from "@/components/admin/course-info/search-filter";
 import CourseInfoTable from "@/components/admin/course-info-table";
 
@@ -11,7 +10,6 @@ export default function CourseInfoPage() {
 
   return (
     <div className="space-y-4">
-      <PageTitle title="수강 정보 관리" />
       <SearchFilter
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
