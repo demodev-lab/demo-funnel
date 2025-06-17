@@ -10,7 +10,6 @@ interface DailyLectureItemProps {
   onLockedClick: (title: string) => void;
   onVideoSelect: (index: number) => void;
   videoIndex: number;
-  isActiveChallenge: boolean;
 }
 
 export default function DailyLectureItem({
@@ -18,13 +17,12 @@ export default function DailyLectureItem({
   onLockedClick,
   onVideoSelect,
   videoIndex,
-  isActiveChallenge,
 }: DailyLectureItemProps) {
   const [isLocked, setIsLocked] = useState(false);
 
   useEffect(() => {
     const checkLockStatus = async () => {
-      if (isActiveChallenge && "open_at" in dailyLecture) {
+      if ("open_at" in dailyLecture) {
         const locked = !(await isLectureOpen(dailyLecture.open_at));
         setIsLocked(locked);
       } else {
@@ -32,7 +30,7 @@ export default function DailyLectureItem({
       }
     };
     checkLockStatus();
-  }, [dailyLecture, isActiveChallenge]);
+  }, [dailyLecture]);
 
   return (
     <div
