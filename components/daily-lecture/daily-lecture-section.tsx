@@ -148,7 +148,7 @@ export default function DailyLectureSection({
               <div
                 key={lecture.id}
                 className="group"
-                onClick={() => onSelectedLecture(lecture as Lecture)}
+                onClick={() => onSelectedLecture(lecture as LectureWithSequence)}
               >
                 <DailyLectureItem
                   dailyLecture={lecture}

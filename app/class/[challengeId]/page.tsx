@@ -6,14 +6,15 @@ import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import DailyLectureSection from "@/components/daily-lecture/daily-lecture-section";
 import { AssignmentSubmissionSection } from "@/components/daily-assignment/assignment-submission-section";
-import { getUserLectures, getLecturesByChallenge } from "@/apis/lectures";
-import { Lecture, LectureWithSequence } from "@/types/lecture";
+import { getLecturesByChallenge } from "@/apis/lectures";
+import { LectureWithSequence } from "@/types/lecture";
 import { useSelectedLectureStore } from "@/lib/store/useSelectedLectureStore";
 import { checkIsTodayLecture } from "@/utils/date/serverTime";
 import { getUserChallenges } from "@/apis/challenges";
 import CohortSelector from "@/components/common/cohort-selector";
 import { RefundRequestButton } from "@/components/refund/refund-request-button";
 import { useRefundStatus } from "@/hooks/useRefundStatus";
+import { Loader2 } from "lucide-react";
 
 export default function ClassPage({
   params,
@@ -37,38 +38,17 @@ export default function ClassPage({
     staleTime: 1000 * 60 * 5, // 5분 동안 캐시 유지
   });
 
-  // 진행 중인 챌린지의 강의 조회
-  const { data: activeLectures = [] } = useQuery<Lecture[]>({
-    queryKey: ["daily-lectures", user?.id],
-    queryFn: async () => {
-      if (!user?.id) return [];
-      const data = await getUserLectures(user.id);
-      return data as unknown as Lecture[];
-    },
-    enabled: !isLoadingUser && !!user?.id,
-  });
-
-  // 종료된 챌린지의 강의 조회
-  const { data: completedLectures = [] } = useQuery<LectureWithSequence[]>({
+  // 챌린지의 강의 조회
+  const { data: lectures = [] } = useQuery<LectureWithSequence[]>({
     queryKey: ["challenge-lectures", currentChallengeId],
     queryFn: async () => {
       const data = await getLecturesByChallenge(currentChallengeId);
       return data;
     },
-    enabled:
-      !isLoadingUser &&
-      !!user?.id &&
-      !activeLectures.some(
-        (lecture) => Number(lecture.challenge_id) === currentChallengeId,
-      ),
+    enabled: !isLoadingUser && !!user?.id,
   });
 
-  const lectures = activeLectures.some(
-    (lecture) => Number(lecture.challenge_id) === currentChallengeId,
-  )
-    ? activeLectures
-    : completedLectures;
-  const hasActiveChallenge = activeLectures.some(
+  const hasActiveChallenge = lectures.some(
     (lecture) => Number(lecture.challenge_id) === currentChallengeId,
   );
 
@@ -100,13 +80,13 @@ export default function ClassPage({
           if ("open_at" in lecture) {
             const isToday = await checkIsTodayLecture(lecture.open_at);
             if (isToday && isMounted) {
-              onSelectedLecture(lecture as Lecture);
+              onSelectedLecture(lecture as LectureWithSequence);
               return;
             }
           }
         }
         if (isMounted) {
-          onSelectedLecture(lectures[0] as Lecture);
+          onSelectedLecture(lectures[0] as LectureWithSequence);
         }
       };
 
@@ -119,7 +99,11 @@ export default function ClassPage({
   }, [user, isLoadingUser, router, lectures]);
 
   if (isLoadingUser) {
-    return <div>로딩 중...</div>;
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-[#8C7DFF]" />
+      </div>
+    );
   }
 
   if (!user) {
