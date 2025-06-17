@@ -28,6 +28,26 @@ jest.mock("@tanstack/react-query", () => {
     useQuery: jest.fn(),
   };
 });
+
+// Dialog 관련 경고 무시 설정
+const originalError = console.error;
+const originalWarn = console.warn;
+beforeAll(() => {
+  console.error = (...args) => {
+    if (args[0]?.includes("Warning: Missing `Description`")) return;
+    originalError.call(console, ...args);
+  };
+  console.warn = (...args) => {
+    if (args[0]?.includes("Warning: Missing `Description`")) return;
+    originalWarn.call(console, ...args);
+  };
+});
+
+afterAll(() => {
+  console.error = originalError;
+  console.warn = originalWarn;
+});
+
 // getUserChallenges 모킹: 항상 [dummyChallengeId] 반환 (id만 반환)
 jest.mock("@/apis/challenges", () => ({
   getUserChallenges: jest.fn().mockResolvedValue([42]),
