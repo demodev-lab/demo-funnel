@@ -1,5 +1,4 @@
 import { DashboardAssignmentStat } from "@/types/assignment";
-import { useEffect, useRef, useState } from "react";
 
 interface ComparisonResult {
   currentValue: number | undefined;
@@ -7,7 +6,6 @@ interface ComparisonResult {
   percentageChange: number | undefined;
   isPositive: boolean;
   formattedChange: { value: string; isPositive: boolean } | undefined;
-  lastUpdated: string;
 }
 
 export function usePeriodComparison(
@@ -16,9 +14,6 @@ export function usePeriodComparison(
   isFirstPeriod: boolean,
   type: "totalStudents" | "submissionRate"
 ): ComparisonResult {
-  const [lastUpdated, setLastUpdated] = useState<string>("");
-  const previousDataRef = useRef<string>("");
-
   // 현재 기수 값 계산
   const currentValue = currentData?.[0]?.totalParticipants;
 
@@ -87,29 +82,11 @@ export function usePeriodComparison(
         }
       : undefined;
 
-  // 데이터 변경 감지 및 lastUpdated 업데이트
-  useEffect(() => {
-    const currentDataString = JSON.stringify({
-      currentValue,
-      currentRate,
-      previousValue,
-      previousRate,
-    });
-
-    if (currentDataString !== previousDataRef.current) {
-      const now = new Date();
-      const formattedDate = `${now.getFullYear()}년 ${String(now.getMonth() + 1).padStart(2, '0')}월 ${String(now.getDate()).padStart(2, '0')}일`;
-      setLastUpdated(formattedDate);
-      previousDataRef.current = currentDataString;
-    }
-  }, [currentValue, currentRate, previousValue, previousRate]);
-
   return {
     currentValue: type === "submissionRate" ? Number(currentRate) : currentValue,
     previousValue: type === "submissionRate" ? Number(previousRate) : previousValue,
     percentageChange,
     isPositive,
     formattedChange,
-    lastUpdated,
   };
 } 
