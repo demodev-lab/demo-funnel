@@ -48,10 +48,6 @@ export default function ClassPage({
     enabled: !isLoadingUser && !!user?.id,
   });
 
-  const hasActiveChallenge = lectures.some(
-    (lecture) => Number(lecture.challenge_id) === currentChallengeId,
-  );
-
   const onSelectedLecture = useSelectedLectureStore(
     (state) => state.setSelectedLecture,
   );
@@ -72,31 +68,29 @@ export default function ClassPage({
       return;
     }
 
-    if (lectures && lectures.length > 0) {
-      let isMounted = true;
+    let isMounted = true;
 
-      const findTodayLecture = async () => {
-        for (const lecture of lectures) {
-          if ("open_at" in lecture) {
-            const isToday = await checkIsTodayLecture(lecture.open_at);
-            if (isToday && isMounted) {
-              onSelectedLecture(lecture as LectureWithSequence);
-              return;
-            }
-          }
+    const checkTodayLecture = async () => {
+      for (let i = lectures.length - 1; i >= 0; i--) {
+        const lecture = lectures[i];
+        const isToday = await checkIsTodayLecture(lecture.open_at);
+        if (isToday && isMounted) {
+          onSelectedLecture(lecture as LectureWithSequence);
+          return;
         }
-        if (isMounted) {
-          onSelectedLecture(lectures[0] as LectureWithSequence);
-        }
-      };
+      }
 
-      findTodayLecture();
+      if (isMounted && lectures.length > 0) {
+        onSelectedLecture(lectures[0] as LectureWithSequence);
+      }
+    };
 
-      return () => {
-        isMounted = false;
-      };
-    }
-  }, [user, isLoadingUser, router, lectures]);
+    checkTodayLecture();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [lectures, onSelectedLecture]);
 
   if (isLoadingUser) {
     return (
@@ -138,10 +132,7 @@ export default function ClassPage({
           <div>
             <div className="bg-gradient-to-br from-[#252A3C] to-[#2A2F45] rounded-xl overflow-hidden shadow-lg border border-gray-700/50">
               <div className="transition-all duration-300 hover:brightness-105">
-                <DailyLectureSection
-                  lectures={lectures}
-                  isActiveChallenge={hasActiveChallenge}
-                />
+                <DailyLectureSection lectures={lectures} />
               </div>
 
               <AssignmentSubmissionSection userInfo={user} />

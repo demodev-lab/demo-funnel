@@ -17,12 +17,10 @@ import { isLectureOpen } from "@/utils/date/serverTime";
 
 interface DailyLectureSectionProps {
   lectures: LectureWithSequence[];
-  isActiveChallenge: boolean;
 }
 
 export default function DailyLectureSection({
   lectures,
-  isActiveChallenge,
 }: DailyLectureSectionProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [selectedVideoIdx, setSelectedVideoIdx] = useState(0);
@@ -52,7 +50,7 @@ export default function DailyLectureSection({
       try {
         if (lectures[selectedVideoIdx]) {
           const isLocked =
-            isActiveChallenge && "open_at" in lectures[selectedVideoIdx]
+            "open_at" in lectures[selectedVideoIdx]
               ? !(await isLectureOpen(lectures[selectedVideoIdx].open_at))
               : false;
           setMainLecture({
@@ -70,7 +68,7 @@ export default function DailyLectureSection({
       }
     };
     updateMainLecture();
-  }, [lectures, selectedVideoIdx, isActiveChallenge]);
+  }, [lectures, selectedVideoIdx]);
 
   const onSelectedLecture = useSelectedLectureStore(
     (state) => state.setSelectedLecture,
@@ -156,7 +154,6 @@ export default function DailyLectureSection({
                   onLockedClick={handleLockedClick}
                   onVideoSelect={handleVideoSelect}
                   videoIndex={index}
-                  isActiveChallenge={isActiveChallenge}
                 />
                 <div
                   className={`mt-2 h-1 bg-gradient-to-r from-[#5046E4] to-[#8C7DFF] rounded-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ${
