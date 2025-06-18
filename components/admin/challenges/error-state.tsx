@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/common/button";
 import { CHALLENGE_MESSAGES } from "@/constants/challenge";
 
 interface ErrorStateProps {

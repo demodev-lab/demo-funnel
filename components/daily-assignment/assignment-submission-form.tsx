@@ -1,17 +1,17 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/common/button";
 import { Send, LinkIcon, ImageIcon } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/common/input";
+import { Textarea } from "@/components/common/textarea";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { createSubmission } from "@/apis/assignments";
 import { userInfo } from "@/types/user";
 import AssignmentConfetti from "./assignment-confetti";
 import { validateFileSize } from "@/utils/files";
-import { ImagePreview } from "@/components/ui/image-preview";
+import { ImagePreview } from "@/components/common/image-preview";
 
 interface AssignmentSubmissionFormProps {
   userInfo: userInfo;

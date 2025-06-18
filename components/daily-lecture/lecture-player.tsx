@@ -1,7 +1,11 @@
 import Image from "next/image";
-import { Play, Pause } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { getVideoThumbnailUrl, getYouTubeEmbedUrl } from "@/utils/youtube";
+import { Play, Pause, Bookmark, Share2 } from "lucide-react";
+import { Button } from "@/components/common/button";
+import {
+  getUploadTypeFromUrl,
+  getVideoThumbnailUrl,
+  getYouTubeEmbedUrl,
+} from "@/utils/youtube";
 
 interface LecturePlayerProps {
   title: string;
