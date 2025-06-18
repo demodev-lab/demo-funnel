@@ -1,7 +1,7 @@
 "use client";
 
 import { use, useEffect } from "react";
-import { useUser } from "@/hooks/auth/use-user";
+import { useUser } from "@/hooks/auth/useUser";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { getUserLectures, getLecturesByChallenge } from "@/apis/lectures";
@@ -10,7 +10,7 @@ import { useSelectedLectureStore } from "@/lib/store/useSelectedLectureStore";
 import { checkIsTodayLecture } from "@/utils/date/serverTime";
 import { getUserChallenges } from "@/apis/challenges";
 import CohortSelector from "@/components/common/cohort-selector";
-import { useRefundStatus } from "@/hooks/useRefundStatus";
+import { useRefundStatus } from "@/hooks/class/useRefundStatus";
 import { AssignmentSubmissionSection } from "@/components/class/assignment-submission-section";
 import DailyLectureSection from "@/components/class/daily-lecture-section";
 import { RefundRequestButton } from "@/components/class/refund-request-button";
