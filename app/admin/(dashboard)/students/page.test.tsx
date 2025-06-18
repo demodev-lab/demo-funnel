@@ -4,7 +4,7 @@ import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import StudentList from "../../../../components/admin/student-list";
+import StudentList from "../../../../components/admin/studentList";
 
 // 훅 및 스토어 모킹
 import {

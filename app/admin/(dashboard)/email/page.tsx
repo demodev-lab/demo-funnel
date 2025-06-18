@@ -1,4 +1,4 @@
-import EmailSender from "@/components/admin/email-sender";
+import EmailSender from "@/components/admin/emailSender";
 
 export default function EmailPage() {
   return (

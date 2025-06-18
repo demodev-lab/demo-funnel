@@ -3,7 +3,7 @@
 import { Button } from "@/components/common/button";
 import { Student } from "@/types/user";
 import { Loader2 } from "lucide-react";
-import InfoTable from "@/components/admin/info-table";
+import InfoTable from "@/components/admin/infoTable";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 
 interface StudentTableProps {

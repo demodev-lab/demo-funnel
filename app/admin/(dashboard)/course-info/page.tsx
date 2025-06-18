@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import SearchFilter from "@/components/admin/course-info/search-filter";
-import CourseInfoTable from "@/components/admin/course-info-table";
+import CourseInfoTable from "@/components/admin/courseInfoTable";
 
 export default function CourseInfoPage() {
   const [searchQuery, setSearchQuery] = useState("");

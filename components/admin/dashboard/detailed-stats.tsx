@@ -4,7 +4,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/common/tabs";
-import EnrollmentRateDashboard from "@/components/admin/enrollment-rate-dashboard";
+import EnrollmentRateDashboard from "@/components/admin/enrollmentRateDashboard";
 import { DashboardAssignmentStat } from "@/types/assignment";
 
 interface DetailedStatsProps {
