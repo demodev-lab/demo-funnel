@@ -5,7 +5,8 @@ import { Input } from "@/components/common/input";
 import { Label } from "@/components/common/label";
 import { Textarea } from "@/components/common/textarea";
 import { Switch } from "@/components/common/switch";
-import { useToast } from "@/components/common/use-toast";
+import { useToast } from "@/hooks/useToast";
+import { useUser } from "@/hooks/auth/useUser";
 import { updateRefundRequestStatus } from "@/apis/users";
 import { useQueryClient } from "@tanstack/react-query";
 
