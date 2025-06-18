@@ -28,7 +28,7 @@ import {
 import { useChallengeStore } from "@/lib/store/useChallengeStore";
 import { useStudentsByChallenge } from "@/hooks/useStudents";
 import { User } from "@/types/user";
-import { EMAIL_TEMPLATES } from "@/constants/email-templates";
+import { EMAIL_TEMPLATES } from "@/constants/emailTemplate";
 
 const emailLogs = [
   {
