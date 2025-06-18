@@ -9,7 +9,7 @@ import { AssignmentSubmissionSection } from "@/components/daily-assignment/assig
 import { getLecturesByChallenge } from "@/apis/lectures";
 import { LectureWithSequence } from "@/types/lecture";
 import { useSelectedLectureStore } from "@/lib/store/useSelectedLectureStore";
-import { checkIsTodayLecture } from "@/utils/date/serverTime";
+import { findTodayLectureIndex } from "@/utils/date/serverTime";
 import { getUserChallenges } from "@/apis/challenges";
 import CohortSelector from "@/components/common/cohort-selector";
 import { RefundRequestButton } from "@/components/refund/refund-request-button";
@@ -71,13 +71,11 @@ export default function ClassPage({
     let isMounted = true;
 
     const checkTodayLecture = async () => {
-      for (let i = lectures.length - 1; i >= 0; i--) {
-        const lecture = lectures[i];
-        const isToday = await checkIsTodayLecture(lecture.open_at);
-        if (isToday && isMounted) {
-          onSelectedLecture(lecture as LectureWithSequence);
-          return;
-        }
+      const todayIndex = await findTodayLectureIndex(lectures);
+
+      if (todayIndex !== -1 && isMounted) {
+        onSelectedLecture(lectures[todayIndex] as LectureWithSequence);
+        return;
       }
 
       if (isMounted && lectures.length > 0) {
