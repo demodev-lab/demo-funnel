@@ -14,7 +14,6 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { CheckCircle } from "lucide-react";
-
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { userLogin } from "@/apis/auth";
 import { getUserChallenges } from "@/apis/challenges";
