@@ -69,6 +69,8 @@ export default function LecturePlayer({
                     alt={title}
                     fill
                     className="w-full h-full object-cover"
+                    loading="eager"
+                    priority
                   />
                 )
               ) : (
