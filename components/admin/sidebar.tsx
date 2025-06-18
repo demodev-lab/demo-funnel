@@ -13,10 +13,10 @@ import {
   Trophy,
   ChevronRight,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { useMediaQuery } from "@/hooks/admin/use-media-query";
+import { Button } from "@/components/common/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/common/sheet";
 import { useAuth } from "@/hooks/admin/useAuth";
+import { useMediaQuery } from "@/hooks/admin/useMediaQuery";
 
 export default function Sidebar() {
   const { logout } = useAuth();

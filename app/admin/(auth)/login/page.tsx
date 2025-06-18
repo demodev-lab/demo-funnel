@@ -1,6 +1,6 @@
 import { login } from "@/app/admin/(auth)/login/actions";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/common/button";
+import { Input } from "@/components/common/input";
 import {
   Card,
   CardContent,
@@ -8,7 +8,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/components/common/card";
 
 export default function LoginPage() {
   return (
@@ -26,7 +26,9 @@ export default function LoginPage() {
 
         <Card className="border border-gray-700/50 bg-[#1C1F2B]/70 backdrop-blur-md shadow-xl rounded-xl overflow-hidden">
           <CardHeader className="space-y-1 border-b border-gray-700/50 bg-[#1A1D29]/50 pb-6">
-            <CardTitle className="text-xl font-bold text-white">관리자 로그인</CardTitle>
+            <CardTitle className="text-xl font-bold text-white">
+              관리자 로그인
+            </CardTitle>
             <CardDescription className="text-gray-400">
               계정 정보를 입력하여 관리자 대시보드에 접속하세요
             </CardDescription>
@@ -34,7 +36,10 @@ export default function LoginPage() {
           <form className="animate-slide-up">
             <CardContent className="space-y-4 pt-6">
               <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium text-gray-300">
+                <label
+                  htmlFor="email"
+                  className="text-sm font-medium text-gray-300"
+                >
                   이메일
                 </label>
                 <div className="relative">
@@ -53,12 +58,20 @@ export default function LoginPage() {
                     viewBox="0 0 24 24"
                     stroke="currentColor"
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    />
                   </svg>
                 </div>
               </div>
               <div className="space-y-2">
-                <label htmlFor="password" className="text-sm font-medium text-gray-300">
+                <label
+                  htmlFor="password"
+                  className="text-sm font-medium text-gray-300"
+                >
                   비밀번호
                 </label>
                 <div className="relative">
@@ -76,7 +89,12 @@ export default function LoginPage() {
                     viewBox="0 0 24 24"
                     stroke="currentColor"
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                    />
                   </svg>
                 </div>
               </div>

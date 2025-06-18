@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useInView } from "react-intersection-observer";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/common/button";
+import { Label } from "@/components/common/label";
+import { RadioGroup, RadioGroupItem } from "@/components/common/radio-group";
+import { Textarea } from "@/components/common/textarea";
 import { toast } from "sonner";
 import { sendEmails } from "@/apis/email";
 import { EmailTemplateType } from "@/types/email";
@@ -16,14 +16,19 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+} from "@/components/common/table";
+import { Checkbox } from "@/components/common/checkbox";
+import { Card, CardContent } from "@/components/common/card";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/common/tabs";
 import { useChallengeStore } from "@/lib/store/useChallengeStore";
 import { useStudentsByChallenge } from "@/hooks/useStudents";
 import { User } from "@/types/user";
-import { EMAIL_TEMPLATES } from "@/constants/email-templates";
+import { EMAIL_TEMPLATES } from "@/constants/emailTemplate";
 
 const emailLogs = [
   {

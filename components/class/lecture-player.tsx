@@ -1,16 +1,13 @@
 import Image from "next/image";
 import { Play, Pause, Bookmark, Share2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  getUploadTypeFromUrl,
-  getVideoThumbnailUrl,
-  getYouTubeEmbedUrl,
-} from "@/utils/youtube";
+import { Button } from "@/components/common/button";
+import { getVideoThumbnailUrl, getYouTubeEmbedUrl } from "@/utils/youtube";
 
 interface LecturePlayerProps {
   title: string;
   description: string;
   lectureUrl: string;
+  upload_type: number;
   isPlaying: boolean;
   onTogglePlay: () => void;
 }
@@ -19,11 +16,10 @@ export default function LecturePlayer({
   title,
   description,
   lectureUrl,
+  upload_type,
   isPlaying,
   onTogglePlay,
 }: LecturePlayerProps) {
-  const upload_type = getUploadTypeFromUrl(lectureUrl);
-
   return (
     <>
       <div className="p-4 md:p-6 bg-[#1A1D29]/80 backdrop-blur-sm">

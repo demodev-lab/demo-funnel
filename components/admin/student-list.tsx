@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/common/button";
 import { Plus, Upload, ArrowUpDown } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -26,7 +26,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/common/select";
 
 type SortOption = "default" | "name_asc" | "name_desc";
 
@@ -49,8 +49,8 @@ export default function StudentList() {
     sortOption === "default"
       ? undefined
       : sortOption === "name_asc"
-      ? "asc"
-      : "desc",
+        ? "asc"
+        : "desc",
   );
   const createStudentMutation = useCreateStudent();
   const updateStudentMutation = useUpdateStudent();

@@ -1,18 +1,15 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Lock, Calendar } from "lucide-react";
-import { getUploadTypeFromUrl, getVideoThumbnailUrl } from "@/utils/youtube";
-import { Lecture, LectureWithSequence } from "@/types/lecture";
+import { getVideoThumbnailUrl } from "@/utils/youtube";
+import { LectureWithSequence } from "@/types/lecture";
 import { isLectureOpen } from "@/utils/date/serverTime";
 
-type UnifiedLecture = Lecture | LectureWithSequence;
-
 interface DailyLectureItemProps {
-  dailyLecture: UnifiedLecture;
+  dailyLecture: LectureWithSequence;
   onLockedClick: (title: string) => void;
   onVideoSelect: (index: number) => void;
   videoIndex: number;
-  isActiveChallenge: boolean;
 }
 
 export default function DailyLectureItem({
@@ -20,14 +17,12 @@ export default function DailyLectureItem({
   onLockedClick,
   onVideoSelect,
   videoIndex,
-  isActiveChallenge,
 }: DailyLectureItemProps) {
-  const upload_type = getUploadTypeFromUrl(dailyLecture.url);
   const [isLocked, setIsLocked] = useState(false);
 
   useEffect(() => {
     const checkLockStatus = async () => {
-      if (isActiveChallenge && "open_at" in dailyLecture) {
+      if ("open_at" in dailyLecture) {
         const locked = !(await isLectureOpen(dailyLecture.open_at));
         setIsLocked(locked);
       } else {
@@ -35,7 +30,7 @@ export default function DailyLectureItem({
       }
     };
     checkLockStatus();
-  }, [dailyLecture, isActiveChallenge]);
+  }, [dailyLecture]);
 
   return (
     <div
@@ -45,11 +40,14 @@ export default function DailyLectureItem({
       }
     >
       <div className="aspect-video bg-gray-800 relative transform group-hover:-translate-y-1 transition-transform duration-300">
-        {upload_type === 0 ? (
+        {dailyLecture.upload_type === 0 ? (
           // YouTube 동영상인 경우 Image 태그 사용
           <Image
             src={
-              getVideoThumbnailUrl(upload_type, dailyLecture.url) || undefined
+              getVideoThumbnailUrl(
+                dailyLecture.upload_type,
+                dailyLecture.url,
+              ) || undefined
             }
             alt={dailyLecture.name}
             fill

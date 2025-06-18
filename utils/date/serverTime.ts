@@ -58,3 +58,28 @@ export const isLectureOpen = async (openAt: string): Promise<boolean> => {
   const serverTime = await getServerTime();
   return new Date(serverTime) >= new Date(openAt);
 };
+
+/**
+ * 여러 강의 중에서 오늘 날짜의 가장 최근 강의를 찾습니다.
+ * 서버 시간을 한 번만 가져와서 효율적으로 처리합니다.
+ * 
+ * @param lectures 강의 목록 (open_at 기준 오름차순 정렬)
+ * @returns 오늘 날짜의 가장 최근 강의 인덱스, 없으면 -1
+ */
+export const findTodayLectureIndex = async (lectures: Array<{ open_at: string }>): Promise<number> => {
+  if (!lectures || lectures.length === 0) return -1;
+
+  const serverTime = await getServerTime();
+  const serverDate = new Date(serverTime.split("T")[0]);
+  
+  // NOTE: 강의 수가 많아지면 서버에서 미리 처리해야 함
+  for (let i = lectures.length - 1; i >= 0; i--) {
+    const openDate = new Date(lectures[i].open_at.split("T")[0]);
+    
+    if (serverDate.getTime() === openDate.getTime()) {
+      return i;
+    }
+  }
+  
+  return -1;
+};
