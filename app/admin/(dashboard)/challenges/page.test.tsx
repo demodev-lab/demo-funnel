@@ -102,7 +102,7 @@ jest.mock("@/components/admin/challenges/edit-challenge-dialog", () => ({
   ),
 }));
 
-jest.mock("@/components/ui/page-title", () => ({
+jest.mock("@/components/common/page-title", () => ({
   __esModule: true,
   default: () => null,
 }));
