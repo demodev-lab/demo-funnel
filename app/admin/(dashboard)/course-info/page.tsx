@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import SearchFilter from "@/components/admin/course-info/search-filter";
+import SearchFilter from "@/components/admin/course-info/searchFilter";
 import CourseInfoTable from "@/components/admin/courseInfoTable";
 
 export default function CourseInfoPage() {
