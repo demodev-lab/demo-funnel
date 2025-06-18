@@ -1,12 +1,12 @@
 import { Button } from "@/components/common/Button";
-import { Input } from "@/components/common/input";
-import { Label } from "@/components/common/label";
+import { Input } from "@/components/common/Input";
+import { Label } from "@/components/common/Label";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/common/dialog";
+} from "@/components/common/Dialog";
 import { Challenge } from "@/types/challenge";
 
 interface EditChallengeDialogProps {

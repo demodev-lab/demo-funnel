@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Menu, Calendar } from "lucide-react";
 import { Button } from "@/components/common/Button";
-import { Sheet, SheetTrigger } from "@/components/common/sheet";
+import { Sheet, SheetTrigger } from "@/components/common/Sheet";
 import { createClient } from "@/utils/supabase/client";
 import { usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";

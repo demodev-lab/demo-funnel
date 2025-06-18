@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { Button } from "@/components/common/Button";
-import { Input } from "@/components/common/input";
-import { Label } from "@/components/common/label";
-import { Card } from "@/components/common/card";
+import { Input } from "@/components/common/Input";
+import { Label } from "@/components/common/Label";
+import { Card } from "@/components/common/Card";
 import { toast } from "sonner";
 
 export default function EmailTestPage() {

@@ -3,7 +3,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-} from "@/components/common/card";
+} from "@/components/common/Card";
 import { LucideIcon } from "lucide-react";
 
 interface SummaryCardProps {

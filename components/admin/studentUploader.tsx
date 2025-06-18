@@ -4,8 +4,8 @@ import type React from "react";
 
 import { useState } from "react";
 import { Button } from "@/components/common/Button";
-import { Input } from "@/components/common/input";
-import { Label } from "@/components/common/label";
+import { Input } from "@/components/common/Input";
+import { Label } from "@/components/common/Label";
 import {
   Table,
   TableBody,
@@ -13,8 +13,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/common/table";
-import { Card, CardContent } from "@/components/common/card";
+} from "@/components/common/Table";
+import { Card, CardContent } from "@/components/common/Card";
 import { Check, AlertTriangle, Upload } from "lucide-react";
 
 // Mock data for preview

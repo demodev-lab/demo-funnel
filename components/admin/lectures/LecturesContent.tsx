@@ -16,7 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/common/dialog";
+} from "@/components/common/Dialog";
 
 export default function LecturesContent() {
   const [isOpen, setIsOpen] = useState(false);

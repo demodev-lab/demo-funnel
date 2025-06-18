@@ -1,6 +1,6 @@
 import { login } from "@/app/admin/(auth)/login/actions";
 import { Button } from "@/components/common/Button";
-import { Input } from "@/components/common/input";
+import { Input } from "@/components/common/Input";
 import {
   Card,
   CardContent,
@@ -8,7 +8,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/common/card";
+} from "@/components/common/Card";
 
 export default function LoginPage() {
   return (

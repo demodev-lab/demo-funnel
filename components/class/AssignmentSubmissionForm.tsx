@@ -3,8 +3,6 @@
 import { useState, useRef } from "react";
 import { Button } from "@/components/common/Button";
 import { Send, LinkIcon, ImageIcon } from "lucide-react";
-import { Input } from "@/components/common/input";
-import { Textarea } from "@/components/common/textarea";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { createSubmission } from "@/apis/assignments";
@@ -12,6 +10,8 @@ import { userInfo } from "@/types/user";
 import AssignmentConfetti from "./AssignmentConfetti";
 import { validateFileSize } from "@/utils/files";
 import { ImagePreview } from "@/components/common/ImagePreview";
+import { Input } from "@/components/common/Input";
+import { Textarea } from "@/components/common/Textarea";
 
 interface AssignmentSubmissionFormProps {
   userInfo: userInfo;

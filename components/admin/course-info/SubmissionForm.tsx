@@ -1,7 +1,7 @@
 import { Button } from "@/components/common/Button";
-import { Input } from "@/components/common/input";
-import { Label } from "@/components/common/label";
-import { Textarea } from "@/components/common/textarea";
+import { Input } from "@/components/common/Input";
+import { Label } from "@/components/common/Label";
+import { Textarea } from "@/components/common/Textarea";
 import { SubmissionDialogProps } from "./SubmissionDialogContent";
 
 interface SubmissionFormData {

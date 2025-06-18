@@ -8,7 +8,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/common/dialog";
+} from "@/components/common/Dialog";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { getStudentSubmissions } from "@/apis/users";
 import { useChallengeStore } from "@/lib/store/useChallengeStore";

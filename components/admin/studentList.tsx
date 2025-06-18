@@ -26,7 +26,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/common/select";
+} from "@/components/common/Select";
 
 type SortOption = "default" | "name_asc" | "name_desc";
 

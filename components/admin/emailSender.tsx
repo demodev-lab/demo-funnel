@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 import { Button } from "@/components/common/Button";
-import { Label } from "@/components/common/label";
+import { Label } from "@/components/common/Label";
 import { RadioGroup, RadioGroupItem } from "@/components/common/RadioGroup";
-import { Textarea } from "@/components/common/textarea";
+import { Textarea } from "@/components/common/Textarea";
 import { toast } from "sonner";
 import { sendEmails } from "@/apis/email";
 import { EmailTemplateType } from "@/types/email";
@@ -16,15 +16,15 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/common/table";
-import { Checkbox } from "@/components/common/checkbox";
-import { Card, CardContent } from "@/components/common/card";
+} from "@/components/common/Table";
+import { Checkbox } from "@/components/common/Checkbox";
+import { Card, CardContent } from "@/components/common/Card";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "@/components/common/tabs";
+} from "@/components/common/Tabs";
 import { useChallengeStore } from "@/lib/store/useChallengeStore";
 import { useStudentsByChallenge } from "@/hooks/useStudents";
 import { User } from "@/types/user";

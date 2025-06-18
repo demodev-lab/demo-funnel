@@ -10,7 +10,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/common/table";
+} from "@/components/common/Table";
 
 interface Column {
   header: string;

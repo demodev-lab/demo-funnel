@@ -6,7 +6,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/common/select";
+} from "@/components/common/Select";
 
 interface Challenge {
   id: number;

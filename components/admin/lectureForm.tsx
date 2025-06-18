@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/common/Button";
-import { Input } from "@/components/common/input";
-import { Label } from "@/components/common/label";
-import { Textarea } from "@/components/common/textarea";
+import { Input } from "@/components/common/Input";
+import { Label } from "@/components/common/Label";
+import { Textarea } from "@/components/common/Textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/common/RadioGroup";
 import {
   AlertDialog,
@@ -23,7 +23,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/common/select";
+} from "@/components/common/Select";
 import { toast } from "sonner";
 import {
   createLecture,

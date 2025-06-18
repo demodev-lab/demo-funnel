@@ -6,7 +6,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/common/dialog";
+} from "@/components/common/Dialog";
 import { Loader2 } from "lucide-react";
 
 interface DeleteConfirmDialogProps {

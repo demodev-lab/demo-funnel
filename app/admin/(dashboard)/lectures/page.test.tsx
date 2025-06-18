@@ -36,7 +36,7 @@ jest.mock("@/apis/lectures", () => ({
 }));
 
 // UI 컴포넌트 모킹: Button
-jest.mock("@/components/common/button", () => ({
+jest.mock("@/components/common/Button", () => ({
   Button: ({ children, ...props }: any) => (
     <button data-testid="button" {...props}>
       {children}
@@ -83,7 +83,7 @@ jest.mock("@/components/admin/LectureForm", () => ({
 }));
 
 // Dialog 모킹: open prop을 기준으로 렌더링, onOpenChange 호출 테스트 가능
-jest.mock("@/components/common/dialog", () => {
+jest.mock("@/components/common/Dialog", () => {
   return {
     Dialog: ({ open, onOpenChange, children }: any) => (
       <div data-testid="dialog" data-open={String(open)}>

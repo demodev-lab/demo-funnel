@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/components/common/dialog";
+} from "@/components/common/Dialog";
 import { PlayCircle, Lock, Calendar } from "lucide-react";
 import { LectureWithSequence } from "@/types/lecture";
 import { useSelectedLectureStore } from "@/lib/store/useSelectedLectureStore";

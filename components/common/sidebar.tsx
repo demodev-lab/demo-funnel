@@ -7,16 +7,16 @@ import { PanelLeft } from "lucide-react";
 import { useIsMobile } from "@/hooks/admin/useMobile";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/common/Button";
-import { Input } from "@/components/common/input";
-import { Separator } from "@/components/common/separator";
-import { Sheet, SheetContent } from "@/components/common/sheet";
-import { Skeleton } from "@/components/common/skeleton";
+import { Input } from "@/components/common/Input";
+import { Separator } from "@/components/common/Separator";
+import { Sheet, SheetContent } from "@/components/common/Sheet";
+import { Skeleton } from "@/components/common/Skeleton";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/common/tooltip";
+} from "@/components/common/Tooltip";
 
 const SIDEBAR_COOKIE_NAME = "sidebar:state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;

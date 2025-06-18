@@ -2,22 +2,22 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/common/Button";
-import { Input } from "@/components/common/input";
-import { Label } from "@/components/common/label";
+import { Input } from "@/components/common/Input";
+import { Label } from "@/components/common/Label";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/components/common/dialog";
+} from "@/components/common/Dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/common/select";
+} from "@/components/common/Select";
 import { Loader2, X } from "lucide-react";
 import { Student } from "@/types/user";
 import { Challenge } from "@/types/challenge";
