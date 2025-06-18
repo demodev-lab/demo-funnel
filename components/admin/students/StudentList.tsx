@@ -1,14 +1,12 @@
 "use client";
 
-import { Button } from "@/components/common/button";
-import { Plus } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/common/dialog";
+} from "@/components/common/Dialog";
 import { useState, useRef } from "react";
 import { toast } from "sonner";
 import {

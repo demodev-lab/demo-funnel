@@ -1,9 +1,9 @@
 import type React from "react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import Sidebar from "@/components/admin/sidebar";
-import Header from "@/components/admin/header";
-import PageTitle from "@/components/common/page-title";
+import Sidebar from "@/components/admin/Sidebar";
+import Header from "@/components/admin/Header";
+import PageTitle from "@/components/common/PageTitle";
 
 const inter = Inter({ subsets: ["latin"] });
 

@@ -5,7 +5,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/common/dialog";
+} from "@/components/common/Dialog";
 import LectureForm from "@/components/admin/LectureForm";
 
 interface LectureDetailModalProps {

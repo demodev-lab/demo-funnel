@@ -1,5 +1,5 @@
 import { Users, CheckCircle2, PlayCircle } from "lucide-react";
-import SummaryCard from "./summaryCard";
+import SummaryCard from "./SummaryCard";
 
 interface SummaryCardsProps {
   totalStudent: number | undefined;

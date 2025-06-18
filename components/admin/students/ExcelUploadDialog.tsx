@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Button } from "@/components/common/button";
+import { Button } from "@/components/common/Button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/common/dialog";
+} from "@/components/common/Dialog";
 import { Loader2, Upload } from "lucide-react";
 import * as XLSX from "xlsx";
 import { Student } from "@/types/user";

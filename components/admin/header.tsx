@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { Menu, Calendar } from "lucide-react";
-import { Button } from "@/components/common/button";
-import { Sheet, SheetTrigger } from "@/components/common/sheet";
+import { Button } from "@/components/common/Button";
+import { Sheet, SheetTrigger } from "@/components/common/Sheet";
 import { createClient } from "@/utils/supabase/client";
 import { usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { getChallenges } from "@/apis/challenges";
 import { useChallengeStore } from "@/lib/store/useChallengeStore";
-import CohortSelector from "@/components/common/cohort-selector";
+import CohortSelector from "@/components/common/CohortSelector";
 
 // 기수와 날짜 정보를 담은 타입 정의
 type CohortInfo = {

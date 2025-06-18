@@ -9,14 +9,14 @@ import { AdminLecture, LectureWithSequence } from "@/types/lecture";
 import { getYouTubeEmbedUrl } from "@/utils/youtube";
 import LectureForm from "@/components/admin/LectureForm";
 import LectureCard from "@/components/admin/lectures/LectureCard";
-import { Button } from "@/components/common/button";
+import { Button } from "@/components/common/Button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/common/dialog";
+} from "@/components/common/Dialog";
 
 export default function LecturesContent() {
   const [isOpen, setIsOpen] = useState(false);

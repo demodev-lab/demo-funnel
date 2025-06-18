@@ -1,4 +1,4 @@
-import { Button } from "@/components/common/button";
+import { Button } from "@/components/common/Button";
 import { FileText } from "lucide-react";
 
 interface SubmissionDialogProps {

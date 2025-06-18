@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useParams } from "next/navigation";
-import { Button } from "@/components/common/button";
-import { Input } from "@/components/common/input";
-import { Label } from "@/components/common/label";
-import { Textarea } from "@/components/common/textarea";
-import { Switch } from "@/components/common/switch";
+import { Button } from "@/components/common/Button";
+import { Input } from "@/components/common/Input";
+import { Label } from "@/components/common/Label";
+import { Textarea } from "@/components/common/Textarea";
+import { Switch } from "@/components/common/Switch";
 import { useUser } from "@/hooks/auth/useUser";
 import { updateRefundRequestStatus } from "@/apis/users";
 import { useQueryClient } from "@tanstack/react-query";

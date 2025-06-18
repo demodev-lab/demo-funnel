@@ -1,7 +1,7 @@
-import { Input } from "@/components/common/input";
-import { Label } from "@/components/common/label";
-import { Switch } from "@/components/common/switch";
-import { Button } from "@/components/common/button";
+import { Input } from "@/components/common/Input";
+import { Label } from "@/components/common/Label";
+import { Switch } from "@/components/common/Switch";
+import { Button } from "@/components/common/Button";
 import { Download } from "lucide-react";
 import { useExportToExcel } from "@/hooks/admin/useExportToExcel";
 

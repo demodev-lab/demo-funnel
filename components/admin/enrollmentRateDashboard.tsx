@@ -1,6 +1,6 @@
 "use client";
 
-import { Card } from "@/components/common/card";
+import { Card } from "@/components/common/Card";
 import {
   Table,
   TableBody,
@@ -8,14 +8,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/common/table";
+} from "@/components/common/Table";
 import { DashboardAssignmentStat } from "@/types/assignment";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/common/tooltip";
+} from "@/components/common/Tooltip";
 
 interface EnrollmentRateDashboardProps {
   type: "submission" | "lecture";

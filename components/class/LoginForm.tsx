@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@/components/common/button";
-import { Input } from "@/components/common/input";
+import { Button } from "@/components/common/Button";
+import { Input } from "@/components/common/Input";
 import {
   Card,
   CardContent,
@@ -9,7 +9,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/common/card";
+} from "@/components/common/Card";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
@@ -17,8 +17,9 @@ import { CheckCircle } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { userLogin } from "@/apis/auth";
 import { getUserChallenges } from "@/apis/challenges";
-import { IcLoadingSpinner } from "@/components/common/ic-loading-spinner";
-import { IcEmail } from "@/components/common/ic-email";
+import { IcLoadingSpinner } from "@/components/common/IcLoadingSpinner";
+import { IcEmail } from "@/components/common/IcEmail";
+
 export function LoginForm() {
   const router = useRouter();
   const queryClient = useQueryClient();

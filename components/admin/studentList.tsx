@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/common/button";
+import { Button } from "@/components/common/Button";
 import { Plus, Upload, ArrowUpDown } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -26,7 +26,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/common/select";
+} from "@/components/common/Select";
 
 type SortOption = "default" | "name_asc" | "name_desc";
 

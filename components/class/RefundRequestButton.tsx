@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { Button } from "@/components/common/button";
+import { Button } from "@/components/common/Button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/common/dialog";
+} from "@/components/common/Dialog";
 import { RefundRequestForm, RefundFormData } from "./RefundRequestForm";
 import { handleError } from "@/utils/errorHandler";
 import { useToast } from "@/hooks/useToast";

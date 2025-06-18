@@ -5,7 +5,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/common/table";
+} from "@/components/common/Table";
 import { Check, X } from "lucide-react";
 import { StudentSubmission, SubmissionStatus } from "@/types/user";
 
