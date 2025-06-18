@@ -2,7 +2,7 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import CourseInfoPage from "./page";
 
 // Mock components
-jest.mock("@/components/common/page-title", () => {
+jest.mock("@/components/common/PageTitle", () => {
   return function MockPageTitle() {
     return null; // 테스트에서는 PageTitle 렌더링하지 않음
   };
