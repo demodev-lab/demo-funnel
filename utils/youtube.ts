@@ -41,8 +41,3 @@ export const getVideoThumbnailUrl = (upload_type: number, url: string) => {
     return "https://placehold.co/1280x720/1A1D29/8C7DFF?text=No+Thumbnail";
   }
 };
-
-// URL에서 업로드 타입 (0: YouTube, 1: 직접 업로드)을 가져오는 함수
-export const getUploadTypeFromUrl = (url: string): number => {
-  return url.includes("youtube.com") || url.includes("youtu.be") ? 0 : 1;
-};

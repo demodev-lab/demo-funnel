@@ -11,29 +11,25 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { PlayCircle, Lock, Calendar } from "lucide-react";
-import { Lecture, LectureWithSequence } from "@/types/lecture";
+import { LectureWithSequence } from "@/types/lecture";
 import { useSelectedLectureStore } from "@/lib/store/useSelectedLectureStore";
 import { isLectureOpen } from "@/utils/date/serverTime";
 
-type UnifiedLecture = Lecture | LectureWithSequence;
-
 interface DailyLectureSectionProps {
-  lectures: UnifiedLecture[];
-  isActiveChallenge: boolean;
+  lectures: LectureWithSequence[];
 }
 
 export default function DailyLectureSection({
   lectures,
-  isActiveChallenge,
 }: DailyLectureSectionProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [selectedVideoIdx, setSelectedVideoIdx] = useState(0);
   const [isLockedModalOpen, setIsLockedModalOpen] = useState(false);
-  const [lockedVideoTitle, setLockedVideoTitle] = useState("");
   const [mainLecture, setMainLecture] = useState<{
     title: string;
     description: string;
     lectureUrl: string;
+    upload_type: number;
     isLocked: boolean;
   } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -54,13 +50,14 @@ export default function DailyLectureSection({
       try {
         if (lectures[selectedVideoIdx]) {
           const isLocked =
-            isActiveChallenge && "open_at" in lectures[selectedVideoIdx]
+            "open_at" in lectures[selectedVideoIdx]
               ? !(await isLectureOpen(lectures[selectedVideoIdx].open_at))
               : false;
           setMainLecture({
             title: lectures[selectedVideoIdx].name,
             description: lectures[selectedVideoIdx].description,
             lectureUrl: lectures[selectedVideoIdx].url,
+            upload_type: lectures[selectedVideoIdx].upload_type,
             isLocked,
           });
         } else {
@@ -71,7 +68,7 @@ export default function DailyLectureSection({
       }
     };
     updateMainLecture();
-  }, [lectures, selectedVideoIdx, isActiveChallenge]);
+  }, [lectures, selectedVideoIdx]);
 
   const onSelectedLecture = useSelectedLectureStore(
     (state) => state.setSelectedLecture,
@@ -87,7 +84,6 @@ export default function DailyLectureSection({
   };
 
   const handleLockedClick = (title: string) => {
-    setLockedVideoTitle(title);
     setIsLockedModalOpen(true);
   };
 
@@ -109,6 +105,7 @@ export default function DailyLectureSection({
               title={mainLecture.title}
               description={mainLecture.description}
               lectureUrl={mainLecture.lectureUrl}
+              upload_type={mainLecture.upload_type}
               isPlaying={isPlaying}
               onTogglePlay={togglePlay}
             />
@@ -148,14 +145,15 @@ export default function DailyLectureSection({
               <div
                 key={lecture.id}
                 className="group"
-                onClick={() => onSelectedLecture(lecture as Lecture)}
+                onClick={() =>
+                  onSelectedLecture(lecture as LectureWithSequence)
+                }
               >
                 <DailyLectureItem
                   dailyLecture={lecture}
                   onLockedClick={handleLockedClick}
                   onVideoSelect={handleVideoSelect}
                   videoIndex={index}
-                  isActiveChallenge={isActiveChallenge}
                 />
                 <div
                   className={`mt-2 h-1 bg-gradient-to-r from-[#5046E4] to-[#8C7DFF] rounded-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ${
