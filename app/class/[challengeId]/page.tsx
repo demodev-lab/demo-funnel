@@ -5,9 +5,9 @@ import { useUser } from "@/hooks/auth/useUser";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { getUserLectures, getLecturesByChallenge } from "@/apis/lectures";
-import { Lecture, LectureWithSequence } from "@/types/lecture";
+import { LectureWithSequence } from "@/types/lecture";
 import { useSelectedLectureStore } from "@/lib/store/useSelectedLectureStore";
-import { checkIsTodayLecture } from "@/utils/date/serverTime";
+import { findTodayLectureIndex } from "@/utils/date/serverTime";
 import { getUserChallenges } from "@/apis/challenges";
 import CohortSelector from "@/components/common/cohort-selector";
 import { useRefundStatus } from "@/hooks/class/useRefundStatus";
@@ -37,40 +37,15 @@ export default function ClassPage({
     staleTime: 1000 * 60 * 5, // 5분 동안 캐시 유지
   });
 
-  // 진행 중인 챌린지의 강의 조회
-  const { data: activeLectures = [] } = useQuery<Lecture[]>({
-    queryKey: ["daily-lectures", user?.id],
-    queryFn: async () => {
-      if (!user?.id) return [];
-      const data = await getUserLectures(user.id);
-      return data as unknown as Lecture[];
-    },
-    enabled: !isLoadingUser && !!user?.id,
-  });
-
-  // 종료된 챌린지의 강의 조회
-  const { data: completedLectures = [] } = useQuery<LectureWithSequence[]>({
+  // 챌린지의 강의 조회
+  const { data: lectures = [] } = useQuery<LectureWithSequence[]>({
     queryKey: ["challenge-lectures", currentChallengeId],
     queryFn: async () => {
       const data = await getLecturesByChallenge(currentChallengeId);
       return data;
     },
-    enabled:
-      !isLoadingUser &&
-      !!user?.id &&
-      !activeLectures.some(
-        (lecture) => Number(lecture.challenge_id) === currentChallengeId,
-      ),
+    enabled: !isLoadingUser && !!user?.id,
   });
-
-  const lectures = activeLectures.some(
-    (lecture) => Number(lecture.challenge_id) === currentChallengeId,
-  )
-    ? activeLectures
-    : completedLectures;
-  const hasActiveChallenge = activeLectures.some(
-    (lecture) => Number(lecture.challenge_id) === currentChallengeId,
-  );
 
   const onSelectedLecture = useSelectedLectureStore(
     (state) => state.setSelectedLecture,
@@ -92,34 +67,34 @@ export default function ClassPage({
       return;
     }
 
-    if (lectures && lectures.length > 0) {
-      let isMounted = true;
+    let isMounted = true;
 
-      const findTodayLecture = async () => {
-        for (const lecture of lectures) {
-          if ("open_at" in lecture) {
-            const isToday = await checkIsTodayLecture(lecture.open_at);
-            if (isToday && isMounted) {
-              onSelectedLecture(lecture as Lecture);
-              return;
-            }
-          }
-        }
-        if (isMounted) {
-          onSelectedLecture(lectures[0] as Lecture);
-        }
-      };
+    const checkTodayLecture = async () => {
+      const todayIndex = await findTodayLectureIndex(lectures);
 
-      findTodayLecture();
+      if (todayIndex !== -1 && isMounted) {
+        onSelectedLecture(lectures[todayIndex] as LectureWithSequence);
+        return;
+      }
 
-      return () => {
-        isMounted = false;
-      };
-    }
-  }, [user, isLoadingUser, router, lectures]);
+      if (isMounted && lectures.length > 0) {
+        onSelectedLecture(lectures[0] as LectureWithSequence);
+      }
+    };
+
+    checkTodayLecture();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [lectures, onSelectedLecture]);
 
   if (isLoadingUser) {
-    return <div>로딩 중...</div>;
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-[#8C7DFF]" />
+      </div>
+    );
   }
 
   if (!user) {
@@ -154,10 +129,7 @@ export default function ClassPage({
           <div>
             <div className="bg-gradient-to-br from-[#252A3C] to-[#2A2F45] rounded-xl overflow-hidden shadow-lg border border-gray-700/50">
               <div className="transition-all duration-300 hover:brightness-105">
-                <DailyLectureSection
-                  lectures={lectures}
-                  isActiveChallenge={hasActiveChallenge}
-                />
+                <DailyLectureSection lectures={lectures} />
               </div>
 
               <AssignmentSubmissionSection userInfo={user} />

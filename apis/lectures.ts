@@ -513,7 +513,9 @@ export async function getLecturesByChallenge(
       .from("ChallengeLectures")
       .select(
         `
+        id,
         lecture_id,
+        challenge_id,
         sequence,
         open_at,
         Lectures (
@@ -548,6 +550,8 @@ export async function getLecturesByChallenge(
         updated_at: item.Lectures.updated_at,
         sequence: item.sequence,
         open_at: item.open_at,
+        challenge_id: item.challenge_id,
+        challenge_lecture_id: item.id,
         assignment_title: item.Lectures.Assignments?.[0]?.title || "",
         assignment: item.Lectures.Assignments?.[0]?.contents || "",
       })) || [];
