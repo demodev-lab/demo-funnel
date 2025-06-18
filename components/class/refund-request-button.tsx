@@ -7,8 +7,8 @@ import {
   DialogTitle,
 } from "@/components/common/dialog";
 import { RefundRequestForm, RefundFormData } from "./refund-request-form";
+import { useToast } from "@/components/common/use-toast";
 import { handleError } from "@/utils/errorHandler";
-import { useToast } from "@/hooks/useToast";
 
 interface RefundRequestButtonProps {
   isAllSubmitted: boolean;
