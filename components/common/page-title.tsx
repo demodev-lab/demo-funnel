@@ -1,7 +1,7 @@
 "use client";
 
+import { ADMIN_TITLE } from "@/constants/adminTitle";
 import { usePathname } from "next/navigation";
-import { ADMIN_TITLE } from "@/constants/admin-title";
 
 type AdminTitleKey = keyof typeof ADMIN_TITLE;
 
