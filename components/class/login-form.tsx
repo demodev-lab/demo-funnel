@@ -18,8 +18,8 @@ import { CheckCircle } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { userLogin } from "@/apis/auth";
 import { getUserChallenges } from "@/apis/challenges";
-import { IcEmail, IcLoadingSpinner } from "@/components/icons";
-
+import { IcLoadingSpinner } from "@/components/common/ic-loading-spinner";
+import { IcEmail } from "@/components/common/ic-email";
 export function LoginForm() {
   const router = useRouter();
   const queryClient = useQueryClient();
