@@ -1,4 +1,9 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/common/tabs";
 import EnrollmentRateDashboard from "@/components/admin/enrollment-rate-dashboard";
 import { DashboardAssignmentStat } from "@/types/assignment";
 

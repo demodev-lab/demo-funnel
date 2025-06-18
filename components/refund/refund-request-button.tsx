@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/common/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/common/dialog";
 import { RefundRequestForm, RefundFormData } from "./refund-request-form";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/components/common/use-toast";
 import { handleError } from "@/utils/errorHandler";
 
 interface RefundRequestButtonProps {

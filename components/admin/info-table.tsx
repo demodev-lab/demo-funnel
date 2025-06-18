@@ -2,7 +2,7 @@
 
 import { ReactNode } from "react";
 import { Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/common/button";
 import {
   Table,
   TableBody,
@@ -10,7 +10,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/common/table";
 
 interface Column {
   header: string;
@@ -107,8 +107,8 @@ export default function InfoTable({
                       column.align === "right"
                         ? "text-right"
                         : column.align === "center"
-                        ? "text-center"
-                        : "text-left"
+                          ? "text-center"
+                          : "text-left"
                     } ${colIndex === 0 ? "text-gray-300" : "text-gray-400"}`}
                   >
                     {column.cell
