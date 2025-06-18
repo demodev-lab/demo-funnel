@@ -11,9 +11,9 @@ import { findTodayLectureIndex } from "@/utils/date/serverTime";
 import { getUserChallenges } from "@/apis/challenges";
 import CohortSelector from "@/components/common/cohort-selector";
 import { useRefundStatus } from "@/hooks/class/useRefundStatus";
-import { AssignmentSubmissionSection } from "@/components/class/assignment-submission-section";
-import DailyLectureSection from "@/components/class/daily-lecture-section";
-import { RefundRequestButton } from "@/components/class/refund-request-button";
+import { AssignmentSubmissionSection } from "@/components/class/AssignmentSubmissionSection";
+import DailyLectureSection from "@/components/class/DailyLectureSection";
+import { RefundRequestButton } from "@/components/class/RefundRequestButton";
 import { Loader2 } from "lucide-react";
 
 export default function ClassPage({

@@ -1,8 +1,8 @@
 "use client";
 
 import { FileText, Clock, CheckCircle, AlertCircle, Info } from "lucide-react";
-import { AssignmentSubmissionItem } from "./assignment-submission-item";
-import { AssignmentSubmissionForm } from "./assignment-submission-form";
+import { AssignmentSubmissionItem } from "./AssignmentSubmissionItem";
+import { AssignmentSubmissionForm } from "./AssignmentSubmissionForm";
 import { useQuery } from "@tanstack/react-query";
 import { getAssignment, getUserSubmission } from "@/apis/assignments";
 import { userInfo } from "@/types/user";

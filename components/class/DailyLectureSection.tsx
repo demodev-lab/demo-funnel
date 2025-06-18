@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import DailyLectureItem from "./daily-lecture-item";
-import LecturePlayer from "./lecture-player";
+import DailyLectureItem from "./DailyLectureItem";
+import LecturePlayer from "./LecturePlayer";
 import {
   Dialog,
   DialogContent,
