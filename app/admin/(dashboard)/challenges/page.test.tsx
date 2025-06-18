@@ -104,9 +104,7 @@ jest.mock("@/components/admin/challenges/edit-challenge-dialog", () => ({
 
 jest.mock("@/components/ui/page-title", () => ({
   __esModule: true,
-  default: ({ title }: { title: string }) => (
-    <h1 data-testid="page-title">{title}</h1>
-  ),
+  default: () => null,
 }));
 
 // useChallenges 훅 모킹
@@ -184,12 +182,7 @@ describe("ChallengesPage", () => {
       });
     });
 
-    it("페이지 타이틀이 올바르게 표시된다", () => {
-      render(<ChallengesPage />);
-      expect(screen.getByTestId("page-title")).toHaveTextContent("챌린지 관리");
-    });
-
-    it("InfoTable에 챌린지 데이터가 표시된다", () => {
+    it("챌린지 목록이 올바르게 표시된다", () => {
       render(<ChallengesPage />);
       const challengeRows = screen.getAllByTestId("challenge-row");
       expect(challengeRows).toHaveLength(mockChallenges.length);

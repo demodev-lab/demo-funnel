@@ -17,7 +17,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import PageTitle from "@/components/ui/page-title";
 
 export default function LecturesContent() {
   const [isOpen, setIsOpen] = useState(false);
@@ -73,7 +72,6 @@ export default function LecturesContent() {
   return (
     <>
       <div className="space-y-4">
-        <PageTitle title="강의 관리" />
         <div className="flex justify-end">
           <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>

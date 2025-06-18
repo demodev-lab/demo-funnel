@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Sidebar from "@/components/admin/sidebar";
 import Header from "@/components/admin/header";
+import PageTitle from "@/components/ui/page-title";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,7 +23,10 @@ export default function DashboardLayout({
       <Sidebar />
       <main className="flex-1 overflow-y-auto bg-[#1C1F2B] text-white">
         <Header />
-        <div className="p-6 space-y-6">{children}</div>
+        <div className="p-6 space-y-6">
+          <PageTitle />
+          {children}
+        </div>
       </main>
     </div>
   );
