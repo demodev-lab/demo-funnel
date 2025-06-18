@@ -2,10 +2,10 @@
 
 import { Challenge, ChallengeFormData } from "@/types/challenge";
 import { CHALLENGE_COLUMNS } from "@/constants/challenge";
-import LoadingState from "./loading-state";
-import ErrorState from "./error-state";
-import AddChallengeDialog from "./add-challenge-dialog";
-import EditChallengeDialog from "./edit-challenge-dialog";
+import LoadingState from "./loadingState";
+import ErrorState from "./errorState";
+import AddChallengeDialog from "./addChallengeDialog";
+import EditChallengeDialog from "./editChallengeDialog";
 import InfoTable from "@/components/admin/infoTable";
 import { Button } from "@/components/common/button";
 import {
