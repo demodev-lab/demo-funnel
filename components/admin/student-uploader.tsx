@@ -1,48 +1,85 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Card, CardContent } from "@/components/ui/card"
-import { Check, AlertTriangle, Upload } from "lucide-react"
+import { useState } from "react";
+import { Button } from "@/components/common/button";
+import { Input } from "@/components/common/input";
+import { Label } from "@/components/common/label";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/common/table";
+import { Card, CardContent } from "@/components/common/card";
+import { Check, AlertTriangle, Upload } from "lucide-react";
 
 // Mock data for preview
 const previewData = [
-  { id: 1, name: "홍길동", email: "test@example.com", phone: "010-1234-5678", status: "valid" },
-  { id: 2, name: "이지은", email: "duplicate@example.com", phone: "010-1111-2222", status: "duplicate" },
-  { id: 3, name: "김철수", email: "kim@example.com", phone: "010-3333-4444", status: "valid" },
-  { id: 4, name: "박영수", email: "park@example.com", phone: "010-5555-6666", status: "valid" },
-  { id: 5, name: "최민지", email: "invalid", phone: "010-7777-8888", status: "invalid" },
-]
+  {
+    id: 1,
+    name: "홍길동",
+    email: "test@example.com",
+    phone: "010-1234-5678",
+    status: "valid",
+  },
+  {
+    id: 2,
+    name: "이지은",
+    email: "duplicate@example.com",
+    phone: "010-1111-2222",
+    status: "duplicate",
+  },
+  {
+    id: 3,
+    name: "김철수",
+    email: "kim@example.com",
+    phone: "010-3333-4444",
+    status: "valid",
+  },
+  {
+    id: 4,
+    name: "박영수",
+    email: "park@example.com",
+    phone: "010-5555-6666",
+    status: "valid",
+  },
+  {
+    id: 5,
+    name: "최민지",
+    email: "invalid",
+    phone: "010-7777-8888",
+    status: "invalid",
+  },
+];
 
 export default function StudentUploader() {
-  const [file, setFile] = useState<File | null>(null)
-  const [preview, setPreview] = useState(false)
+  const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0])
+      setFile(e.target.files[0]);
       // In a real app, you would parse the file here
-      setPreview(true)
+      setPreview(true);
     }
-  }
+  };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault()
+    e.preventDefault();
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      setFile(e.dataTransfer.files[0])
+      setFile(e.dataTransfer.files[0]);
       // In a real app, you would parse the file here
-      setPreview(true)
+      setPreview(true);
     }
-  }
+  };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault()
-  }
+    e.preventDefault();
+  };
 
   return (
     <Card>
@@ -58,13 +95,26 @@ export default function StudentUploader() {
               <div className="flex flex-col items-center justify-center pt-5 pb-6">
                 <Upload className="w-8 h-8 mb-2 text-gray-400" />
                 <p className="mb-2 text-sm text-gray-500">
-                  <span className="font-semibold">클릭하여 파일 선택</span> 또는 드래그 앤 드롭
+                  <span className="font-semibold">클릭하여 파일 선택</span> 또는
+                  드래그 앤 드롭
                 </p>
-                <p className="text-xs text-gray-500">XLSX, CSV 파일 (최대 10MB)</p>
+                <p className="text-xs text-gray-500">
+                  XLSX, CSV 파일 (최대 10MB)
+                </p>
               </div>
-              <input id="file-upload" type="file" className="hidden" accept=".xlsx,.csv" onChange={handleFileChange} />
+              <input
+                id="file-upload"
+                type="file"
+                className="hidden"
+                accept=".xlsx,.csv"
+                onChange={handleFileChange}
+              />
             </div>
-            {file && <p className="mt-2 text-sm text-gray-500">선택된 파일: {file.name}</p>}
+            {file && (
+              <p className="mt-2 text-sm text-gray-500">
+                선택된 파일: {file.name}
+              </p>
+            )}
           </div>
 
           {preview && (
@@ -89,7 +139,10 @@ export default function StudentUploader() {
                           {row.status === "duplicate" ? (
                             <span className="text-amber-500">(중복)</span>
                           ) : row.status === "invalid" ? (
-                            <Input defaultValue={row.email} className="h-8 w-full max-w-xs bg-red-50 border-red-200" />
+                            <Input
+                              defaultValue={row.email}
+                              className="h-8 w-full max-w-xs bg-red-50 border-red-200"
+                            />
                           ) : (
                             row.email
                           )}
@@ -121,12 +174,14 @@ export default function StudentUploader() {
 
               <div className="flex justify-between">
                 <Button variant="outline">취소</Button>
-                <Button className="bg-[#5046E4] hover:bg-[#4038c7]">등록하기</Button>
+                <Button className="bg-[#5046E4] hover:bg-[#4038c7]">
+                  등록하기
+                </Button>
               </div>
             </div>
           )}
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
