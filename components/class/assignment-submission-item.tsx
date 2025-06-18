@@ -27,17 +27,17 @@ export function AssignmentSubmissionItem({
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [editedComment, setEditedComment] = useState(
-    submittedAssignment?.assignmentComment || "",
+    submittedAssignment?.assignment_comment || "",
   );
   const [editedUrl, setEditedUrl] = useState(
-    submittedAssignment?.assignmentUrl || "",
+    submittedAssignment?.assignment_url || "",
   );
   const [editedImageUrl, setEditedImageUrl] = useState(
-    submittedAssignment?.imageUrl || "",
+    submittedAssignment?.image_url || "",
   );
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(
-    submittedAssignment?.imageUrl || null,
+    submittedAssignment?.image_url || null,
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -62,7 +62,7 @@ export function AssignmentSubmissionItem({
         queryKey: [
           "submitted-assignment",
           userInfo.id,
-          submittedAssignment.challengeLectureId,
+          submittedAssignment.challenge_lecture_id,
         ],
       });
       setIsEditing(false);
@@ -109,7 +109,7 @@ export function AssignmentSubmissionItem({
             <p className="text-sm font-medium">{userInfo.name}</p>
             <div className="flex items-center text-xs text-gray-400 mt-0.5">
               <Clock className="h-3 w-3 mr-1" />
-              {timeAgo(submittedAssignment.submittedAt)}
+              {timeAgo(submittedAssignment.submitted_at)}
             </div>
           </div>
         </div>
@@ -118,8 +118,8 @@ export function AssignmentSubmissionItem({
             onClick={() => {
               setIsEditing(!isEditing);
               if (!isEditing) {
-                setEditedImageUrl(submittedAssignment?.imageUrl || "");
-                setImagePreview(submittedAssignment?.imageUrl || null);
+                setEditedImageUrl(submittedAssignment?.image_url || "");
+                setImagePreview(submittedAssignment?.image_url || null);
               }
             }}
             className="text-sm text-[#8C7DFF] hover:text-[#A99AFF]"
@@ -180,31 +180,31 @@ export function AssignmentSubmissionItem({
         </div>
       ) : (
         <div className="flex flex-col gap-2">
-          {submittedAssignment.assignmentComment && (
+          {submittedAssignment.assignment_comment && (
             <p className="text-sm text-gray-200 leading-relaxed">
-              {submittedAssignment.assignmentComment}
+              {submittedAssignment.assignment_comment}
             </p>
           )}
-          {submittedAssignment.assignmentUrl && (
+          {submittedAssignment.assignment_url && (
             <a
-              href={submittedAssignment.assignmentUrl}
+              href={submittedAssignment.assignment_url}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 text-[#8C7DFF] hover:text-[#A99AFF] text-sm bg-[#1A1D29]/80 p-2.5 rounded-lg border border-gray-700/30 hover:border-[#5046E4]/30 max-w-full overflow-hidden transition-all duration-300 group"
             >
               <span className="bg-[#5046E4]/10 text-[#8C7DFF] text-xs px-2 py-1 rounded-md font-medium flex-shrink-0">
-                {getLinkIcon(submittedAssignment.assignmentUrl)}
+                {getLinkIcon(submittedAssignment.assignment_url)}
               </span>
               <span className="truncate overflow-ellipsis max-w-[calc(100%-80px)]">
-                {submittedAssignment.assignmentUrl}
+                {submittedAssignment.assignment_url}
               </span>
               <ExternalLink className="h-3.5 w-3.5 flex-shrink-0 ml-auto opacity-70 group-hover:opacity-100 transition-opacity" />
             </a>
           )}
-          {submittedAssignment.imageUrl && (
+          {submittedAssignment.image_url && (
             <div>
               <img
-                src={submittedAssignment.imageUrl}
+                src={submittedAssignment.image_url}
                 alt="과제 이미지"
                 className="w-1/5 h-auto rounded-lg border border-gray-700/30"
               />

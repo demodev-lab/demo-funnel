@@ -101,7 +101,7 @@ export function AssignmentSubmissionSection({
       {/* 제출 폼 (제출되지 않았고, 과제 내용 있고, 오늘 강의일 때 표시) */}
       {isTodayLecture &&
         assignmentInfo?.contents &&
-        !submittedAssignment?.isSubmit && (
+        !submittedAssignment?.is_submit && (
           <AssignmentSubmissionForm
             userInfo={userInfo}
             challengeLectureId={challengeLectureId}
@@ -111,7 +111,7 @@ export function AssignmentSubmissionSection({
       {/* 과제 제출 기간 마감 안내 */}
       {!isTodayLecture &&
         assignmentInfo?.contents &&
-        !submittedAssignment?.isSubmit && (
+        !submittedAssignment?.is_submit && (
           <div className="p-6 bg-[#1A1D29]/30 border-b border-gray-700/50">
             <div className="flex items-center justify-center text-gray-400">
               <AlertCircle className="h-5 w-5 mr-2 text-[#FF6B6B]" />
@@ -127,7 +127,7 @@ export function AssignmentSubmissionSection({
         </h3>
         {isSubmissionLoading ? (
           <p className="text-gray-400">제출 정보 로딩 중...</p>
-        ) : submittedAssignment && submittedAssignment.isSubmit ? (
+        ) : submittedAssignment && submittedAssignment.is_submit ? (
           <AssignmentSubmissionItem
             userInfo={userInfo}
             submittedAssignment={submittedAssignment}
