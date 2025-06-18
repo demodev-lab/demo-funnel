@@ -7,8 +7,8 @@ import { getLecturesByChallenge, deleteLecture } from "@/apis/lectures";
 import { useChallengeStore } from "@/lib/store/useChallengeStore";
 import { AdminLecture, LectureWithSequence } from "@/types/lecture";
 import { getYouTubeEmbedUrl } from "@/utils/youtube";
-import LectureForm from "@/components/admin/lectureForm";
-import LectureCard from "@/components/admin/lectures/lecture-card";
+import LectureForm from "@/components/admin/LectureForm";
+import LectureCard from "@/components/admin/lectures/LectureCard";
 import { Button } from "@/components/common/button";
 import {
   Dialog,

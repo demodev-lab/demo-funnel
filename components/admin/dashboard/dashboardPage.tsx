@@ -1,8 +1,8 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
-import SummaryCards from "./summaryCards";
-import DetailedStats from "./detailedStats";
+import SummaryCards from "./SummaryCards";
+import DetailedStats from "./DetailedStats";
 import { useQuery } from "@tanstack/react-query";
 import { useChallengeStore } from "@/lib/store/useChallengeStore";
 import { DashboardAssignmentStat } from "@/types/assignment";

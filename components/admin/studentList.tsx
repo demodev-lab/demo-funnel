@@ -14,11 +14,11 @@ import { useQuery } from "@tanstack/react-query";
 import { getChallenges } from "@/apis/challenges";
 import { getUserChallenges } from "@/apis/challenges";
 import { useChallengeStore } from "@/lib/store/useChallengeStore";
-import ExcelUploadDialog from "@/components/admin/students/excel-upload-dialog";
-import StudentFormDialog from "@/components/admin/students/student-form-dialog";
-import StudentTable from "@/components/admin/students/student-table";
-import DeleteConfirmDialog from "@/components/admin/students/delete-confirm-dialog";
-import { StudentListState } from "@/components/admin/students/student-list-state";
+import ExcelUploadDialog from "@/components/admin/students/ExcelUploadDialog";
+import StudentFormDialog from "@/components/admin/students/StudentFormDialog";
+import StudentTable from "@/components/admin/students/StudentTable";
+import DeleteConfirmDialog from "@/components/admin/students/DeleteConfirmDialog";
+import { StudentListState } from "@/components/admin/students/StudentListState";
 import { Student } from "@/types/user";
 import {
   Select,

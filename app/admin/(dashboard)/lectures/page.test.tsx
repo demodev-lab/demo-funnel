@@ -45,7 +45,7 @@ jest.mock("@/components/common/button", () => ({
 }));
 
 // LectureCard 모킹: 클릭 시 onClick prop 실행
-jest.mock("@/components/admin/lectures/lecture-card", () => ({
+jest.mock("@/components/admin/lectures/LectureCard", () => ({
   __esModule: true,
   default: ({ lecture, onClick }: any) => (
     <div
@@ -59,7 +59,7 @@ jest.mock("@/components/admin/lectures/lecture-card", () => ({
 }));
 
 // LectureForm 모킹: mode에 따라 'add' 또는 'edit' 버튼 제공, onSuccess / onDelete prop 실행
-jest.mock("@/components/admin/lecture-form", () => ({
+jest.mock("@/components/admin/LectureForm", () => ({
   __esModule: true,
   default: ({ onSuccess, onDelete, isDeleting, mode = "add" }: any) => (
     <div data-testid={`lecture-form-${mode}`}>

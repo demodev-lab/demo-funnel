@@ -18,15 +18,15 @@ import {
   useDeleteStudent,
 } from "@/hooks/useStudents";
 import { useQueryClient } from "@tanstack/react-query";
-import StudentFormDialog from "./student-form-dialog";
-import { DeleteDialogContent } from "./delete-dialog";
+import StudentFormDialog from "./StudentFormDialog";
+import { DeleteDialogContent } from "./DeleteDialog";
 import {
   validateStudentForm,
   type ValidationErrors,
 } from "@/utils/validations/student";
-import { StudentListState } from "./student-list-state";
-import ExcelUploadDialog from "./excel-upload-dialog";
-import StudentTable from "./student-table";
+import { StudentListState } from "./StudentListState";
+import ExcelUploadDialog from "./ExcelUploadDialog";
+import StudentTable from "./StudentTable";
 import { type Student } from "@/types/user";
 
 export default function StudentList() {

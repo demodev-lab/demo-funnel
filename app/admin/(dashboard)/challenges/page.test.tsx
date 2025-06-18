@@ -4,19 +4,19 @@ import { useChallenges } from "@/hooks/admin/useChallenges";
 import { Challenge } from "@/types/challenge";
 
 // 모든 컴포넌트 모킹
-jest.mock("@/components/admin/challenges/loading-state", () => ({
+jest.mock("@/components/admin/challenges/LoadingState", () => ({
   __esModule: true,
   default: () => <div data-testid="loading-state">Loading...</div>,
 }));
 
-jest.mock("@/components/admin/challenges/error-state", () => ({
+jest.mock("@/components/admin/challenges/ErrorState", () => ({
   __esModule: true,
   default: ({ error }: { error: Error }) => (
     <div data-testid="error-state">{error.message}</div>
   ),
 }));
 
-jest.mock("@/components/admin/info-table", () => ({
+jest.mock("@/components/admin/InfoTable", () => ({
   __esModule: true,
   default: ({
     data,
@@ -58,7 +58,7 @@ jest.mock("@/components/admin/info-table", () => ({
   ),
 }));
 
-jest.mock("@/components/admin/challenges/add-challenge-dialog", () => ({
+jest.mock("@/components/admin/challenges/AddChallengeDialog", () => ({
   __esModule: true,
   default: ({
     onSubmit,
@@ -80,7 +80,7 @@ jest.mock("@/components/admin/challenges/add-challenge-dialog", () => ({
   ),
 }));
 
-jest.mock("@/components/admin/challenges/edit-challenge-dialog", () => ({
+jest.mock("@/components/admin/challenges/EditChallengeDialog", () => ({
   __esModule: true,
   default: ({
     onSubmit,

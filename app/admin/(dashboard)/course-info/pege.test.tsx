@@ -8,7 +8,7 @@ jest.mock("@/components/common/page-title", () => {
   };
 });
 
-jest.mock("@/components/admin/course-info/search-filter", () => {
+jest.mock("@/components/admin/course-info/SearchFilter", () => {
   return function MockSearchFilter({
     searchQuery,
     onSearchChange,
@@ -39,7 +39,7 @@ jest.mock("@/components/admin/course-info/search-filter", () => {
   };
 });
 
-jest.mock("@/components/admin/course-info-table", () => {
+jest.mock("@/components/admin/CourseInfoTable", () => {
   return function MockMainContent({
     searchQuery,
     showCompletedOnly,

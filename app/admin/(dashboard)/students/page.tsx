@@ -1,4 +1,4 @@
-import StudentList from "@/components/admin/studentList";
+import StudentList from "@/components/admin/StudentList";
 
 export default function StudentsPage() {
   return (
