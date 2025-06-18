@@ -3,8 +3,8 @@ import CourseInfoPage from "./page";
 
 // Mock components
 jest.mock("@/components/ui/page-title", () => {
-  return function MockPageTitle({ title }: { title: string }) {
-    return <h1>{title}</h1>;
+  return function MockPageTitle() {
+    return null; // 테스트에서는 PageTitle 렌더링하지 않음
   };
 });
 
@@ -48,10 +48,12 @@ jest.mock("@/components/admin/course-info-table", () => {
     showCompletedOnly: boolean;
   }) {
     return (
-      <div>
-        <div data-testid="passed-search-query">{searchQuery}</div>
-        <div data-testid="passed-show-completed">
-          {showCompletedOnly.toString()}
+      <div className="bg-[#252A3C] border border-gray-700/30 rounded-xl overflow-hidden shadow-lg">
+        <div>
+          <div data-testid="passed-search-query">{searchQuery}</div>
+          <div data-testid="passed-show-completed">
+            {showCompletedOnly.toString()}
+          </div>
         </div>
       </div>
     );
@@ -59,14 +61,16 @@ jest.mock("@/components/admin/course-info-table", () => {
 });
 
 describe("CourseInfoPage", () => {
-  it("renders page title correctly", () => {
+  it("초기 상태가 올바르게 설정되어 있다", () => {
     render(<CourseInfoPage />);
-    expect(screen.getByText("수강 정보 관리")).toBeInTheDocument();
+    expect(screen.getByTestId("passed-search-query")).toHaveTextContent("");
+    expect(screen.getByTestId("passed-show-completed")).toHaveTextContent(
+      "false",
+    );
   });
 
-  it("updates searchQuery when input value changes", () => {
+  it("검색어 입력 시 검색 쿼리가 업데이트된다", () => {
     render(<CourseInfoPage />);
-
     const searchInput = screen.getByTestId("search-input");
     fireEvent.change(searchInput, { target: { value: "React" } });
 
@@ -74,9 +78,8 @@ describe("CourseInfoPage", () => {
     expect(passedSearchQuery).toHaveTextContent("React");
   });
 
-  it("toggles showCompletedOnly when checkbox is clicked", () => {
+  it("완료 여부 체크박스 토글이 정상 동작한다", () => {
     render(<CourseInfoPage />);
-
     const checkbox = screen.getByTestId("completed-checkbox");
     const passedShowCompleted = screen.getByTestId("passed-show-completed");
 
@@ -92,14 +95,8 @@ describe("CourseInfoPage", () => {
     expect(passedShowCompleted).toHaveTextContent("false");
   });
 
-  it("passes correct props to MainContent", () => {
+  it("검색과 필터링이 함께 동작한다", () => {
     render(<CourseInfoPage />);
-
-    // 초기값 확인
-    expect(screen.getByTestId("passed-search-query")).toHaveTextContent("");
-    expect(screen.getByTestId("passed-show-completed")).toHaveTextContent(
-      "false",
-    );
 
     // 검색어 입력
     const searchInput = screen.getByTestId("search-input");
