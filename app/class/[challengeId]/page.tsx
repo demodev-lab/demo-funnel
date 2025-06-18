@@ -4,7 +4,7 @@ import { use, useEffect } from "react";
 import { useUser } from "@/hooks/auth/useUser";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { getUserLectures, getLecturesByChallenge } from "@/apis/lectures";
+import { getLecturesByChallenge } from "@/apis/lectures";
 import { LectureWithSequence } from "@/types/lecture";
 import { useSelectedLectureStore } from "@/lib/store/useSelectedLectureStore";
 import { findTodayLectureIndex } from "@/utils/date/serverTime";
