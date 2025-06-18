@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/common/button";
+import { Button } from "@/components/common/Button";
 import { Student } from "@/types/user";
 import { Loader2 } from "lucide-react";
 import InfoTable from "@/components/admin/InfoTable";

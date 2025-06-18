@@ -3,7 +3,7 @@
 import type React from "react";
 
 import { useState } from "react";
-import { Button } from "@/components/common/button";
+import { Button } from "@/components/common/Button";
 import { Input } from "@/components/common/input";
 import { Label } from "@/components/common/label";
 import {

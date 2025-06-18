@@ -10,7 +10,7 @@ import { updateSubmission } from "@/apis/assignments";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { validateFileSize } from "@/utils/files";
-import { ImagePreview } from "@/components/common/image-preview";
+import { ImagePreview } from "@/components/common/ImagePreview";
 import { Input } from "@/components/common/input";
 
 interface AssignmentSubmissionItemProps {

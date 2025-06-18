@@ -9,7 +9,7 @@ import { AdminLecture, LectureWithSequence } from "@/types/lecture";
 import { getYouTubeEmbedUrl } from "@/utils/youtube";
 import LectureForm from "@/components/admin/LectureForm";
 import LectureCard from "@/components/admin/lectures/LectureCard";
-import { Button } from "@/components/common/button";
+import { Button } from "@/components/common/Button";
 import {
   Dialog,
   DialogContent,

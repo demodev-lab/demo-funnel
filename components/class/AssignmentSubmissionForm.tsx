@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Button } from "@/components/common/button";
+import { Button } from "@/components/common/Button";
 import { Send, LinkIcon, ImageIcon } from "lucide-react";
 import { Input } from "@/components/common/input";
 import { Textarea } from "@/components/common/textarea";
@@ -11,7 +11,7 @@ import { createSubmission } from "@/apis/assignments";
 import { userInfo } from "@/types/user";
 import AssignmentConfetti from "./AssignmentConfetti";
 import { validateFileSize } from "@/utils/files";
-import { ImagePreview } from "@/components/common/image-preview";
+import { ImagePreview } from "@/components/common/ImagePreview";
 
 interface AssignmentSubmissionFormProps {
   userInfo: userInfo;

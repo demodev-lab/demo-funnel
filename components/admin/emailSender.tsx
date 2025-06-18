@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useInView } from "react-intersection-observer";
-import { Button } from "@/components/common/button";
+import { Button } from "@/components/common/Button";
 import { Label } from "@/components/common/label";
-import { RadioGroup, RadioGroupItem } from "@/components/common/radio-group";
+import { RadioGroup, RadioGroupItem } from "@/components/common/RadioGroup";
 import { Textarea } from "@/components/common/textarea";
 import { toast } from "sonner";
 import { sendEmails } from "@/apis/email";

@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button } from "@/components/common/button";
+import { Button } from "@/components/common/Button";
 import { Input } from "@/components/common/input";
 import { Label } from "@/components/common/label";
 import { Textarea } from "@/components/common/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/common/radio-group";
+import { RadioGroup, RadioGroupItem } from "@/components/common/RadioGroup";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,7 +16,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/common/alert-dialog";
+} from "@/components/common/AlertDialog";
 import {
   Select,
   SelectContent,

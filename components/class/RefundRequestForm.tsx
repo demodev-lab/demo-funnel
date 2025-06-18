@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams } from "next/navigation";
-import { Button } from "@/components/common/button";
+import { Button } from "@/components/common/Button";
 import { Input } from "@/components/common/input";
 import { Label } from "@/components/common/label";
 import { Textarea } from "@/components/common/textarea";

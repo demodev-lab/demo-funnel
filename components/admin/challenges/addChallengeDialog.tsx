@@ -1,5 +1,5 @@
 import { Loader2 } from "lucide-react";
-import { Button } from "@/components/common/button";
+import { Button } from "@/components/common/Button";
 import { Input } from "@/components/common/input";
 import { Label } from "@/components/common/label";
 import {

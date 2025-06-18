@@ -9,7 +9,7 @@ import { LectureWithSequence } from "@/types/lecture";
 import { useSelectedLectureStore } from "@/lib/store/useSelectedLectureStore";
 import { findTodayLectureIndex } from "@/utils/date/serverTime";
 import { getUserChallenges } from "@/apis/challenges";
-import CohortSelector from "@/components/common/cohort-selector";
+import CohortSelector from "@/components/common/CohortSelector";
 import { useRefundStatus } from "@/hooks/class/useRefundStatus";
 import { AssignmentSubmissionSection } from "@/components/class/AssignmentSubmissionSection";
 import DailyLectureSection from "@/components/class/DailyLectureSection";

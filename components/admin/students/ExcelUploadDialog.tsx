@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Button } from "@/components/common/button";
+import { Button } from "@/components/common/Button";
 import {
   Dialog,
   DialogContent,

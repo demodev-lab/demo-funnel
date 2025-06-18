@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "../common/card";
 import { Input } from "../common/input";
-import { Button } from "../common/button";
+import { Button } from "../common/Button";
 
 export default function CTAForm() {
   const [formData, setFormData] = useState({ name: "", email: "" });

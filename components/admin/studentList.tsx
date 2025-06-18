@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/common/button";
+import { Button } from "@/components/common/Button";
 import { Plus, Upload, ArrowUpDown } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";

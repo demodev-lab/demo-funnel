@@ -22,8 +22,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/common/alert-dialog";
-import { Button } from "@/components/common/button";
+} from "@/components/common/AlertDialog";
+import { Button } from "@/components/common/Button";
 import {
   createSubmission,
   updateSubmission,

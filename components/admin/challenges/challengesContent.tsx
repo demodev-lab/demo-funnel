@@ -7,7 +7,7 @@ import ErrorState from "./ErrorState";
 import AddChallengeDialog from "./AddChallengeDialog";
 import EditChallengeDialog from "./EditChallengeDialog";
 import InfoTable from "@/components/admin/InfoTable";
-import { Button } from "@/components/common/button";
+import { Button } from "@/components/common/Button";
 import {
   ChallengesState,
   ChallengesStatus,
