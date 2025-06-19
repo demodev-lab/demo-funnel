@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import DailyLectureItem from "./DailyLectureItem";
-import LecturePlayer from "./LecturePlayer";
+import MainLecture from "./MainLecture";
 import {
   Dialog,
   DialogContent,
@@ -101,7 +101,7 @@ export default function DailyLectureSection({
               </div>
             </div>
           ) : (
-            <LecturePlayer
+            <MainLecture
               title={mainLecture.title}
               description={mainLecture.description}
               lectureUrl={mainLecture.lectureUrl}
