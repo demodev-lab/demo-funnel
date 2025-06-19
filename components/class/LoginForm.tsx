@@ -19,7 +19,8 @@ import { userLogin } from "@/apis/auth";
 import { getUserChallenges } from "@/apis/challenges";
 import { IcLoadingSpinner } from "@/components/common/ic-loading-spinner";
 import { IcEmail } from "@/components/common/ic-email";
-export function LoginForm() {
+
+export default function LoginForm() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [email, setEmail] = useState("");

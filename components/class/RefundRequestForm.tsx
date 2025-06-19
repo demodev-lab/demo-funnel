@@ -26,7 +26,7 @@ export interface RefundFormData {
   futureContent: string;
 }
 
-export function RefundRequestForm({
+export default function RefundRequestForm({
   onSubmit,
   isSubmitting,
 }: RefundRequestFormProps) {
