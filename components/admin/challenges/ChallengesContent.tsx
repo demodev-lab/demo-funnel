@@ -1,11 +1,11 @@
 "use client";
 
-import { Challenge, ChallengeFormData } from "@/types/challenge";
+import { Challenge } from "@/types/challenge";
 import { CHALLENGE_COLUMNS } from "@/constants/challenge";
-import LoadingState from "./loading-state";
-import ErrorState from "./error-state";
-import AddChallengeDialog from "./add-challenge-dialog";
-import EditChallengeDialog from "./edit-challenge-dialog";
+import LoadingState from "@/components/admin/challenges/loading-state";
+import ErrorState from "@/components/admin/challenges/error-state";
+import AddChallengeDialog from "@/components/admin/challenges/AddChallengeDialog";
+import EditChallengeDialog from "@/components/admin/challenges/EditChallengeDialog";
 import InfoTable from "@/components/admin/info-table";
 import { Button } from "@/components/common/button";
 import {

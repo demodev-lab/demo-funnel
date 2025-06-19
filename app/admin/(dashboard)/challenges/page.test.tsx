@@ -58,7 +58,7 @@ jest.mock("@/components/admin/info-table", () => ({
   ),
 }));
 
-jest.mock("@/components/admin/challenges/add-challenge-dialog", () => ({
+jest.mock("@/components/admin/challenges/AddChallengeDialog", () => ({
   __esModule: true,
   default: ({
     onSubmit,
@@ -80,7 +80,7 @@ jest.mock("@/components/admin/challenges/add-challenge-dialog", () => ({
   ),
 }));
 
-jest.mock("@/components/admin/challenges/edit-challenge-dialog", () => ({
+jest.mock("@/components/admin/challenges/EditChallengeDialog", () => ({
   __esModule: true,
   default: ({
     onSubmit,
@@ -100,11 +100,6 @@ jest.mock("@/components/admin/challenges/edit-challenge-dialog", () => ({
       </button>
     </div>
   ),
-}));
-
-jest.mock("@/components/common/page-title", () => ({
-  __esModule: true,
-  default: () => null,
 }));
 
 // useChallenges 훅 모킹

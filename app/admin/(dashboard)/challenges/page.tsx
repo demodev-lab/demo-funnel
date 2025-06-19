@@ -1,7 +1,7 @@
 "use client";
 
 import { useChallenges } from "@/hooks/admin/useChallenges";
-import ChallengesContent from "@/components/admin/challenges/challenges-content";
+import ChallengesContent from "@/components/admin/challenges/ChallengesContent";
 
 export default function ChallengesPage() {
   const { state, status, dialog, actions } = useChallenges();

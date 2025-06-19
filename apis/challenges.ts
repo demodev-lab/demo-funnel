@@ -11,18 +11,31 @@ export async function getChallenges() {
 
     if (error) throw error;
 
-    // console.log("챌린지 목록: ", data);
-    return data;
+    return data.map((challenge) => ({
+      id: challenge.id,
+      name: challenge.name,
+      openDate: challenge.open_date,
+      closeDate: challenge.close_date,
+      lectureNum: challenge.lecture_num,
+    }));
   } catch (error) {
     handleError(error, "챌린지 목록 조회 중 오류가 발생했습니다.");
   }
 }
 
 export async function createChallenge(data: ChallengeFormData) {
+  const { openDate, closeDate, lectureNum, ...rest } = data;
+  const payload = {
+    ...rest,
+    open_date: openDate,
+    close_date: closeDate,
+    lecture_num: lectureNum,
+  };
+
   try {
     const { data: newChallenge, error } = await supabase
       .from("Challenges")
-      .insert(data)
+      .insert(payload)
       .select()
       .single();
 
@@ -38,9 +51,17 @@ export async function updateChallenge(
   data: Partial<ChallengeFormData>,
 ) {
   try {
+    const { openDate, closeDate, lectureNum, ...rest } = data;
+    const payload = {
+      ...rest,
+      open_date: openDate,
+      close_date: closeDate,
+      lecture_num: lectureNum,
+    };
+
     const { data: updatedChallenge, error } = await supabase
       .from("Challenges")
-      .update(data)
+      .update(payload)
       .eq("id", id)
       .select()
       .single();
@@ -49,7 +70,7 @@ export async function updateChallenge(
     if (!updatedChallenge) throw new Error("챌린지를 찾을 수 없습니다.");
 
     // 챌린지의 open_date가 변경되었는지 확인
-    if (data.open_date) {
+    if (data.openDate) {
       // 해당 챌린지의 모든 강의 조회
       const { data: lectures, error: lectureError } = await supabase
         .from("ChallengeLectures")
@@ -61,7 +82,7 @@ export async function updateChallenge(
 
       // 각 강의의 날짜 업데이트
       for (const lecture of lectures) {
-        const openAt = new Date(data.open_date);
+        const openAt = new Date(data.openDate);
         openAt.setDate(openAt.getDate() + (lecture.sequence - 1));
 
         const dueAt = new Date(openAt);

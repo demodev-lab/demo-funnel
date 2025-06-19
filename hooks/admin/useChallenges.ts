@@ -36,11 +36,11 @@ export interface ChallengesActions {
   setNewChallenge: (challenge: ChallengeFormData) => void;
   setEditingChallenge: (challenge: Challenge | null) => void;
   handleNewChallengeDateChange: (
-    field: "open_date" | "close_date",
+    field: "openDate" | "closeDate",
     value: string,
   ) => void;
   handleEditChallengeDateChange: (
-    field: "startDate" | "endDate",
+    field: "openDate" | "closeDate",
     value: string,
   ) => void;
   handleAddChallenge: () => void;
@@ -58,9 +58,9 @@ export const useChallenges = () => {
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [newChallenge, setNewChallenge] = useState<ChallengeFormData>({
     name: "",
-    open_date: new Date().toISOString().split("T")[0],
-    close_date: new Date().toISOString().split("T")[0],
-    lecture_num: 0,
+    openDate: new Date().toISOString().split("T")[0],
+    closeDate: new Date().toISOString().split("T")[0],
+    lectureNum: 0,
   });
 
   const queryClient = useQueryClient();
@@ -83,9 +83,9 @@ export const useChallenges = () => {
         setIsAddDialogOpen(false);
         setNewChallenge({
           name: "",
-          open_date: new Date().toISOString().split("T")[0],
-          close_date: new Date().toISOString().split("T")[0],
-          lecture_num: 0,
+          openDate: new Date().toISOString().split("T")[0],
+          closeDate: new Date().toISOString().split("T")[0],
+          lectureNum: 0,
         });
       },
       onError: (error: Error) => {
@@ -125,33 +125,32 @@ export const useChallenges = () => {
   });
 
   const handleNewChallengeDateChange = (
-    field: "open_date" | "close_date",
+    field: "openDate" | "closeDate",
     value: string,
   ) => {
     const updatedChallenge = { ...newChallenge, [field]: value };
-    const startDate = new Date(updatedChallenge.open_date);
-    const endDate = new Date(updatedChallenge.close_date);
+    const startDate = new Date(updatedChallenge.openDate);
+    const endDate = new Date(updatedChallenge.closeDate);
 
     if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
-      updatedChallenge.lecture_num = calculateLectureCount(startDate, endDate);
+      updatedChallenge.lectureNum = calculateLectureCount(startDate, endDate);
     }
 
     setNewChallenge(updatedChallenge);
   };
 
   const handleEditChallengeDateChange = (
-    field: "startDate" | "endDate",
+    field: "openDate" | "closeDate",
     value: string,
   ) => {
     if (!editingChallenge) return;
 
-    const updatedChallenge = { ...editingChallenge };
-    updatedChallenge[field] = new Date(value);
+    const updatedChallenge = { ...editingChallenge, [field]: value };
 
-    if (updatedChallenge.startDate && updatedChallenge.endDate) {
-      updatedChallenge.lectureCount = calculateLectureCount(
-        updatedChallenge.startDate,
-        updatedChallenge.endDate,
+    if (updatedChallenge.openDate && updatedChallenge.closeDate) {
+      updatedChallenge.lectureNum = calculateLectureCount(
+        new Date(updatedChallenge.openDate),
+        new Date(updatedChallenge.closeDate),
       );
     }
 
@@ -161,22 +160,22 @@ export const useChallenges = () => {
   const handleAddChallenge = () => {
     if (
       !newChallenge.name ||
-      !newChallenge.open_date ||
-      !newChallenge.close_date
+      !newChallenge.openDate ||
+      !newChallenge.closeDate
     ) {
       toast.error(CHALLENGE_MESSAGES.VALIDATION.REQUIRED);
       return;
     }
 
-    const openDate = new Date(newChallenge.open_date);
-    const closeDate = new Date(newChallenge.close_date);
+    const openDate = new Date(newChallenge.openDate);
+    const closeDate = new Date(newChallenge.closeDate);
 
     if (!validateDateRange(openDate, closeDate)) {
       toast.error(CHALLENGE_MESSAGES.VALIDATION.DATE_RANGE);
       return;
     }
 
-    if (newChallenge.lecture_num <= 0) {
+    if (newChallenge.lectureNum <= 0) {
       toast.error(CHALLENGE_MESSAGES.VALIDATION.LECTURE_COUNT);
       return;
     }
@@ -194,9 +193,9 @@ export const useChallenges = () => {
   const handleEditChallenge = (challenge: Challenge) => {
     const editChallenge = {
       ...challenge,
-      startDate: new Date(challenge.open_date),
-      endDate: new Date(challenge.close_date),
-      lectureCount: challenge.lecture_num,
+      openDate: challenge.openDate,
+      closeDate: challenge.closeDate,
+      lectureNum: challenge.lectureNum,
     };
     setEditingChallenge(editChallenge);
     setIsEditDialogOpen(true);
@@ -207,21 +206,24 @@ export const useChallenges = () => {
 
     if (
       !editingChallenge.name ||
-      !editingChallenge.startDate ||
-      !editingChallenge.endDate
+      !editingChallenge.openDate ||
+      !editingChallenge.closeDate
     ) {
       toast.error(CHALLENGE_MESSAGES.VALIDATION.REQUIRED);
       return;
     }
 
     if (
-      !validateDateRange(editingChallenge.startDate, editingChallenge.endDate)
+      !validateDateRange(
+        new Date(editingChallenge.openDate),
+        new Date(editingChallenge.closeDate),
+      )
     ) {
       toast.error(CHALLENGE_MESSAGES.VALIDATION.DATE_RANGE);
       return;
     }
 
-    if (editingChallenge.lectureCount && editingChallenge.lectureCount <= 0) {
+    if (editingChallenge.lectureNum && editingChallenge.lectureNum <= 0) {
       toast.error(CHALLENGE_MESSAGES.VALIDATION.LECTURE_COUNT);
       return;
     }
@@ -241,19 +243,23 @@ export const useChallenges = () => {
     }
 
     // 날짜 형식을 YYYY-MM-DD로 변환
-    const newOpenDate = editingChallenge.startDate.toISOString().split("T")[0];
-    const newCloseDate = editingChallenge.endDate.toISOString().split("T")[0];
+    const newOpenDate = new Date(editingChallenge.openDate)
+      .toISOString()
+      .split("T")[0];
+    const newCloseDate = new Date(editingChallenge.closeDate)
+      .toISOString()
+      .split("T")[0];
 
     // 시작일이 변경된 경우에만 업데이트
-    if (newOpenDate !== originalChallenge.open_date) {
-      updatedFields.open_date = newOpenDate;
+    if (newOpenDate !== originalChallenge.openDate) {
+      updatedFields.openDate = newOpenDate;
     }
     // 종료일이 변경된 경우에만 업데이트
-    if (newCloseDate !== originalChallenge.close_date) {
-      updatedFields.close_date = newCloseDate;
+    if (newCloseDate !== originalChallenge.closeDate) {
+      updatedFields.closeDate = newCloseDate;
     }
-    if (editingChallenge.lectureCount !== originalChallenge.lecture_num) {
-      updatedFields.lecture_num = editingChallenge.lectureCount;
+    if (editingChallenge.lectureNum !== originalChallenge.lectureNum) {
+      updatedFields.lectureNum = editingChallenge.lectureNum;
     }
 
     if (Object.keys(updatedFields).length > 0) {
