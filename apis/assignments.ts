@@ -317,20 +317,35 @@ export async function getUserSubmission({
       .maybeSingle();
 
     if (error) {
-      // console.error("Supabase 조회 중 에러:", error);
-      throw error;
+      handleError(error, "제출된 과제 조회 중 오류가 발생했습니다.");
     }
 
-    // console.log("제출된 과제:", submission);
+    // submission이 null인 경우 (과제를 제출하지 않은 경우)
+    if (!submission) {
+      return {
+        id: null,
+        assignmentComment: null,
+        assignmentUrl: null,
+        challengeLectureId: challengeLectureId,
+        imageUrl: null,
+        isSubmit: false,
+        submittedAt: null,
+        userId: userId,
+      };
+    }
 
-    return submission || null;
+    return {
+      id: submission.id,
+      assignmentComment: submission.assignment_comment,
+      assignmentUrl: submission.assignment_url,
+      challengeLectureId: submission.challenge_lecture_id,
+      imageUrl: submission.image_url,
+      isSubmit: submission.is_submit,
+      submittedAt: submission.submitted_at,
+      userId: submission.user_id,
+    };
   } catch (error) {
-    // console.error("제출된 과제 조회 실패:", error);
-    throw new Error(
-      error instanceof Error
-        ? error.message
-        : "제출된 과제 조회 중 오류가 발생했습니다.",
-    );
+    handleError(error, "제출된 과제 조회 중 오류가 발생했습니다.");
   }
 }
 
