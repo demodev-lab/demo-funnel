@@ -29,3 +29,6 @@ export default async function Class({
     </HydrationBoundary>
   );
 }
+
+// 정적 페이지 생성 설정
+export const revalidate = 300; // 5분마다 재검증
