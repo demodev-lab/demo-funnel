@@ -14,7 +14,7 @@ interface EditChallengeDialogProps {
   onOpenChange: (open: boolean) => void;
   challenge: Challenge | null;
   onChallengeChange: (field: "name", value: string) => void;
-  onDateChange: (field: "startDate" | "endDate", value: string) => void;
+  onDateChange: (field: "openDate" | "closeDate", value: string) => void;
   onSubmit: () => void;
   isUpdating: boolean;
 }
@@ -56,8 +56,8 @@ export default function EditChallengeDialog({
               id="edit-startDate"
               type="date"
               className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20"
-              value={challenge.startDate?.toISOString().split("T")[0]}
-              onChange={(e) => onDateChange("startDate", e.target.value)}
+              value={challenge.openDate}
+              onChange={(e) => onDateChange("openDate", e.target.value)}
             />
           </div>
           <div className="space-y-2">
@@ -68,8 +68,8 @@ export default function EditChallengeDialog({
               id="edit-endDate"
               type="date"
               className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20"
-              value={challenge.endDate?.toISOString().split("T")[0]}
-              onChange={(e) => onDateChange("endDate", e.target.value)}
+              value={challenge.closeDate}
+              onChange={(e) => onDateChange("closeDate", e.target.value)}
             />
           </div>
           <div className="space-y-2">
@@ -80,7 +80,7 @@ export default function EditChallengeDialog({
               id="edit-lectureCount"
               type="number"
               className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20"
-              value={challenge.lectureCount || 0}
+              value={challenge.lectureNum || 0}
               disabled={true}
               readOnly
             />

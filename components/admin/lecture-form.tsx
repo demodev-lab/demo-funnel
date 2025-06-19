@@ -198,7 +198,7 @@ export default function LectureForm({
     const challenge = challenges.find(
       (c) => String(c.id) === String(challengeId),
     );
-    return challenge?.lecture_num || 0;
+    return challenge?.lectureNum || 0;
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {

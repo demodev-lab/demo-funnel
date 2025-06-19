@@ -16,7 +16,7 @@ interface AddChallengeDialogProps {
   onOpenChange: (open: boolean) => void;
   newChallenge: ChallengeFormData;
   onNewChallengeChange: (field: "name", value: string) => void;
-  onDateChange: (field: "open_date" | "close_date", value: string) => void;
+  onDateChange: (field: "openDate" | "closeDate", value: string) => void;
   onSubmit: () => void;
   isCreating: boolean;
 }
@@ -63,8 +63,8 @@ export default function AddChallengeDialog({
               id="open_date"
               type="date"
               className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20"
-              value={newChallenge.open_date}
-              onChange={(e) => onDateChange("open_date", e.target.value)}
+              value={newChallenge.openDate}
+              onChange={(e) => onDateChange("openDate", e.target.value)}
               disabled={isCreating}
             />
           </div>
@@ -76,8 +76,8 @@ export default function AddChallengeDialog({
               id="close_date"
               type="date"
               className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20"
-              value={newChallenge.close_date}
-              onChange={(e) => onDateChange("close_date", e.target.value)}
+              value={newChallenge.closeDate}
+              onChange={(e) => onDateChange("closeDate", e.target.value)}
               disabled={isCreating}
             />
           </div>
@@ -89,7 +89,7 @@ export default function AddChallengeDialog({
               id="lecture_num"
               type="number"
               className="bg-[#1A1D29]/70 border-gray-700/50 text-white focus:border-[#5046E4] focus:ring-[#5046E4]/20"
-              value={newChallenge.lecture_num}
+              value={newChallenge.lectureNum}
               disabled={true}
               readOnly
             />

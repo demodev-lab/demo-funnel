@@ -39,8 +39,8 @@ export default function Header() {
       setSelectedCohort({
         id: String(firstChallenge.id),
         name: firstChallenge.name,
-        startDate: new Date(firstChallenge.start_date || Date.now()),
-        endDate: new Date(firstChallenge.end_date || Date.now()),
+        startDate: new Date(firstChallenge.openDate || Date.now()),
+        endDate: new Date(firstChallenge.closeDate || Date.now()),
       });
     }
   }, [challenges, selectedChallengeId, setSelectedChallengeId]);
@@ -52,8 +52,8 @@ export default function Header() {
         setSelectedCohort({
           id: String(challenge.id),
           name: challenge.name,
-          startDate: new Date(challenge.open_date || Date.now()),
-          endDate: new Date(challenge.close_date || Date.now()),
+          startDate: new Date(challenge.openDate || Date.now()),
+          endDate: new Date(challenge.closeDate || Date.now()),
         });
       }
     }
@@ -115,8 +115,8 @@ export default function Header() {
                     setSelectedCohort({
                       id: String(challenge.id),
                       name: challenge.name,
-                      startDate: new Date(challenge.start_date || Date.now()),
-                      endDate: new Date(challenge.end_date || Date.now()),
+                      startDate: new Date(challenge.openDate || Date.now()),
+                      endDate: new Date(challenge.closeDate || Date.now()),
                     });
                   }
                 }}
