@@ -39,7 +39,7 @@ export default function ClassPage({
   });
 
   // 챌린지의 강의 조회
-  const { data: lectures = [] } = useQuery<LectureWithSequence[]>({
+  const { data: lectures = [], isLoading: isLecturesLoading } = useQuery<LectureWithSequence[]>({
     queryKey: ["challenge-lectures", currentChallengeId],
     queryFn: async () => {
       const data = await getLecturesByChallenge(currentChallengeId);
@@ -91,7 +91,9 @@ export default function ClassPage({
     };
   }, [lectures, onSelectedLecture, user]);
 
-  if (isLoadingUser) {
+  const isLoading = isLoadingUser || (!!user?.id && isLecturesLoading);
+
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <Loader2 className="h-8 w-8 animate-spin text-[#8C7DFF]" />
