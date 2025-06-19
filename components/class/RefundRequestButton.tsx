@@ -6,7 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/common/dialog";
-import { RefundRequestForm, RefundFormData } from "./refund-request-form";
+import { RefundRequestForm, RefundFormData } from "./RefundRequestForm";
 import { handleError } from "@/utils/errorHandler";
 import { useToast } from "@/hooks/useToast";
 
