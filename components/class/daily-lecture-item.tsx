@@ -51,7 +51,8 @@ export default function DailyLectureItem({
             }
             alt={dailyLecture.name}
             fill
-            priority={videoIndex === 0}
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            priority={videoIndex < 4}
             className={`object-cover transition-all duration-500 ${
               isLocked ? "opacity-40 blur-[1px]" : "hover:scale-105"
             }`}
