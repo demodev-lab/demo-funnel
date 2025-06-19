@@ -69,6 +69,11 @@ export default function LecturePlayer({
                     alt={title}
                     fill
                     className="w-full h-full object-cover"
+                    loading="eager"
+                    priority
+                    sizes="(max-width: 768px) 100vw, 80vw"
+                    quality={75}
+                    placeholder="blur"
                   />
                 )
               ) : (
