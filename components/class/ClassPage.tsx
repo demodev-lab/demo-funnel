@@ -89,7 +89,7 @@ export default function ClassPage({
     return () => {
       isMounted = false;
     };
-  }, [lectures, onSelectedLecture]);
+  }, [lectures, onSelectedLecture, user]);
 
   if (isLoadingUser) {
     return (
@@ -97,10 +97,6 @@ export default function ClassPage({
         <Loader2 className="h-8 w-8 animate-spin text-[#8C7DFF]" />
       </div>
     );
-  }
-
-  if (!user) {
-    return null;
   }
 
   return (
