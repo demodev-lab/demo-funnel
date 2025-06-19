@@ -18,7 +18,7 @@ interface AssignmentSubmissionFormProps {
   challengeLectureId: number;
 }
 
-export function AssignmentSubmissionForm({
+export default function AssignmentSubmissionForm({
   userInfo,
   challengeLectureId,
 }: AssignmentSubmissionFormProps) {
