@@ -73,7 +73,6 @@ export default function LecturePlayer({
                     priority
                     sizes="(max-width: 768px) 100vw, 80vw"
                     quality={75}
-                    placeholder="blur"
                   />
                 )
               ) : (
