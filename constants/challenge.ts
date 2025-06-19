@@ -2,17 +2,17 @@ export const CHALLENGE_COLUMNS = [
   { header: "기수 이름", accessor: "name" },
   {
     header: "시작일",
-    accessor: "open_date",
+    accessor: "openDate",
     cell: (value: string) => new Date(value).toLocaleDateString("ko-KR"),
   },
   {
     header: "종료일",
-    accessor: "close_date",
+    accessor: "closeDate",
     cell: (value: string) => new Date(value).toLocaleDateString("ko-KR"),
   },
   {
     header: "강의 개수",
-    accessor: "lecture_num",
+    accessor: "lectureNum",
     cell: (value: number) => `${value}개`,
   },
 ];
