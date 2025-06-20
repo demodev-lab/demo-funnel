@@ -6,6 +6,7 @@ import {
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
+import { notFound } from "next/navigation";
 
 export default async function Class({
   params,
@@ -15,6 +16,10 @@ export default async function Class({
   const queryClient = new QueryClient();
   const { challengeId } = await params;
   const currentChallengeId = Number(challengeId);
+
+  if (isNaN(currentChallengeId)) {
+    notFound();
+  }
 
   const lectures = await getLecturesByChallenge(currentChallengeId);
 
