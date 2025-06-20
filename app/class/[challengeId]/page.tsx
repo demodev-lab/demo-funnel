@@ -25,7 +25,7 @@ export default async function Class({
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <ClassPage params={{ challengeId }} />
+      <ClassPage currentChallengeId={currentChallengeId} />
     </HydrationBoundary>
   );
 }
