@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     "매일 하나의 강의를 듣고 과제를 제출하는 학습 플랫폼입니다. 꾸준한 학습을 통해 실력을 키워보세요.",
   generator: "Next.js",
   icons: {
-    icon: "./icon.ico",
+    icon: "/icon.ico",
   },
   openGraph: {
     title: "demo funnel",
