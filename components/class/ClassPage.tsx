@@ -1,15 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
-import { useUser } from "@/hooks/auth/useUser";
-import { useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
-import { getLecturesByChallenge } from "@/apis/lectures";
+import { useClassPage } from "@/hooks/class/useClassPage";
 import { LectureWithSequence } from "@/types/lecture";
-import { useSelectedLectureStore } from "@/lib/store/useSelectedLectureStore";
-import { getUserChallenges } from "@/apis/challenges";
 import CohortSelector from "@/components/common/cohort-selector";
-import { useRefundStatus } from "@/hooks/class/useRefundStatus";
 import AssignmentSubmissionSection from "@/components/class/AssignmentSubmissionSection";
 import DailyLectureSection from "@/components/class/DailyLectureSection";
 import RefundRequestButton from "@/components/class/RefundRequestButton";
@@ -24,59 +17,18 @@ export default function ClassPage({
   currentChallengeId,
   initialLecture,
 }: ClassPageProps) {
-  const router = useRouter();
-  const { data: user, isLoading: isLoadingUser } = useUser();
-
-  // 로그인에서 저장한 쿼리 캐시의 챌린지 목록 사용
-  const { data: challengeList = [] } = useQuery({
-    queryKey: ["challenge-list", user?.id],
-    queryFn: async () => {
-      if (!user?.id) return [];
-      const data = await getUserChallenges(user.id);
-      return data;
-    },
-    enabled: !isLoadingUser && !!user?.id,
-    staleTime: 1000 * 60 * 5, // 5분 동안 캐시 유지
-  });
-
-  // 챌린지의 강의 조회
-  const { data: lectures = [], isLoading: isLecturesLoading } = useQuery<
-    LectureWithSequence[]
-  >({
-    queryKey: ["challenge-lectures", currentChallengeId],
-    queryFn: async () => {
-      const data = await getLecturesByChallenge(currentChallengeId);
-      return data;
-    },
-    enabled: !isLoadingUser && !!user?.id,
-    staleTime: 1000 * 60 * 5, // 5분 동안 캐시 유지
-  });
-
-  const setSelectedLecture = useSelectedLectureStore((s) => s.setSelectedLecture);
-
-  const challengeLectures = lectures.map((lecture) => ({
-    id: lecture.challenge_lecture_id,
-    lecture_id: lecture.id,
-  }));
-
-  const { isAllSubmitted, isRefundRequested } = useRefundStatus(
-    user?.id,
-    challengeLectures,
-  );
-
-  // 사용자가 없을 때 리디렉션
-  useEffect(() => {
-    if (!isLoadingUser && !user) {
-      router.push("/login");
-    }
-  }, [isLoadingUser, user, router]);
-
-  useEffect(() => {
-    setSelectedLecture(initialLecture); // CSR 진입 시 딱 한 번만 반영
-  }, [initialLecture, setSelectedLecture]);
+  const {
+    user,
+    challengeList,
+    lectures,
+    isAllSubmitted,
+    isRefundRequested,
+    isLoading,
+    handleChallengeChange,
+  } = useClassPage({ currentChallengeId, initialLecture });
 
   // 로딩 중이거나 사용자가 없으면 로딩 화면 표시
-  if (isLoadingUser || !user || isLecturesLoading) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <Loader2 className="h-8 w-8 animate-spin text-[#8C7DFF]" />
@@ -103,9 +55,7 @@ export default function ClassPage({
             <CohortSelector
               challengeList={challengeList}
               value={String(currentChallengeId)}
-              onValueChange={(value) => {
-                router.replace(`/class/${value}`);
-              }}
+              onValueChange={handleChallengeChange}
             />
           </div>
 
