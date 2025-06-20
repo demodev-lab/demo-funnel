@@ -83,7 +83,7 @@ export default function DailyLectureSection({
     setIsPlaying(false);
   };
 
-  const handleLockedClick = (title: string) => {
+  const handleLockedClick = () => {
     setIsLockedModalOpen(true);
   };
 

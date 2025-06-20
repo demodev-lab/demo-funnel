@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Play, Pause, Bookmark, Share2 } from "lucide-react";
+import { Play, Pause } from "lucide-react";
 import { Button } from "@/components/common/button";
 import { getVideoThumbnailUrl, getYouTubeEmbedUrl } from "@/utils/youtube";
 
