@@ -1,5 +1,6 @@
 import { getLecturesByChallenge } from "@/apis/lectures";
 import ClassPage from "@/components/class/ClassPage";
+import { findTodayLectureIndex } from '@/utils/date/serverTime';
 import {
   dehydrate,
   HydrationBoundary,
@@ -15,17 +16,20 @@ export default async function Class({
   const { challengeId } = await params;
   const currentChallengeId = Number(challengeId);
 
+  const lectures = await getLecturesByChallenge(currentChallengeId);
+
+  // 오늘 강의 찾기
+  const todayIndex = await findTodayLectureIndex(lectures);
+  const initialLecture = todayIndex !== -1 ? lectures[todayIndex] : lectures[0];
+
   await queryClient.prefetchQuery({
     queryKey: ["challenge-lectures", currentChallengeId],
-    queryFn: async () => {
-      const data = await getLecturesByChallenge(currentChallengeId);
-      return data;
-    },
+    queryFn: () => lectures,
   });
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <ClassPage currentChallengeId={currentChallengeId} />
+      <ClassPage currentChallengeId={currentChallengeId} initialLecture={initialLecture} />
     </HydrationBoundary>
   );
 }

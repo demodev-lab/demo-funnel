@@ -16,7 +16,12 @@ export const getServerTime = async (): Promise<string> => {
   }
 
   try {
-    const { data } = await axios.get("/api/server-time");
+    const baseUrl =
+    typeof window === "undefined"
+      ? process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+      : "";
+    const { data } = await axios.get(`${baseUrl}/api/server-time`);
+    
     cachedServerTime = data.serverTime;
     lastFetchTime = now;
     return data.serverTime;
