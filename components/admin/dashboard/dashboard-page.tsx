@@ -3,24 +3,14 @@
 import { Loader2 } from "lucide-react";
 import SummaryCards from "./summary-cards";
 import DetailedStats from "./detailed-stats";
-import { useQuery } from "@tanstack/react-query";
 import { useChallengeStore } from "@/lib/store/useChallengeStore";
-import { DashboardAssignmentStat } from "@/types/assignment";
 import { usePeriodComparison } from "@/hooks/admin/usePeriodComparison";
-import { getAssignmentStats } from "@/apis/assignments";
+import { useAssignmentState } from "@/hooks/admin/useAssignmentState";
 
 export default function DashboardPage() {
-  const { selectedChallengeId } = useChallengeStore();
-
-  const { data: currentAssignmentState = [], isLoading: isLoadingCurrent } =
-    useQuery<DashboardAssignmentStat[]>({
-      queryKey: ["challengeUsers", selectedChallengeId],
-      queryFn: async () => {
-        const data = await getAssignmentStats(selectedChallengeId);
-        return data;
-      },
-      enabled: !!selectedChallengeId,
-    });
+  const selectedChallengeId = useChallengeStore(
+    (state) => state.selectedChallengeId,
+  );
 
   const previousChallengeId =
     selectedChallengeId && selectedChallengeId > 1
@@ -28,15 +18,11 @@ export default function DashboardPage() {
       : undefined;
   const isFirstPeriod = selectedChallengeId === 1;
 
+  const { data: currentAssignmentState = [], isLoading: isLoadingCurrent } =
+    useAssignmentState(selectedChallengeId);
+
   const { data: previousAssignmentState = [], isLoading: isLoadingPrevious } =
-    useQuery<DashboardAssignmentStat[]>({
-      queryKey: ["challengeUsers", previousChallengeId],
-      queryFn: async () => {
-        const data = await getAssignmentStats(previousChallengeId);
-        return data;
-      },
-      enabled: !!previousChallengeId,
-    });
+    useAssignmentState(previousChallengeId);
 
   const {
     currentValue: currentTotalStudent,
