@@ -1,5 +1,5 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/common/Tabs";
-import DashboardTabsContent from "./DashboardTabsContent";
+import DashboardTabsContent from "@/components/admin/dashboard/DashboardTabsContent";
 
 export default function DashboardTabs() {
   return (
