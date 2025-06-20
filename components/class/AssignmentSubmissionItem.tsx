@@ -19,7 +19,7 @@ interface AssignmentSubmissionItemProps {
   isTodayLecture: boolean;
 }
 
-export function AssignmentSubmissionItem({
+export default function AssignmentSubmissionItem({
   userInfo,
   submittedAssignment,
   isTodayLecture,

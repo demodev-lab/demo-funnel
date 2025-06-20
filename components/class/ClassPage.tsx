@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect } from "react";
+import { use, useEffect, useRef } from "react";
 import { useUser } from "@/hooks/auth/useUser";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
@@ -11,20 +11,18 @@ import { findTodayLectureIndex } from "@/utils/date/serverTime";
 import { getUserChallenges } from "@/apis/challenges";
 import CohortSelector from "@/components/common/cohort-selector";
 import { useRefundStatus } from "@/hooks/class/useRefundStatus";
-import { AssignmentSubmissionSection } from "@/components/class/assignment-submission-section";
-import DailyLectureSection from "@/components/class/daily-lecture-section";
-import { RefundRequestButton } from "@/components/class/refund-request-button";
+import AssignmentSubmissionSection from "@/components/class/AssignmentSubmissionSection";
+import DailyLectureSection from "@/components/class/DailyLectureSection";
+import RefundRequestButton from "@/components/class/RefundRequestButton";
 import { Loader2 } from "lucide-react";
 
 export default function ClassPage({
-  params,
+  currentChallengeId,
 }: {
-  params: { challengeId: string };
+  currentChallengeId: number;
 }) {
   const router = useRouter();
   const { data: user, isLoading: isLoadingUser } = useUser();
-  const { challengeId } = params;
-  const currentChallengeId = Number(challengeId);
 
   // 로그인에서 저장한 쿼리 캐시의 챌린지 목록 사용
   const { data: challengeList = [] } = useQuery({
@@ -39,7 +37,7 @@ export default function ClassPage({
   });
 
   // 챌린지의 강의 조회
-  const { data: lectures = [] } = useQuery<LectureWithSequence[]>({
+  const { data: lectures = [], isLoading: isLecturesLoading } = useQuery<LectureWithSequence[]>({
     queryKey: ["challenge-lectures", currentChallengeId],
     queryFn: async () => {
       const data = await getLecturesByChallenge(currentChallengeId);
@@ -66,41 +64,35 @@ export default function ClassPage({
   useEffect(() => {
     if (!isLoadingUser && !user) {
       router.push("/login");
-      return;
     }
+  }, [isLoadingUser, user]);
+  
+  const hasSelectedLecture = useRef(false);
 
-    let isMounted = true;
+  useEffect(() => {
+    if (isLoadingUser || !user || lectures.length === 0 || hasSelectedLecture.current) return;
+
+    hasSelectedLecture.current = true;
 
     const checkTodayLecture = async () => {
       const todayIndex = await findTodayLectureIndex(lectures);
-
-      if (todayIndex !== -1 && isMounted) {
-        onSelectedLecture(lectures[todayIndex] as LectureWithSequence);
-        return;
-      }
-
-      if (isMounted && lectures.length > 0) {
-        onSelectedLecture(lectures[0] as LectureWithSequence);
-      }
+      const targetLecture = todayIndex !== -1 ? lectures[todayIndex] : lectures[0];
+      onSelectedLecture(targetLecture);
     };
 
     checkTodayLecture();
+  }, [lectures, onSelectedLecture, isLoadingUser, user]);
 
-    return () => {
-      isMounted = false;
-    };
-  }, [lectures, onSelectedLecture]);
+  
 
-  if (isLoadingUser) {
+  const isLoading = isLoadingUser || (!!user?.id && isLecturesLoading);
+
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <Loader2 className="h-8 w-8 animate-spin text-[#8C7DFF]" />
       </div>
     );
-  }
-
-  if (!user) {
-    return null;
   }
 
   return (
@@ -121,7 +113,7 @@ export default function ClassPage({
           <div className="flex justify-end w-full px-6 py-4">
             <CohortSelector
               challengeList={challengeList}
-              value={String(challengeId)}
+              value={String(currentChallengeId)}
               onValueChange={(value) => {
                 router.replace(`/class/${value}`);
               }}

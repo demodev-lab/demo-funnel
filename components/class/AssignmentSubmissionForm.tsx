@@ -9,7 +9,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { createSubmission } from "@/apis/assignments";
 import { userInfo } from "@/types/user";
-import AssignmentConfetti from "./assignment-confetti";
+import AssignmentConfetti from "./AssignmentConfetti";
 import { validateFileSize } from "@/utils/files";
 import { ImagePreview } from "@/components/common/image-preview";
 
@@ -18,7 +18,7 @@ interface AssignmentSubmissionFormProps {
   challengeLectureId: number;
 }
 
-export function AssignmentSubmissionForm({
+export default function AssignmentSubmissionForm({
   userInfo,
   challengeLectureId,
 }: AssignmentSubmissionFormProps) {

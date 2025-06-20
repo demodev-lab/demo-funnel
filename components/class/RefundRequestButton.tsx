@@ -6,7 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/common/dialog";
-import { RefundRequestForm, RefundFormData } from "./refund-request-form";
+import RefundRequestForm, { RefundFormData } from "./RefundRequestForm";
 import { handleError } from "@/utils/errorHandler";
 import { useToast } from "@/hooks/useToast";
 
@@ -15,10 +15,10 @@ interface RefundRequestButtonProps {
   isRefundRequested: boolean;
 }
 
-export const RefundRequestButton = ({
+export default function RefundRequestButton({
   isAllSubmitted,
   isRefundRequested,
-}: RefundRequestButtonProps) => {
+}: RefundRequestButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
@@ -78,4 +78,4 @@ export const RefundRequestButton = ({
       </Dialog>
     </div>
   );
-};
+}
