@@ -64,7 +64,6 @@ export default function ClassPage({
     challengeLectures,
   );
 
-
   // 사용자가 없을 때 리디렉션
   useEffect(() => {
     if (!isLoadingUser && !user) {
@@ -72,22 +71,12 @@ export default function ClassPage({
     }
   }, [isLoadingUser, user, router]);
 
-  // 로딩 중이거나 사용자가 없으면 로딩 화면 표시
-  if (isLoadingUser || !user) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-[#8C7DFF]" />
-      </div>
-    );
-  }
-  
   useEffect(() => {
     setSelectedLecture(initialLecture); // CSR 진입 시 딱 한 번만 반영
   }, [initialLecture, setSelectedLecture]);
-  
-  const isLoading = isLecturesLoading;
 
-  if (isLoading) {
+  // 로딩 중이거나 사용자가 없으면 로딩 화면 표시
+  if (isLoadingUser || !user || isLecturesLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <Loader2 className="h-8 w-8 animate-spin text-[#8C7DFF]" />
