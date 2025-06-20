@@ -1,13 +1,12 @@
 "use client";
 
-import { use, useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useUser } from "@/hooks/auth/useUser";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { getLecturesByChallenge } from "@/apis/lectures";
 import { LectureWithSequence } from "@/types/lecture";
 import { useSelectedLectureStore } from "@/lib/store/useSelectedLectureStore";
-import { findTodayLectureIndex } from "@/utils/date/serverTime";
 import { getUserChallenges } from "@/apis/challenges";
 import CohortSelector from "@/components/common/cohort-selector";
 import { useRefundStatus } from "@/hooks/class/useRefundStatus";
@@ -16,11 +15,15 @@ import DailyLectureSection from "@/components/class/DailyLectureSection";
 import RefundRequestButton from "@/components/class/RefundRequestButton";
 import { Loader2 } from "lucide-react";
 
+interface ClassPageProps {
+  currentChallengeId: number;
+  initialLecture: LectureWithSequence;
+}
+
 export default function ClassPage({
   currentChallengeId,
-}: {
-  currentChallengeId: number;
-}) {
+  initialLecture,
+}: ClassPageProps) {
   const router = useRouter();
   const { data: user, isLoading: isLoadingUser } = useUser();
 
@@ -47,9 +50,7 @@ export default function ClassPage({
     staleTime: 1000 * 60 * 5, // 5분 동안 캐시 유지
   });
 
-  const onSelectedLecture = useSelectedLectureStore(
-    (state) => state.setSelectedLecture,
-  );
+  const setSelectedLecture = useSelectedLectureStore((s) => s.setSelectedLecture);
 
   const challengeLectures = lectures.map((lecture) => ({
     id: lecture.challenge_lecture_id,
@@ -67,24 +68,10 @@ export default function ClassPage({
     }
   }, [isLoadingUser, user]);
   
-  const hasSelectedLecture = useRef(false);
-
   useEffect(() => {
-    if (isLoadingUser || !user || lectures.length === 0 || hasSelectedLecture.current) return;
-
-    hasSelectedLecture.current = true;
-
-    const checkTodayLecture = async () => {
-      const todayIndex = await findTodayLectureIndex(lectures);
-      const targetLecture = todayIndex !== -1 ? lectures[todayIndex] : lectures[0];
-      onSelectedLecture(targetLecture);
-    };
-
-    checkTodayLecture();
-  }, [lectures, onSelectedLecture, isLoadingUser, user]);
-
+    setSelectedLecture(initialLecture); // CSR 진입 시 딱 한 번만 반영
+  }, [initialLecture, setSelectedLecture]);
   
-
   const isLoading = isLoadingUser || (!!user?.id && isLecturesLoading);
 
   if (isLoading) {
