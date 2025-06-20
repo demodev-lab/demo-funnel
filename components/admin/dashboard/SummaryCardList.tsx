@@ -1,26 +1,55 @@
+"use client";
+
 import { Users, CheckCircle2 } from "lucide-react";
 import SummaryCard from "@/components/admin/dashboard/SummaryCard";
+import { useChallengeStore } from "@/lib/store/useChallengeStore";
+import { usePeriodComparison } from "@/hooks/admin/usePeriodComparison";
+import { useAssignmentState } from "@/hooks/admin/useAssignmentState";
 
-interface SummaryCardListProps {
-  totalStudent: number | undefined;
-  totalStudentChange?: { value: string; isPositive: boolean };
-  isFirstPeriod: boolean;
-  averageSubmissionRate: string | undefined;
-  submissionRateChange?: { value: string; isPositive: boolean };
-}
+export default function SummaryCardList() {
+  const selectedChallengeId = useChallengeStore(
+    (state) => state.selectedChallengeId,
+  );
 
-export default function SummaryCardList({
-  totalStudent,
-  totalStudentChange,
-  isFirstPeriod,
-  averageSubmissionRate,
-  submissionRateChange,
-}: SummaryCardListProps) {
+  const previousChallengeId =
+    selectedChallengeId && selectedChallengeId > 1
+      ? selectedChallengeId - 1
+      : undefined;
+  const isFirstPeriod = selectedChallengeId === 1;
+
+  const { data: currentAssignmentState = [] } =
+    useAssignmentState(selectedChallengeId);
+  const { data: previousAssignmentState = [] } =
+    useAssignmentState(previousChallengeId);
+
+  const {
+    currentValue: currentTotalStudent,
+    formattedChange: totalStudentChange,
+  } = usePeriodComparison(
+    currentAssignmentState,
+    previousAssignmentState,
+    isFirstPeriod,
+    "totalStudents",
+  );
+
+  const {
+    currentValue: averageSubmissionRate,
+    formattedChange: submissionRateChange,
+  } = usePeriodComparison(
+    currentAssignmentState,
+    previousAssignmentState,
+    isFirstPeriod,
+    "submissionRate",
+  );
   return (
     <div className="grid gap-5 grid-cols-2 animate-slide-up">
       <SummaryCard
         title="총 수강생"
-        value={totalStudent !== undefined ? `${totalStudent}명` : "-"}
+        value={
+          currentTotalStudent !== undefined && !isNaN(currentTotalStudent)
+            ? `${currentTotalStudent}명`
+            : ""
+        }
         icon={Users}
         change={
           !isFirstPeriod && totalStudentChange ? totalStudentChange : undefined
@@ -29,9 +58,9 @@ export default function SummaryCardList({
       <SummaryCard
         title="평균 과제 제출률"
         value={
-          averageSubmissionRate !== undefined
+          averageSubmissionRate !== undefined && !isNaN(averageSubmissionRate)
             ? `${averageSubmissionRate}%`
-            : "-"
+            : ""
         }
         icon={CheckCircle2}
         change={
