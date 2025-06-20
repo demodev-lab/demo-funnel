@@ -7,11 +7,11 @@ import {
 import EnrollmentRateDashboard from "@/components/admin/enrollment-rate-dashboard";
 import { DashboardAssignmentStat } from "@/types/assignment";
 
-interface DetailedStatsProps {
+interface DashboardTabsProps {
   assignmentStats: DashboardAssignmentStat[];
 }
 
-export default function DetailedStats({ assignmentStats }: DetailedStatsProps) {
+export default function DashboardTabs({ assignmentStats }: DashboardTabsProps) {
   return (
     <div className="bg-[#252A3C] border border-gray-700/30 rounded-xl overflow-hidden shadow-lg animate-slide-up">
       <Tabs defaultValue="submission" className="w-full">

@@ -37,7 +37,9 @@ export default function ClassPage({
   });
 
   // 챌린지의 강의 조회
-  const { data: lectures = [], isLoading: isLecturesLoading } = useQuery<LectureWithSequence[]>({
+  const { data: lectures = [], isLoading: isLecturesLoading } = useQuery<
+    LectureWithSequence[]
+  >({
     queryKey: ["challenge-lectures", currentChallengeId],
     queryFn: async () => {
       const data = await getLecturesByChallenge(currentChallengeId);
@@ -61,31 +63,46 @@ export default function ClassPage({
     challengeLectures,
   );
 
+  const hasSelectedLecture = useRef(false);
+
+  // 사용자가 없을 때 리디렉션
   useEffect(() => {
     if (!isLoadingUser && !user) {
       router.push("/login");
     }
-  }, [isLoadingUser, user]);
-  
-  const hasSelectedLecture = useRef(false);
+  }, [isLoadingUser, user, router]);
 
   useEffect(() => {
-    if (isLoadingUser || !user || lectures.length === 0 || hasSelectedLecture.current) return;
+    if (
+      isLoadingUser ||
+      !user ||
+      lectures.length === 0 ||
+      hasSelectedLecture.current
+    )
+      return;
 
     hasSelectedLecture.current = true;
 
     const checkTodayLecture = async () => {
       const todayIndex = await findTodayLectureIndex(lectures);
-      const targetLecture = todayIndex !== -1 ? lectures[todayIndex] : lectures[0];
+      const targetLecture =
+        todayIndex !== -1 ? lectures[todayIndex] : lectures[0];
       onSelectedLecture(targetLecture);
     };
 
     checkTodayLecture();
   }, [lectures, onSelectedLecture, isLoadingUser, user]);
 
-  
+  // 로딩 중이거나 사용자가 없으면 로딩 화면 표시
+  if (isLoadingUser || !user) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-[#8C7DFF]" />
+      </div>
+    );
+  }
 
-  const isLoading = isLoadingUser || (!!user?.id && isLecturesLoading);
+  const isLoading = isLecturesLoading;
 
   if (isLoading) {
     return (
