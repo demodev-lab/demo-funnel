@@ -1,17 +1,7 @@
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/common/tabs";
-import EnrollmentRateDashboard from "@/components/admin/enrollment-rate-dashboard";
-import { DashboardAssignmentStat } from "@/types/assignment";
+import { Tabs, TabsList, TabsTrigger } from "@/components/common/Tabs";
+import DashboardTabsContent from "@/components/admin/dashboard/DashboardTabsContent";
 
-interface DashboardTabsProps {
-  assignmentStats: DashboardAssignmentStat[];
-}
-
-export default function DashboardTabs({ assignmentStats }: DashboardTabsProps) {
+export default function DashboardTabs() {
   return (
     <div className="bg-[#252A3C] border border-gray-700/30 rounded-xl overflow-hidden shadow-lg animate-slide-up">
       <Tabs defaultValue="submission" className="w-full">
@@ -31,14 +21,7 @@ export default function DashboardTabs({ assignmentStats }: DashboardTabsProps) {
             </TabsTrigger> */}
           </TabsList>
         </div>
-        <div className="p-6">
-          <TabsContent value="submission">
-            <EnrollmentRateDashboard type="submission" data={assignmentStats} />
-          </TabsContent>
-          {/* <TabsContent value="lecture">
-            <EnrollmentRateDashboard type="lecture" />
-          </TabsContent> */}
-        </div>
+        <DashboardTabsContent />
       </Tabs>
     </div>
   );
