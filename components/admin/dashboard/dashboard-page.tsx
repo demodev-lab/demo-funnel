@@ -8,7 +8,9 @@ import { usePeriodComparison } from "@/hooks/admin/usePeriodComparison";
 import { useAssignmentState } from "@/hooks/admin/useAssignmentState";
 
 export default function DashboardPage() {
-  const { selectedChallengeId } = useChallengeStore();
+  const selectedChallengeId = useChallengeStore(
+    (state) => state.selectedChallengeId,
+  );
 
   const previousChallengeId =
     selectedChallengeId && selectedChallengeId > 1
