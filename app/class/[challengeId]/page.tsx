@@ -24,7 +24,7 @@ export default async function Class({
 
   await queryClient.prefetchQuery({
     queryKey: ["challenge-lectures", currentChallengeId],
-    queryFn: () => lectures, // 이미 불러온 걸 사용
+    queryFn: () => lectures,
   });
 
   return (
