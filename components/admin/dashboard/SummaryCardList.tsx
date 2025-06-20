@@ -1,7 +1,7 @@
-import { Users, CheckCircle2, PlayCircle } from "lucide-react";
-import SummaryCard from "./summary-card";
+import { Users, CheckCircle2 } from "lucide-react";
+import SummaryCard from "@/components/admin/dashboard/SummaryCard";
 
-interface SummaryCardsProps {
+interface SummaryCardListProps {
   totalStudent: number | undefined;
   totalStudentChange?: { value: string; isPositive: boolean };
   isFirstPeriod: boolean;
@@ -9,13 +9,13 @@ interface SummaryCardsProps {
   submissionRateChange?: { value: string; isPositive: boolean };
 }
 
-export default function SummaryCards({
+export default function SummaryCardList({
   totalStudent,
   totalStudentChange,
   isFirstPeriod,
   averageSubmissionRate,
   submissionRateChange,
-}: SummaryCardsProps) {
+}: SummaryCardListProps) {
   return (
     <div className="grid gap-5 grid-cols-2 animate-slide-up">
       <SummaryCard

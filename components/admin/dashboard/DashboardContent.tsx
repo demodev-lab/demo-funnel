@@ -1,13 +1,13 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
-import SummaryCards from "./summary-cards";
-import DetailedStats from "./detailed-stats";
+import SummaryCardList from "@/components/admin/dashboard/SummaryCardList";
+import DashboardTabs from "@/components/admin/dashboard/DashboardTabs";
 import { useChallengeStore } from "@/lib/store/useChallengeStore";
 import { usePeriodComparison } from "@/hooks/admin/usePeriodComparison";
 import { useAssignmentState } from "@/hooks/admin/useAssignmentState";
 
-export default function DashboardPage() {
+export default function DashboardContent() {
   const selectedChallengeId = useChallengeStore(
     (state) => state.selectedChallengeId,
   );
@@ -55,7 +55,7 @@ export default function DashboardPage() {
             <Loader2 className="h-8 w-8 animate-spin text-[#8C7DFF]" />
           </div>
         ) : (
-          <SummaryCards
+          <SummaryCardList
             totalStudent={currentTotalStudent}
             averageSubmissionRate={averageSubmissionRate?.toString()}
             totalStudentChange={totalStudentChange}
@@ -63,7 +63,7 @@ export default function DashboardPage() {
             submissionRateChange={submissionRateChange}
           />
         )}
-        <DetailedStats assignmentStats={currentAssignmentState} />
+        <DashboardTabs assignmentStats={currentAssignmentState} />
       </div>
     </div>
   );
