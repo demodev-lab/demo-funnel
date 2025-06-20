@@ -24,7 +24,7 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "@/components/common/tabs";
+} from "@/components/common/Tabs";
 import { useChallengeStore } from "@/lib/store/useChallengeStore";
 import { useStudentsByChallenge } from "@/hooks/useStudents";
 import { User } from "@/types/user";

@@ -1,6 +1,6 @@
 "use client";
 
-import { TabsContent } from "@/components/common/tabs";
+import { TabsContent } from "@/components/common/Tabs";
 import SubmissionStats from "@/components/admin/dashboard/SubmissionStats";
 import { useAssignmentState } from "@/hooks/admin/useAssignmentState";
 import { useChallengeStore } from "@/lib/store/useChallengeStore";
