@@ -17,7 +17,7 @@ import {
   TooltipTrigger,
 } from "@/components/common/tooltip";
 
-interface EnrollmentRateDashboardProps {
+interface SubmissionStatsProps {
   type: "submission" | "lecture";
   data?: DashboardAssignmentStat[];
 }
@@ -32,54 +32,7 @@ interface DisplayItem {
   currentOrder?: number;
 }
 
-export default function EnrollmentRateDashboard({
-  type,
-  data,
-}: EnrollmentRateDashboardProps) {
-  // TODO: api 연결 후 삭제
-  const lecturesMock = [
-    {
-      id: 1,
-      title: "JavaScript 기초",
-      rate: 78,
-      count: 94,
-      total: 120,
-      sequence: 1,
-    },
-    {
-      id: 2,
-      title: "함수와 스코프",
-      rate: 65,
-      count: 78,
-      total: 120,
-      sequence: 1,
-    },
-    {
-      id: 3,
-      title: "객체와 배열",
-      rate: 90,
-      count: 108,
-      total: 120,
-      sequence: 2,
-    },
-    {
-      id: 4,
-      title: "비동기 프로그래밍",
-      rate: 72,
-      count: 86,
-      total: 120,
-      sequence: 3,
-    },
-    {
-      id: 5,
-      title: "웹 API 활용",
-      rate: 60,
-      count: 72,
-      total: 120,
-      sequence: 3,
-    },
-  ];
-
+export default function SubmissionStats({ type, data }: SubmissionStatsProps) {
   const displayData: DisplayItem[] =
     type === "submission" && data
       ? data.map((item) => ({
@@ -90,7 +43,7 @@ export default function EnrollmentRateDashboard({
           total: item.totalParticipants,
           sequence: item.sequence,
         }))
-      : lecturesMock;
+      : [];
 
   // sequence가 같은 강의의 개수를 계산
   const sequenceCounts = displayData.reduce(
@@ -122,11 +75,11 @@ export default function EnrollmentRateDashboard({
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-5 gap-4">
+      <div className="flex gap-4 justify-between">
         {displayData.map((item) => {
           const lectureNumber = getLectureNumber(item.sequence);
           return (
-            <div key={item.id} className="flex flex-col">
+            <div key={item.id} className="flex flex-col w-1/3">
               <div className="mb-2 text-center">
                 <TooltipProvider>
                   <Tooltip>
