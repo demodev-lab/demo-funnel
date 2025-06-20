@@ -80,7 +80,11 @@ export default function ClassPage({
       </div>
     );
   }
-
+  
+  useEffect(() => {
+    setSelectedLecture(initialLecture); // CSR 진입 시 딱 한 번만 반영
+  }, [initialLecture, setSelectedLecture]);
+  
   const isLoading = isLecturesLoading;
 
   if (isLoading) {
