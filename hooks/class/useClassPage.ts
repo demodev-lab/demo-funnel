@@ -13,10 +13,15 @@ interface UseClassPageProps {
   initialLecture: LectureWithSequence;
 }
 
-export function useClassPage({ currentChallengeId, initialLecture }: UseClassPageProps) {
+export function useClassPage({
+  currentChallengeId,
+  initialLecture,
+}: UseClassPageProps) {
   const router = useRouter();
   const { data: user, isLoading: isLoadingUser } = useUser();
-  const setSelectedLecture = useSelectedLectureStore((s) => s.setSelectedLecture);
+  const setSelectedLecture = useSelectedLectureStore(
+    (s) => s.setSelectedLecture,
+  );
 
   // 로그인에서 저장한 쿼리 캐시의 챌린지 목록 사용
   const { data: challengeList = [] } = useQuery({
@@ -62,7 +67,11 @@ export function useClassPage({ currentChallengeId, initialLecture }: UseClassPag
 
   // 초기 강의 설정
   useEffect(() => {
-    setSelectedLecture(initialLecture);
+    if (initialLecture) {
+      setSelectedLecture(initialLecture);
+    } else {
+      setSelectedLecture(null);
+    }
   }, [initialLecture, setSelectedLecture]);
 
   // 챌린지 변경 핸들러
@@ -81,4 +90,4 @@ export function useClassPage({ currentChallengeId, initialLecture }: UseClassPag
     isLoading,
     handleChallengeChange,
   };
-} 
+}
