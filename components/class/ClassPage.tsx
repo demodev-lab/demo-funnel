@@ -7,11 +7,11 @@ import AssignmentSubmissionSection from "@/components/class/AssignmentSubmission
 import DailyLectureSection from "@/components/class/DailyLectureSection";
 import RefundRequestButton from "@/components/class/RefundRequestButton";
 import { Loader2 } from "lucide-react";
-import ClassFooter from './ClassFooter';
+import ClassFooter from "./ClassFooter";
 
 interface ClassPageProps {
   currentChallengeId: number;
-  initialLecture: LectureWithSequence;
+  initialLecture: LectureWithSequence | undefined;
 }
 
 export default function ClassPage({
