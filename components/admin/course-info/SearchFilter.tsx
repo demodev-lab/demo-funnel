@@ -1,6 +1,6 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { Download, Search } from "lucide-react";
 import { Input } from "@/components/common/input";
 import { Switch } from "@/components/common/switch";
 import { Label } from "@/components/common/label";
@@ -21,7 +21,7 @@ export default function SearchFilter({
   const router = useRouter();
   const pathname = usePathname();
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
-  const { exportToExcel } = useExportToExcel({
+  const { exportToExcel, isExporting } = useExportToExcel({
     searchQuery,
     showCompletedOnly,
   });
@@ -93,9 +93,20 @@ export default function SearchFilter({
         </div>
         <Button
           onClick={exportToExcel}
-          className="bg-[#8C7DFF] hover:bg-[#7A6FDD] text-white"
+          disabled={isExporting}
+          className="bg-[#5046E4] hover:bg-[#6A5AFF] text-white min-w-[140px]"
         >
-          엑셀로 내보내기
+          {isExporting ? (
+            <>
+              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+              내보내는 중...
+            </>
+          ) : (
+            <>
+              <Download className="w-4 h-4 mr-2" />
+              엑셀로 내보내기
+            </>
+          )}
         </Button>
       </div>
     </div>
