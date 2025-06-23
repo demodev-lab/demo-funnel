@@ -4,7 +4,7 @@ import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import StudentList from "../../../../components/admin/student-list";
+import StudentList from "@/components/admin/students/StudentList";
 
 // 훅 및 스토어 모킹
 import {
@@ -156,8 +156,8 @@ describe("StudentList 컴포넌트", () => {
 
     renderWithClient();
 
-    expect(screen.getByTestId("loader")).toBeInTheDocument();
-    expect(screen.getByText("학생 목록을 불러오는 중...")).toBeInTheDocument();
+    // 로딩 메시지 확인
+    expect(screen.getByText("데이터를 불러오는 중...")).toBeInTheDocument();
   });
 
   it("에러 상태인 경우 에러 메시지와 새로고침 버튼이 보입니다", () => {
