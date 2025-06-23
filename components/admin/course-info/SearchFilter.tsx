@@ -1,10 +1,10 @@
 "use client";
 
 import { Search } from "lucide-react";
-import { Input } from "@/components/common/Input";
-import { Switch } from "@/components/common/Switch";
-import { Label } from "@/components/common/Label";
-import { Button } from "@/components/common/Button";
+import { Input } from "@/components/common/input";
+import { Switch } from "@/components/common/switch";
+import { Label } from "@/components/common/label";
+import { Button } from "@/components/common/button";
 import { useExportToExcel } from "@/hooks/admin/useExportToExcel";
 import { useRouter, usePathname } from "next/navigation";
 import { useState, useEffect, useCallback } from "react";
@@ -14,9 +14,9 @@ interface SearchFilterProps {
   showCompletedOnly: boolean;
 }
 
-export default function SearchFilter({ 
+export default function SearchFilter({
   searchQuery,
-  showCompletedOnly 
+  showCompletedOnly,
 }: SearchFilterProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -30,18 +30,23 @@ export default function SearchFilter({
     setLocalSearchQuery(searchQuery);
   }, [searchQuery]);
 
-  const updateSearchParams = useCallback((key: string, value: string | boolean) => {
-    const params = new URLSearchParams(window.location.search);
-    
-    if (value === "" || value === false) {
-      params.delete(key);
-    } else {
-      params.set(key, value.toString());
-    }
-    
-    const newUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname;
-    router.push(newUrl);
-  }, [pathname, router]);
+  const updateSearchParams = useCallback(
+    (key: string, value: string | boolean) => {
+      const params = new URLSearchParams(window.location.search);
+
+      if (value === "" || value === false) {
+        params.delete(key);
+      } else {
+        params.set(key, value.toString());
+      }
+
+      const newUrl = params.toString()
+        ? `${pathname}?${params.toString()}`
+        : pathname;
+      router.push(newUrl);
+    },
+    [pathname, router],
+  );
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
