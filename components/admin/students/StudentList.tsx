@@ -18,7 +18,6 @@ import ExcelUploadDialog from "@/components/admin/students/excel-upload-dialog";
 import StudentFormDialog from "@/components/admin/students/student-form-dialog";
 import StudentTable from "@/components/admin/students/StudentTable";
 import DeleteConfirmDialog from "@/components/admin/students/delete-confirm-dialog";
-import { StudentListState } from "@/components/admin/students/student-list-state";
 import { Student } from "@/types/user";
 import {
   Select,
@@ -165,17 +164,6 @@ export default function StudentList() {
       );
     }
   };
-
-  // 로딩 또는 에러 상태일 때 StudentListState 컴포넌트 렌더링
-  if (isLoading || error) {
-    return (
-      <StudentListState
-        isLoading={isLoading}
-        error={error instanceof Error ? error : null}
-        onRetry={() => window.location.reload()}
-      />
-    );
-  }
 
   return (
     <>
