@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useMemo } from "react";
-
 import { FileText } from "lucide-react";
 import {
   Dialog,
@@ -32,15 +31,12 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { validateFileSize } from "@/utils/files";
-import { StudentTable } from "./course-info/StudentTable";
+import { StudentTable } from "./StudentTable";
 import {
   SubmissionDialogContent,
   SubmissionDialogProps,
-} from "./course-info/SubmissionDialogContent";
-import {
-  SubmissionForm,
-  SubmissionFormData,
-} from "./course-info/SubmissionForm";
+} from "./SubmissionDialogContent";
+import { SubmissionForm, SubmissionFormData } from "./SubmissionForm";
 
 interface CourseInfoTableProps {
   searchQuery: string;
