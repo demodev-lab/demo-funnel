@@ -16,7 +16,7 @@ import { getUserChallenges } from "@/apis/challenges";
 import { useChallengeStore } from "@/lib/store/useChallengeStore";
 import ExcelUploadDialog from "@/components/admin/students/excel-upload-dialog";
 import StudentFormDialog from "@/components/admin/students/student-form-dialog";
-import StudentTable from "@/components/admin/students/student-table";
+import StudentTable from "@/components/admin/students/StudentTable";
 import DeleteConfirmDialog from "@/components/admin/students/delete-confirm-dialog";
 import { StudentListState } from "@/components/admin/students/student-list-state";
 import { Student } from "@/types/user";
