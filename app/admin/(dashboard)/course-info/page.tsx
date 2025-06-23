@@ -1,20 +1,22 @@
-"use client";
+import SearchFilter from "@/components/admin/course-info/SearchFilter";
+import CourseInfoTable from "@/components/admin/course-info/CourseInfoTable";
 
-import { useState } from "react";
-import SearchFilter from "@/components/admin/course-info/search-filter";
-import CourseInfoTable from "@/components/admin/course-info-table";
+interface PageProps {
+  searchParams: {
+    search?: string;
+    completed?: string;
+  };
+}
 
-export default function CourseInfoPage() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showCompletedOnly, setShowCompletedOnly] = useState(false);
+export default function CourseInfoPage({ searchParams }: PageProps) {
+  const searchQuery = searchParams.search || "";
+  const showCompletedOnly = searchParams.completed === "true";
 
   return (
     <div className="space-y-4">
       <SearchFilter
         searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
         showCompletedOnly={showCompletedOnly}
-        onCompletedChange={setShowCompletedOnly}
       />
       <div className="bg-[#252A3C] border border-gray-700/30 rounded-xl overflow-hidden shadow-lg">
         <CourseInfoTable
