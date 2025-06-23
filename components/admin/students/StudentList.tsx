@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/common/button";
-import { Plus, Upload, ArrowUpDown } from "lucide-react";
+import { Plus, Upload } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
@@ -14,10 +14,10 @@ import { useQuery } from "@tanstack/react-query";
 import { getChallenges } from "@/apis/challenges";
 import { getUserChallenges } from "@/apis/challenges";
 import { useChallengeStore } from "@/lib/store/useChallengeStore";
-import ExcelUploadDialog from "@/components/admin/students/excel-upload-dialog";
-import StudentFormDialog from "@/components/admin/students/student-form-dialog";
+import ExcelUploadDialog from "@/components/admin/students/ExcelUploadDialog";
+import StudentFormDialog from "@/components/admin/students/StudentFormDialog";
 import StudentTable from "@/components/admin/students/StudentTable";
-import DeleteConfirmDialog from "@/components/admin/students/delete-confirm-dialog";
+import DeleteConfirmDialog from "@/components/admin/students/DeleteConfirmDialog";
 import { Student } from "@/types/user";
 import {
   Select,
