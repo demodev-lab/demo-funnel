@@ -2,15 +2,16 @@ import SearchFilter from "@/components/admin/course-info/SearchFilter";
 import CourseInfoTable from "@/components/admin/course-info/CourseInfoTable";
 
 interface PageProps {
-  searchParams: {
+  searchParams: Promise<{
     search?: string;
     completed?: string;
-  };
+  }>;
 }
 
-export default function CourseInfoPage({ searchParams }: PageProps) {
-  const searchQuery = searchParams.search || "";
-  const showCompletedOnly = searchParams.completed === "true";
+export default async function CourseInfoPage({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const searchQuery = params.search || "";
+  const showCompletedOnly = params.completed === "true";
 
   return (
     <div className="space-y-4">

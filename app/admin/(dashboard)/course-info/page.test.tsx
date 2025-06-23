@@ -87,7 +87,7 @@ describe("CourseInfoPage", () => {
   });
 
   it("초기 상태가 올바르게 설정되어 있다", () => {
-    render(<CourseInfoPage searchParams={{}} />);
+    render(<CourseInfoPage searchParams={Promise.resolve({})} />);
     expect(screen.getByTestId("passed-search-query")).toHaveTextContent("");
     expect(screen.getByTestId("passed-show-completed")).toHaveTextContent(
       "false",
@@ -95,7 +95,7 @@ describe("CourseInfoPage", () => {
   });
 
   it("검색어 입력 시 URL이 업데이트된다", () => {
-    render(<CourseInfoPage searchParams={{}} />);
+    render(<CourseInfoPage searchParams={Promise.resolve({})} />);
     const searchInput = screen.getByTestId("search-input");
     fireEvent.change(searchInput, { target: { value: "React" } });
 
@@ -103,7 +103,7 @@ describe("CourseInfoPage", () => {
   });
 
   it("완료 여부 체크박스 토글이 정상 동작한다", () => {
-    render(<CourseInfoPage searchParams={{}} />);
+    render(<CourseInfoPage searchParams={Promise.resolve({})} />);
     const checkbox = screen.getByTestId("completed-checkbox");
 
     // 초기값 확인
@@ -116,7 +116,9 @@ describe("CourseInfoPage", () => {
 
   it("URL 파라미터가 올바르게 전달된다", () => {
     render(
-      <CourseInfoPage searchParams={{ search: "React", completed: "true" }} />,
+      <CourseInfoPage
+        searchParams={Promise.resolve({ search: "React", completed: "true" })}
+      />,
     );
 
     expect(screen.getByTestId("passed-search-query")).toHaveTextContent(
@@ -129,7 +131,9 @@ describe("CourseInfoPage", () => {
 
   it("검색과 필터링이 함께 동작한다", () => {
     render(
-      <CourseInfoPage searchParams={{ search: "React", completed: "true" }} />,
+      <CourseInfoPage
+        searchParams={Promise.resolve({ search: "React", completed: "true" })}
+      />,
     );
 
     // 검색어 입력
