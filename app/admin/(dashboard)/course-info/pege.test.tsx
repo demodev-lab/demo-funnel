@@ -8,7 +8,7 @@ jest.mock("@/components/common/page-title", () => {
   };
 });
 
-jest.mock("@/components/admin/course-info/search-filter", () => {
+jest.mock("@/components/admin/course-info/SearchFilter", () => {
   return function MockSearchFilter({
     searchQuery,
     onSearchChange,
@@ -39,7 +39,7 @@ jest.mock("@/components/admin/course-info/search-filter", () => {
   };
 });
 
-jest.mock("@/components/admin/course-info-table", () => {
+jest.mock("@/components/admin/course-info/CourseInfoTable", () => {
   return function MockMainContent({
     searchQuery,
     showCompletedOnly,
@@ -62,7 +62,7 @@ jest.mock("@/components/admin/course-info-table", () => {
 
 describe("CourseInfoPage", () => {
   it("초기 상태가 올바르게 설정되어 있다", () => {
-    render(<CourseInfoPage />);
+    render(<CourseInfoPage searchParams={{}} />);
     expect(screen.getByTestId("passed-search-query")).toHaveTextContent("");
     expect(screen.getByTestId("passed-show-completed")).toHaveTextContent(
       "false",
@@ -70,7 +70,7 @@ describe("CourseInfoPage", () => {
   });
 
   it("검색어 입력 시 검색 쿼리가 업데이트된다", () => {
-    render(<CourseInfoPage />);
+    render(<CourseInfoPage searchParams={{}} />);
     const searchInput = screen.getByTestId("search-input");
     fireEvent.change(searchInput, { target: { value: "React" } });
 
@@ -79,7 +79,7 @@ describe("CourseInfoPage", () => {
   });
 
   it("완료 여부 체크박스 토글이 정상 동작한다", () => {
-    render(<CourseInfoPage />);
+    render(<CourseInfoPage searchParams={{}} />);
     const checkbox = screen.getByTestId("completed-checkbox");
     const passedShowCompleted = screen.getByTestId("passed-show-completed");
 
@@ -96,7 +96,7 @@ describe("CourseInfoPage", () => {
   });
 
   it("검색과 필터링이 함께 동작한다", () => {
-    render(<CourseInfoPage />);
+    render(<CourseInfoPage searchParams={{}} />);
 
     // 검색어 입력
     const searchInput = screen.getByTestId("search-input");
