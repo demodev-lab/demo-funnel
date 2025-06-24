@@ -1,5 +1,13 @@
-import LecturesContent from "@/components/admin/lectures/lectures-content";
+import AddLectureButton from "@/components/admin/lectures/AddLectureButton";
+import LecturesContainer from "@/components/admin/lectures/LecturesContainer";
 
 export default function LecturesPage() {
-  return <LecturesContent />;
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        <AddLectureButton />
+      </div>
+      <LecturesContainer />
+    </div>
+  );
 }

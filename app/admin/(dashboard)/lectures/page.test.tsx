@@ -45,7 +45,7 @@ jest.mock("@/components/common/button", () => ({
 }));
 
 // LectureCard 모킹: 클릭 시 onClick prop 실행
-jest.mock("@/components/admin/lectures/lecture-card", () => ({
+jest.mock("@/components/admin/lectures/LectureCard", () => ({
   __esModule: true,
   default: ({ lecture, onClick }: any) => (
     <div
@@ -59,10 +59,16 @@ jest.mock("@/components/admin/lectures/lecture-card", () => ({
 }));
 
 // LectureForm 모킹: mode에 따라 'add' 또는 'edit' 버튼 제공, onSuccess / onDelete prop 실행
-jest.mock("@/components/admin/lecture-form", () => ({
+jest.mock("@/components/admin/lectures/LectureForm", () => ({
   __esModule: true,
-  default: ({ onSuccess, onDelete, isDeleting, mode = "add" }: any) => (
-    <div data-testid={`lecture-form-${mode}`}>
+  default: ({
+    onSuccess,
+    onDelete,
+    isDeleting,
+    mode = "add",
+    lectureId,
+  }: any) => (
+    <div data-testid={`lecture-form-${mode}`} data-lecture-id={lectureId}>
       <button
         data-testid={`form-success-${mode}`}
         onClick={() => onSuccess && onSuccess()}
@@ -71,7 +77,7 @@ jest.mock("@/components/admin/lecture-form", () => ({
       </button>
       {onDelete && (
         <button
-          data-testid="form-delete"
+          data-testid={`form-delete-${lectureId || "add"}`}
           disabled={isDeleting}
           onClick={() => onDelete()}
         >
@@ -209,13 +215,13 @@ describe("LecturesPage", () => {
     // 첫 번째 LectureCard 클릭하여 상세 모달 열기
     fireEvent.click(screen.getAllByTestId("lecture-card")[0]);
 
-    // 상세 모달이 열린 후, "Delete" 버튼 클릭 (form-delete)
+    // 상세 모달이 열린 후, "Delete" 버튼 클릭 (form-delete-1)
     await waitFor(() => {
       const dialogs = screen.getAllByTestId("dialog");
       expect(dialogs[1]).toHaveAttribute("data-open", "true");
     });
 
-    const deleteButton = screen.getByTestId("form-delete");
+    const deleteButton = screen.getByTestId("form-delete-1");
     fireEvent.click(deleteButton);
 
     // 삭제 성공 시 deleteLecture 호출 및 toast.success 호출 확인
@@ -246,7 +252,7 @@ describe("LecturesPage", () => {
       expect(dialogs[1]).toHaveAttribute("data-open", "true");
     });
 
-    const deleteButton = screen.getByTestId("form-delete");
+    const deleteButton = screen.getByTestId("form-delete-1");
     fireEvent.click(deleteButton);
 
     // 삭제 실패 시 deleteLecture 호출 및 toast.error 호출 확인
