@@ -6,7 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/common/dialog";
-import LectureForm from "@/components/admin/lecture-form";
+import LectureForm from "@/components/admin/lectures/LectureForm";
 
 interface LectureDetailModalProps {
   lecture: AdminLecture | null;
