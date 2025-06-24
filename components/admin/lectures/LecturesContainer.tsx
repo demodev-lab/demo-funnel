@@ -44,7 +44,6 @@ export default function LecturesContainer() {
         onOpenChange={(open) => !open && setSelectedLecture(null)}
         title={selectedLecture?.name || ""}
         maxWidth="lg"
-        isEdit={true}
         lecture={selectedLecture}
       />
     </>

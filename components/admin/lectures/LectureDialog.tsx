@@ -18,16 +18,13 @@ interface LectureDialogProps {
   onOpenChange: (open: boolean) => void;
   title: string;
   maxWidth?: "sm" | "md" | "lg" | "xl";
-  isEdit?: boolean;
   lecture?: LectureWithSequence | null;
 }
 
-// lecture의 유무로 수정인지 추가인지 구분할 수 있으므로 isEdit는 필요없는 props 같음
 export default function LectureDialog({
   open,
   onOpenChange,
   title,
-  isEdit,
   lecture,
   maxWidth = "md",
 }: LectureDialogProps) {
@@ -75,7 +72,6 @@ export default function LectureDialog({
         <div className="flex-1 overflow-y-auto px-6">
           <LectureForm
             onSuccess={handleSuccess}
-            isEdit={isEdit}
             lectureId={lecture?.id}
             initialData={
               lecture

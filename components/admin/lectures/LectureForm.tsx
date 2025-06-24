@@ -39,7 +39,6 @@ import { getYouTubeEmbedUrl } from "@/utils/youtube";
 
 export default function LectureForm({
   onSuccess,
-  isEdit = false,
   initialData = {
     name: "",
     description: "",
@@ -139,7 +138,7 @@ export default function LectureForm({
           throw error;
         }
       },
-      enabled: isEdit && !!lectureId,
+      enabled: !!lectureId,
     });
 
   // 상세 정보가 로드되면 폼 데이터 설정
@@ -228,7 +227,7 @@ export default function LectureForm({
     setIsSubmitting(true);
 
     try {
-      if (isEdit && lectureId) {
+      if (lectureId) {
         // 강의 수정 로직
         const updateData = {
           name: name,
@@ -316,7 +315,7 @@ export default function LectureForm({
     }
   };
 
-  if (isLoadingChallenges || (isEdit && isLoadingDetail)) {
+  if (isLoadingChallenges || isLoadingDetail) {
     return (
       <div className="flex items-center justify-center py-4">
         <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -326,7 +325,7 @@ export default function LectureForm({
 
   return (
     <div className="space-y-4">
-      {isEdit && (
+      {lectureId && (
         <div className="aspect-video">
           {uploadType === "url" ? (
             getYouTubeEmbedUrl(videoUrl) && (
@@ -561,7 +560,7 @@ export default function LectureForm({
 
         <div className="flex justify-end items-center pt-4">
           <div className="flex space-x-2">
-            {isEdit && onDelete && (
+            {lectureId && onDelete && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button
@@ -600,7 +599,11 @@ export default function LectureForm({
               disabled={isSubmitting}
               className="bg-gradient-to-r from-[#5046E4] to-[#6A5AFF] hover:brightness-110"
             >
-              {isSubmitting ? "저장 중..." : isEdit ? "수정하기" : "추가하기"}
+              {isSubmitting
+                ? "저장 중..."
+                : lectureId
+                  ? "수정하기"
+                  : "추가하기"}
             </Button>
           </div>
         </div>

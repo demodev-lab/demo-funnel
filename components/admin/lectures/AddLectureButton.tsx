@@ -18,12 +18,7 @@ export default function AddLectureButton() {
         <Plus className="w-4 h-4 mr-2" />
         강의 추가
       </Button>
-      <LectureDialog
-        open={open}
-        onOpenChange={setOpen}
-        title="강의 추가"
-        isEdit={false}
-      />
+      <LectureDialog open={open} onOpenChange={setOpen} title="강의 추가" />
     </>
   );
 }
