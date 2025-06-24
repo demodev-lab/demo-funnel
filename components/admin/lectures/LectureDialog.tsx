@@ -17,7 +17,6 @@ interface LectureDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title: string;
-  maxWidth?: "sm" | "md" | "lg" | "xl";
   lecture?: LectureWithSequence | null;
 }
 
@@ -26,17 +25,9 @@ export default function LectureDialog({
   onOpenChange,
   title,
   lecture,
-  maxWidth = "md",
 }: LectureDialogProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const queryClient = useQueryClient();
-
-  const maxWidthClasses = {
-    sm: "sm:max-w-[400px]",
-    md: "sm:max-w-[600px]",
-    lg: "sm:max-w-[800px]",
-    xl: "sm:max-w-[1000px]",
-  };
 
   const handleDelete = async () => {
     if (!lecture) return;
@@ -63,9 +54,7 @@ export default function LectureDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        className={`${maxWidthClasses[maxWidth]} max-h-[90vh] flex flex-col p-0 bg-[#252A3C] border-gray-700/30 text-white`}
-      >
+      <DialogContent className="sm:max-w-[800px] max-h-[90vh] flex flex-col p-0 bg-[#252A3C] border-gray-700/30 text-white">
         <DialogHeader className="px-6 pt-6">
           <DialogTitle className="text-white">{title}</DialogTitle>
         </DialogHeader>
