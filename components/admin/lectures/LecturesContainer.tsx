@@ -6,7 +6,7 @@ import { getLecturesByChallenge } from "@/apis/lectures";
 import { useChallengeStore } from "@/lib/store/useChallengeStore";
 import { LectureWithSequence } from "@/types/lecture";
 import LectureCardList from "@/components/admin/lectures/LectureCardList";
-import LectureDetailDialog from "@/components/admin/lectures/LectureDetailDialog";
+import LectureDialog from "@/components/admin/lectures/LectureDialog";
 
 export default function LecturesContainer() {
   const [selectedLecture, setSelectedLecture] =
@@ -39,9 +39,13 @@ export default function LecturesContainer() {
         />
       </div>
 
-      <LectureDetailDialog
+      <LectureDialog
+        open={!!selectedLecture}
+        onOpenChange={(open) => !open && setSelectedLecture(null)}
+        title={selectedLecture?.name || ""}
+        maxWidth="lg"
+        isEdit={true}
         lecture={selectedLecture}
-        onClose={() => setSelectedLecture(null)}
       />
     </>
   );

@@ -1,15 +1,9 @@
 "use client";
 
-import LectureForm from "@/components/admin/lectures/LectureForm";
+import { useState } from "react";
 import { Button } from "@/components/common/button";
 import { Plus } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/common/Dialog";
-import { useState } from "react";
+import LectureDialog from "@/components/admin/lectures/LectureDialog";
 
 export default function AddLectureButton() {
   const [open, setOpen] = useState(false);
@@ -24,16 +18,12 @@ export default function AddLectureButton() {
         <Plus className="w-4 h-4 mr-2" />
         강의 추가
       </Button>
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col p-0 bg-[#252A3C] border-gray-700/30 text-white">
-          <DialogHeader className="px-6 pt-6">
-            <DialogTitle>강의 추가</DialogTitle>
-          </DialogHeader>
-          <div className="flex-1 overflow-y-auto px-6">
-            <LectureForm onSuccess={() => setOpen(false)} />
-          </div>
-        </DialogContent>
-      </Dialog>
+      <LectureDialog
+        open={open}
+        onOpenChange={setOpen}
+        title="강의 추가"
+        isEdit={false}
+      />
     </>
   );
 }
