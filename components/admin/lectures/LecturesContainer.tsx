@@ -42,7 +42,7 @@ export default function LecturesContainer() {
       <LectureDialog
         open={!!selectedLecture}
         onOpenChange={(open) => !open && setSelectedLecture(null)}
-        title={selectedLecture?.name || ""}
+        title={"강의 수정"}
         lecture={selectedLecture}
       />
     </>
