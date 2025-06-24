@@ -35,6 +35,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/utils/supabase/client";
 import { type LectureDetail, type LectureFormProps } from "@/types/lecture";
 import { Challenge, ChallengeOrder } from "@/types/challenge";
+import { getYouTubeEmbedUrl } from "@/utils/youtube";
 
 export default function LectureForm({
   onSuccess,
@@ -324,254 +325,286 @@ export default function LectureForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 py-4">
-      <div className="space-y-2">
-        <Label htmlFor="title">강의 제목</Label>
-        <Input
-          id="title"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="bg-[#1A1D29] border-gray-700/30 text-white placeholder:text-gray-500"
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="description">강의 설명</Label>
-        <Textarea
-          id="description"
-          placeholder="강의에 대한 설명을 입력하세요"
-          rows={4}
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="bg-[#1A1D29] border-gray-700/30 text-white placeholder:text-gray-500"
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label>업로드 방식</Label>
-        <RadioGroup
-          defaultValue="url"
-          value={uploadType}
-          onValueChange={setUploadType}
-          className="flex flex-col space-y-1"
-        >
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="url" id="url" />
-            <Label htmlFor="url">URL 입력</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="file" id="file" />
-            <Label htmlFor="file">파일 업로드</Label>
-          </div>
-        </RadioGroup>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="video">
-          영상 {uploadType === "url" ? "URL" : "업로드"}
-        </Label>
-        {uploadType === "url" ? (
-          <Input
-            id="video"
-            value={videoUrl}
-            onChange={(e) => setVideoUrl(e.target.value)}
-            placeholder="https://example.com/video"
-            className="bg-[#1A1D29] border-gray-700/30 text-white placeholder:text-gray-500"
-          />
-        ) : (
-          <div className="flex items-center justify-center w-full">
-            <label
-              htmlFor="video-upload"
-              className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-700/30 border-dashed rounded-lg cursor-pointer bg-[#1A1D29] hover:bg-[#252A3C] transition-colors"
-            >
-              <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                <p className="mb-2 text-sm text-gray-400">
-                  <span className="font-semibold">클릭하여 파일 선택</span> 또는
-                  드래그 앤 드롭
-                </p>
-                <p className="text-xs text-gray-500">MP4, MOV (최대 500MB)</p>
-                {selectedFile && (
-                  <p className="mt-2 text-sm text-white">
-                    선택된 파일: {selectedFile.name}
-                  </p>
-                )}
-              </div>
-              <input
-                id="video-upload"
-                type="file"
-                accept="video/mp4,video/quicktime"
-                onChange={handleFileChange}
-                className="hidden"
+    <div className="space-y-4">
+      {isEdit && (
+        <div className="aspect-video">
+          {uploadType === "url" ? (
+            getYouTubeEmbedUrl(videoUrl) && (
+              <iframe
+                src={getYouTubeEmbedUrl(videoUrl) || undefined}
+                className="w-full h-full rounded-lg border border-gray-700/30"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
               />
-            </label>
-          </div>
-        )}
-        {previewUrl && (
-          <div className="mt-2 aspect-video relative rounded-lg overflow-hidden">
+            )
+          ) : (
             <video
-              src={previewUrl}
-              className="w-full h-full object-cover"
+              src={videoUrl}
+              className="w-full h-full rounded-lg border border-gray-700/30"
               controls
             />
-          </div>
-        )}
-      </div>
-
-      <div className="space-y-2">
-        <Label>챌린지 및 강의 순서</Label>
-        <Select
-          onValueChange={(value) => {
-            if (!selectedChallenges.includes(Number(value))) {
-              setSelectedChallenges([...selectedChallenges, Number(value)]);
-            }
-          }}
-        >
-          <SelectTrigger className="bg-[#1A1D29] border-gray-700/30 text-white">
-            <SelectValue
-              placeholder="기수를 선택하세요"
-              className="text-gray-400"
-            />
-          </SelectTrigger>
-          <SelectContent className="bg-[#1A1D29] border-gray-700/30">
-            {challenges.map((challenge) => (
-              <SelectItem
-                key={String(challenge.id)}
-                value={String(challenge.id)}
-                className="text-white hover:bg-[#252A3C] focus:bg-[#252A3C] focus:text-white"
-              >
-                {challenge.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        {selectedChallenges.length > 0 && (
-          <div className="mt-4 space-y-4">
-            {selectedChallenges.map((challengeId) => {
-              const challenge = challenges.find((c) => c.id === challengeId);
-              return (
-                <div
-                  key={challengeId}
-                  className="p-4 bg-[#1A1D29] border border-gray-700/30 rounded-lg space-y-3"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-white font-medium">
-                      {challenge?.name}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSelectedChallenges(
-                          selectedChallenges.filter((id) => id !== challengeId),
-                        );
-                        setChallengeOrders((prev) =>
-                          prev.filter((co) => co.challengeId !== challengeId),
-                        );
-                      }}
-                      className="text-white/80 hover:text-white"
-                    >
-                      ×
-                    </button>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label className="text-sm text-gray-400">강의 순서</Label>
-                    <Select
-                      value={getSelectedOrder(challengeId)?.toString()}
-                      onValueChange={(value) =>
-                        handleOrderChange(challengeId, Number(value))
-                      }
-                    >
-                      <SelectTrigger className="bg-[#252A3C] border-gray-700/30 text-white">
-                        <SelectValue
-                          placeholder="강의 순서를 선택하세요"
-                          className="text-gray-400"
-                        />
-                      </SelectTrigger>
-                      <SelectContent className="bg-[#1A1D29] border-gray-700/30">
-                        {Array.from(
-                          { length: getMaxLectureNum(challengeId) },
-                          (_, i) => i + 1,
-                        ).map((num) => (
-                          <SelectItem
-                            key={num}
-                            value={num.toString()}
-                            className="text-white hover:bg-[#252A3C] focus:bg-[#252A3C] focus:text-white"
-                          >
-                            {num}번째
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="assignmentTitle">과제 제목</Label>
-          <Input
-            id="assignmentTitle"
-            placeholder="과제의 제목을 입력하세요"
-            value={assignmentTitle}
-            onChange={(e) => setAssignmentTitle(e.target.value)}
-            className="bg-[#1A1D29] border-gray-700/30 text-white placeholder:text-gray-500"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="assignment">과제 내용</Label>
-          <Textarea
-            id="assignment"
-            placeholder="과제 내용을 입력하세요"
-            rows={4}
-            value={assignment}
-            onChange={(e) => setAssignment(e.target.value)}
-            className="bg-[#1A1D29] border-gray-700/30 text-white placeholder:text-gray-500"
-          />
-        </div>
-      </div>
-
-      <div className="flex justify-end items-center pt-4">
-        <div className="flex space-x-2">
-          {isEdit && onDelete && (
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  type="button"
-                  variant="destructive"
-                  disabled={isDeleting}
-                >
-                  {isDeleting ? "삭제 중..." : "삭제하기"}
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>강의 삭제</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    이 강의를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>취소</AlertDialogCancel>
-                  <AlertDialogAction onClick={onDelete}>삭제</AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
           )}
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            className="bg-gradient-to-r from-[#5046E4] to-[#6A5AFF] hover:brightness-110"
-          >
-            {isSubmitting ? "저장 중..." : isEdit ? "수정하기" : "추가하기"}
-          </Button>
         </div>
-      </div>
-    </form>
+      )}
+      <form onSubmit={handleSubmit} className="space-y-4 py-4">
+        <div className="space-y-2">
+          <Label htmlFor="title">강의 제목</Label>
+          <Input
+            id="title"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="bg-[#1A1D29] border-gray-700/30 text-white placeholder:text-gray-500"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="description">강의 설명</Label>
+          <Textarea
+            id="description"
+            placeholder="강의에 대한 설명을 입력하세요"
+            rows={4}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="bg-[#1A1D29] border-gray-700/30 text-white placeholder:text-gray-500"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label>업로드 방식</Label>
+          <RadioGroup
+            defaultValue="url"
+            value={uploadType}
+            onValueChange={setUploadType}
+            className="flex flex-col space-y-1"
+          >
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="url" id="url" />
+              <Label htmlFor="url">URL 입력</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="file" id="file" />
+              <Label htmlFor="file">파일 업로드</Label>
+            </div>
+          </RadioGroup>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="video">
+            영상 {uploadType === "url" ? "URL" : "업로드"}
+          </Label>
+          {uploadType === "url" ? (
+            <Input
+              id="video"
+              value={videoUrl}
+              onChange={(e) => setVideoUrl(e.target.value)}
+              placeholder="https://example.com/video"
+              className="bg-[#1A1D29] border-gray-700/30 text-white placeholder:text-gray-500"
+            />
+          ) : (
+            <div className="flex items-center justify-center w-full">
+              <label
+                htmlFor="video-upload"
+                className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-700/30 border-dashed rounded-lg cursor-pointer bg-[#1A1D29] hover:bg-[#252A3C] transition-colors"
+              >
+                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  <p className="mb-2 text-sm text-gray-400 font-semibold">
+                    클릭하여 파일 선택
+                  </p>
+                  <p className="text-xs text-gray-500">MP4, MOV (최대 500MB)</p>
+                  {selectedFile && (
+                    <p className="mt-2 text-sm text-white">
+                      선택된 파일: {selectedFile.name}
+                    </p>
+                  )}
+                </div>
+                <input
+                  id="video-upload"
+                  type="file"
+                  accept="video/mp4,video/quicktime"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+              </label>
+            </div>
+          )}
+          {previewUrl && (
+            <div className="mt-2 aspect-video relative rounded-lg overflow-hidden">
+              <video
+                src={previewUrl}
+                className="w-full h-full object-cover"
+                controls
+              />
+            </div>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label>챌린지 및 강의 순서</Label>
+          <Select
+            onValueChange={(value) => {
+              if (!selectedChallenges.includes(Number(value))) {
+                setSelectedChallenges([...selectedChallenges, Number(value)]);
+              }
+            }}
+          >
+            <SelectTrigger className="bg-[#1A1D29] border-gray-700/30 text-white">
+              <SelectValue
+                placeholder="기수를 선택하세요"
+                className="text-gray-400"
+              />
+            </SelectTrigger>
+            <SelectContent className="bg-[#1A1D29] border-gray-700/30">
+              {challenges.map((challenge) => (
+                <SelectItem
+                  key={String(challenge.id)}
+                  value={String(challenge.id)}
+                  className="text-white hover:bg-[#252A3C] focus:bg-[#252A3C] focus:text-white"
+                >
+                  {challenge.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {selectedChallenges.length > 0 && (
+            <div className="mt-4 space-y-4">
+              {selectedChallenges.map((challengeId) => {
+                const challenge = challenges.find((c) => c.id === challengeId);
+                return (
+                  <div
+                    key={challengeId}
+                    className="p-4 bg-[#1A1D29] border border-gray-700/30 rounded-lg space-y-3"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-white font-medium">
+                        {challenge?.name}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedChallenges(
+                            selectedChallenges.filter(
+                              (id) => id !== challengeId,
+                            ),
+                          );
+                          setChallengeOrders((prev) =>
+                            prev.filter((co) => co.challengeId !== challengeId),
+                          );
+                        }}
+                        className="text-white/80 hover:text-white"
+                      >
+                        ×
+                      </button>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-sm text-gray-400">강의 순서</Label>
+                      <Select
+                        value={getSelectedOrder(challengeId)?.toString()}
+                        onValueChange={(value) =>
+                          handleOrderChange(challengeId, Number(value))
+                        }
+                      >
+                        <SelectTrigger className="bg-[#252A3C] border-gray-700/30 text-white">
+                          <SelectValue
+                            placeholder="강의 순서를 선택하세요"
+                            className="text-gray-400"
+                          />
+                        </SelectTrigger>
+                        <SelectContent className="bg-[#1A1D29] border-gray-700/30">
+                          {Array.from(
+                            { length: getMaxLectureNum(challengeId) },
+                            (_, i) => i + 1,
+                          ).map((num) => (
+                            <SelectItem
+                              key={num}
+                              value={num.toString()}
+                              className="text-white hover:bg-[#252A3C] focus:bg-[#252A3C] focus:text-white"
+                            >
+                              {num}번째
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="assignmentTitle">과제 제목</Label>
+            <Input
+              id="assignmentTitle"
+              placeholder="과제의 제목을 입력하세요"
+              value={assignmentTitle}
+              onChange={(e) => setAssignmentTitle(e.target.value)}
+              className="bg-[#1A1D29] border-gray-700/30 text-white placeholder:text-gray-500"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="assignment">과제 내용</Label>
+            <Textarea
+              id="assignment"
+              placeholder="과제 내용을 입력하세요"
+              rows={4}
+              value={assignment}
+              onChange={(e) => setAssignment(e.target.value)}
+              className="bg-[#1A1D29] border-gray-700/30 text-white placeholder:text-gray-500"
+            />
+          </div>
+        </div>
+
+        <div className="flex justify-end items-center pt-4">
+          <div className="flex space-x-2">
+            {isEdit && onDelete && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    disabled={isDeleting}
+                  >
+                    {isDeleting ? "삭제 중..." : "삭제하기"}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="bg-[#252A3C] border-gray-700/30">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle className="text-white">
+                      강의 삭제
+                    </AlertDialogTitle>
+                    <AlertDialogDescription className="text-gray-400">
+                      이 강의를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel className="bg-black hover:bg-[#1A1D29] border-0 text-white hover:text-white">
+                      취소
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      className="bg-[#EF4444] hover:bg-[#FF6B6B] text-white"
+                      onClick={onDelete}
+                    >
+                      삭제
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="bg-gradient-to-r from-[#5046E4] to-[#6A5AFF] hover:brightness-110"
+            >
+              {isSubmitting ? "저장 중..." : isEdit ? "수정하기" : "추가하기"}
+            </Button>
+          </div>
+        </div>
+      </form>
+    </div>
   );
 }
