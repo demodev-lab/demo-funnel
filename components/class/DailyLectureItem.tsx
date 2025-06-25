@@ -1,9 +1,8 @@
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
-import { Lock, Calendar } from "lucide-react";
+import { Lock, Calendar, PlayCircle } from "lucide-react";
 import { getVideoThumbnailUrl } from "@/utils/youtube";
 import { LectureWithSequence } from "@/types/lecture";
-import { isLectureOpen } from "@/utils/date/serverTime";
 
 interface DailyLectureItemProps {
   dailyLecture: LectureWithSequence;
@@ -18,19 +17,19 @@ export default function DailyLectureItem({
   onVideoSelect,
   videoIndex,
 }: DailyLectureItemProps) {
-  const [isLocked, setIsLocked] = useState(false);
+  // 이미지 로딩 상태 관리
+  const [imageLoaded, setImageLoaded] = useState(false);
 
-  useEffect(() => {
-    const checkLockStatus = async () => {
-      if ("open_at" in dailyLecture) {
-        const locked = !(await isLectureOpen(dailyLecture.open_at));
-        setIsLocked(locked);
-      } else {
-        setIsLocked(false);
-      }
-    };
-    checkLockStatus();
-  }, [dailyLecture]);
+  // apis/lectures.ts 에 추가한 isLocked 바로 사용
+  const { isLocked } = dailyLecture;
+
+  const thumbnailUrl = useMemo(
+    () =>
+      dailyLecture.upload_type === 0
+        ? getVideoThumbnailUrl(dailyLecture.upload_type, dailyLecture.url)
+        : null,
+    [dailyLecture.upload_type, dailyLecture.url],
+  );
 
   return (
     <div
@@ -40,55 +39,67 @@ export default function DailyLectureItem({
       }
     >
       <div className="aspect-video bg-gray-800 relative transform group-hover:-translate-y-1 transition-transform duration-300">
-        {dailyLecture.upload_type === 0 ? (
-          // YouTube 동영상인 경우 Image 태그 사용
+        {dailyLecture.upload_type === 0 && thumbnailUrl ? (
           <Image
-            src={
-              getVideoThumbnailUrl(
-                dailyLecture.upload_type,
-                dailyLecture.url,
-              ) || undefined
-            }
+            src={thumbnailUrl}
             alt={dailyLecture.name}
             fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            priority={videoIndex < 4}
+            sizes="(max-width: 768px) 50vw, 25vw"
+            priority={videoIndex < 8}
+            loading={videoIndex < 8 ? "eager" : "lazy"}
+            quality={videoIndex < 4 ? 90 : 75}
+            onLoad={() => setImageLoaded(true)}
+            onError={() => setImageLoaded(true)}
             className={`object-cover transition-all duration-500 ${
-              isLocked ? "opacity-40 blur-[1px]" : "hover:scale-105"
-            }`}
+              isLocked ? "opacity-40 blur-[1px]" : "group-hover:scale-105"
+            } ${imageLoaded ? "opacity-100" : "opacity-0"}`}
           />
         ) : (
-          // 직접 업로드 동영상인 경우 Video 태그 사용
-          <video
-            src={dailyLecture.url}
-            className={`w-full h-full object-cover ${
-              isLocked ? "opacity-40 blur-[1px]" : ""
-            }`}
-            preload="metadata"
-            muted
-            playsInline
-            controlsList="no-controls"
-          />
+          dailyLecture.upload_type !== 0 && (
+            <video
+              src={dailyLecture.url}
+              className={`w-full h-full object-cover ${
+                isLocked ? "opacity-40 blur-[1px]" : ""
+              }`}
+              preload="metadata"
+              muted
+              playsInline
+              controlsList="nodownload nofullscreen noremoteplayback"
+            />
+          )
         )}
 
         {isLocked ? (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 perspective-0">
-            <div className="transform-none will-change-transform flex flex-col items-center justify-center">
-              <Lock className="h-10 w-10 text-[#8C7DFF] drop-shadow-md mb-2" />
-              <span className="text-xs font-medium text-white/90 bg-[#5046E4]/30 px-2 py-1 rounded-full backdrop-blur-sm flex items-center">
-                <Calendar className="h-3 w-3 mr-1" />
-                {"open_at" in dailyLecture ? dailyLecture.open_at : ""}
-              </span>
-            </div>
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40">
+            <Lock className="h-10 w-10 text-[#8C7DFF] drop-shadow-md mb-2 animate-pulse" />
+            <span className="text-xs font-medium text-white/90 bg-[#5046E4]/30 px-2 py-1 rounded-full backdrop-blur-sm flex items-center">
+              <Calendar className="h-3 w-3 mr-1" />
+              {new Date(dailyLecture.open_at).toLocaleDateString("ko-KR", {
+                month: "long",
+                day: "numeric",
+              })}{" "}
+              오픈
+            </span>
           </div>
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         )}
       </div>
+
       <div className="p-3 bg-[#1C1F2B]/80 backdrop-blur-sm">
         <p className="text-sm font-medium truncate">{dailyLecture.name}</p>
-        <p className="text-xs text-gray-400 mt-1">
-          {isLocked ? "잠금 상태" : "재생 가능"}
+        <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+          {isLocked ? (
+            <>
+              <Lock className="h-3 w-3" />
+              <span>잠금 상태</span>
+            </>
+          ) : (
+            <>
+              <PlayCircle className="h-3 w-3" />
+              <span>재생 가능</span>
+            </>
+          )}
         </p>
       </div>
     </div>
