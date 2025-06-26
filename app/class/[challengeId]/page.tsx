@@ -1,6 +1,6 @@
 import { getLecturesByChallenge } from "@/apis/lectures";
 import ClassPage from "@/components/class/ClassPage";
-import { findTodayLectureIndex } from "@/utils/date/serverTime";
+import { findCurrentLecture } from "@/utils/lecture/lecture";
 import {
   dehydrate,
   HydrationBoundary,
@@ -23,14 +23,7 @@ export default async function Class({
 
   const lectures = await getLecturesByChallenge(currentChallengeId);
 
-  // 오늘 강의 찾기
-  const todayIndex = await findTodayLectureIndex(lectures);
-  const initialLecture =
-    lectures.length > 0
-      ? todayIndex !== -1
-        ? lectures[todayIndex]
-        : lectures[0]
-      : undefined;
+  const initialLecture = findCurrentLecture(lectures);
 
   await queryClient.prefetchQuery({
     queryKey: ["challenge-lectures", currentChallengeId],

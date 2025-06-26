@@ -10,6 +10,7 @@ import { uploadFileToStorage, deleteStorageFile } from "@/utils/files";
 import { validateAuth } from "@/utils/auth";
 import { handleError } from "@/utils/errorHandler";
 import { getServerTime } from "@/utils/date/serverTime";
+import { getVideoThumbnailUrl } from "@/utils/youtube";
 
 const createLectureRecord = async (data: LectureData, videoUrl: string) => {
   const { data: lecture, error: lectureError } = await supabase
@@ -455,8 +456,7 @@ export async function getLecturesByChallenge(
 
     if (error) handleError(error, "강의 목록 조회에 실패했습니다.");
 
-    const serverTime = await getServerTime();
-    const serverDate = new Date(serverTime);
+    const serverDate = await getServerTime();
 
     const lectures =
       data?.map((item) => ({
@@ -474,6 +474,15 @@ export async function getLecturesByChallenge(
         assignment_title: item.Lectures.Assignments?.[0]?.title || "",
         assignment: item.Lectures.Assignments?.[0]?.contents || "",
         isLocked: item.open_at ? serverDate < new Date(item.open_at) : false,
+        openDateFormatted: item.open_at
+          ? new Date(item.open_at).toLocaleDateString("ko-KR", {
+              month: "long",
+              day: "numeric",
+          })
+          : "",
+        thumbnailUrl: item.Lectures.upload_type === 0
+        ? getVideoThumbnailUrl(item.Lectures.upload_type, item.Lectures.url)
+        : null,
       })) || [];
 
     return lectures;
