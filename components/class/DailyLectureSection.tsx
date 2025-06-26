@@ -10,10 +10,9 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/common/dialog";
-import { PlayCircle, Lock, Calendar } from "lucide-react";
+import { PlayCircle, Lock, Calendar, Sparkles } from "lucide-react";
 import { LectureWithSequence } from "@/types/lecture";
 import { useSelectedLectureStore } from "@/lib/store/useSelectedLectureStore";
-import { isLectureOpen } from "@/utils/date/serverTime";
 
 interface DailyLectureSectionProps {
   lectures: LectureWithSequence[];
@@ -25,15 +24,10 @@ export default function DailyLectureSection({
   const [isPlaying, setIsPlaying] = useState(false);
   const [selectedVideoIdx, setSelectedVideoIdx] = useState(0);
   const [isLockedModalOpen, setIsLockedModalOpen] = useState(false);
-  const [mainLecture, setMainLecture] = useState<{
-    title: string;
-    description: string;
-    lectureUrl: string;
-    upload_type: number;
-    isLocked: boolean;
-  } | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const { lectureId } = useSelectedLectureStore();
+  const onSelectedLecture = useSelectedLectureStore(
+    (state) => state.setSelectedLecture,
+  );
 
   useEffect(() => {
     if (lectureId && lectures.length > 0) {
@@ -42,37 +36,9 @@ export default function DailyLectureSection({
         setSelectedVideoIdx(index);
       }
     }
-  }, [lectureId]);
+  }, [lectureId, lectures]);
 
-  useEffect(() => {
-    const updateMainLecture = async () => {
-      setIsLoading(true);
-      try {
-        if (lectures[selectedVideoIdx]) {
-          const isLocked =
-            "open_at" in lectures[selectedVideoIdx]
-              ? !(await isLectureOpen(lectures[selectedVideoIdx].open_at))
-              : false;
-          setMainLecture({
-            title: lectures[selectedVideoIdx].name,
-            description: lectures[selectedVideoIdx].description,
-            lectureUrl: lectures[selectedVideoIdx].url,
-            upload_type: lectures[selectedVideoIdx].upload_type,
-            isLocked,
-          });
-        } else {
-          setMainLecture(null);
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    updateMainLecture();
-  }, [lectures, selectedVideoIdx]);
-
-  const onSelectedLecture = useSelectedLectureStore(
-    (state) => state.setSelectedLecture,
-  );
+  const selectedLecture = lectures[selectedVideoIdx];
 
   const togglePlay = () => {
     setIsPlaying(!isPlaying);
@@ -87,41 +53,54 @@ export default function DailyLectureSection({
     setIsLockedModalOpen(true);
   };
 
+  const openLecturesCount = lectures.filter(
+    (lecture) => !lecture.isLocked,
+  ).length;
+
   return (
     <>
       {/* Main Video Player */}
       <div className="relative">
-        {mainLecture ? (
-          mainLecture.isLocked ? (
-            <div className="aspect-video bg-[#1A1D29] flex items-center justify-center">
-              <div className="text-center text-gray-400">
-                <Lock className="h-12 w-12 mx-auto mb-4 text-gray-600" />
-                <p>아직 오픈되지 않은 강의입니다.</p>
-                <p className="text-sm mt-2">매일 새로운 강의가 공개됩니다.</p>
+        {selectedLecture ? (
+          selectedLecture.isLocked ? (
+            <div className="aspect-video bg-[#1A1D29] flex items-center justify-center relative overflow-hidden">
+              {/* 배경 효과 */}
+              <div className="absolute inset-0 bg-gradient-to-br from-[#5046E4]/10 to-[#8C7DFF]/10" />
+              <div className="text-center text-gray-400 relative z-10">
+                <Lock className="h-12 w-12 mx-auto mb-4 text-gray-600 animate-pulse" />
+                <p className="text-lg font-medium">
+                  아직 오픈되지 않은 강의입니다
+                </p>
+                <p className="text-sm mt-2 text-gray-500">
+                  {new Date(selectedLecture.open_at).toLocaleDateString(
+                    "ko-KR",
+                    {
+                      month: "long",
+                      day: "numeric",
+                    },
+                  )}
+                  에 공개 예정
+                </p>
               </div>
             </div>
           ) : (
             <MainLecture
-              title={mainLecture.title}
-              description={mainLecture.description}
-              lectureUrl={mainLecture.lectureUrl}
-              upload_type={mainLecture.upload_type}
+              title={selectedLecture.name}
+              description={selectedLecture.description}
+              lectureUrl={selectedLecture.url}
+              upload_type={selectedLecture.upload_type}
               isPlaying={isPlaying}
               onTogglePlay={togglePlay}
             />
           )
-        ) : isLoading ? (
-          <div className="aspect-video bg-[#1A1D29] flex items-center justify-center">
-            <div className="text-center text-gray-400">
-              <div className="animate-spin rounded-full h-8 w-8 border-2 border-[#8C7DFF] border-t-transparent mx-auto mb-4"></div>
-              <p>강의 정보를 불러오는 중...</p>
-            </div>
-          </div>
         ) : (
           <div className="aspect-video bg-[#1A1D29] flex items-center justify-center">
             <div className="text-center text-gray-400">
-              <PlayCircle className="h-12 w-12 mx-auto mb-4 text-gray-600" />
-              <p>아직 강의가 없습니다.</p>
+              <Sparkles className="h-12 w-12 mx-auto mb-4 text-gray-600" />
+              <p className="text-lg font-medium">강의를 선택해주세요</p>
+              <p className="text-sm mt-2 text-gray-500">
+                총 {lectures.length}개의 강의가 준비되어 있습니다
+              </p>
             </div>
           </div>
         )}
@@ -132,6 +111,9 @@ export default function DailyLectureSection({
           <h3 className="text-xl font-bold flex items-center">
             <PlayCircle className="h-5 w-5 mr-2 text-[#8C7DFF]" />
             <span>강의 목록</span>
+            <span className="ml-2 text-sm font-normal text-gray-400">
+              ({openLecturesCount}/{lectures.length} 공개됨)
+            </span>
           </h3>
           <div className="flex items-center text-sm text-gray-400">
             <Calendar className="h-4 w-4 mr-1.5" />
@@ -145,9 +127,7 @@ export default function DailyLectureSection({
               <div
                 key={lecture.id}
                 className="group"
-                onClick={() =>
-                  onSelectedLecture(lecture as LectureWithSequence)
-                }
+                onClick={() => onSelectedLecture(lecture)}
               >
                 <DailyLectureItem
                   dailyLecture={lecture}
@@ -156,15 +136,21 @@ export default function DailyLectureSection({
                   videoIndex={index}
                 />
                 <div
-                  className={`mt-2 h-1 bg-gradient-to-r from-[#5046E4] to-[#8C7DFF] rounded-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ${
-                    index === selectedVideoIdx ? "scale-x-100" : ""
+                  className={`mt-2 h-1 bg-gradient-to-r from-[#5046E4] to-[#8C7DFF] rounded-full transform transition-transform duration-300 ${
+                    index === selectedVideoIdx
+                      ? "scale-x-100"
+                      : "scale-x-0 group-hover:scale-x-100"
                   }`}
-                ></div>
+                />
               </div>
             ))
           ) : (
-            <div className="col-span-full text-center py-8 text-gray-400">
-              아직 강의가 없습니다.
+            <div className="col-span-full text-center py-12 text-gray-400">
+              <Sparkles className="h-8 w-8 mx-auto mb-3 text-gray-600" />
+              <p>아직 강의가 준비되지 않았습니다</p>
+              <p className="text-sm mt-1 text-gray-500">
+                곧 업데이트 예정입니다
+              </p>
             </div>
           )}
         </div>
@@ -188,7 +174,7 @@ export default function DailyLectureSection({
             </p>
             <div className="p-3 bg-[#5046E4]/10 rounded-lg border border-[#5046E4]/20">
               <p className="text-sm flex items-start">
-                <Calendar className="h-4 w-4 mr-2 mt-0.5 text-[#8C7DFF]" />
+                <Calendar className="h-4 w-4 mr-2 mt-0.5 text-[#8C7DFF] flex-shrink-0" />
                 <span>
                   추후 업데이트를 기다려주세요. 완료된 과제를 먼저 제출해보세요!
                 </span>

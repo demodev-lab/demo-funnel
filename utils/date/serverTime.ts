@@ -1,33 +1,34 @@
 import axios from "axios";
 
-let cachedServerTime: string | null = null;
+let cachedServerTime: Date | null = null;
 let lastFetchTime = 0;
 const CACHE_DURATION = 60000; // 1분
 
 /**
  * 서버 시간을 가져옵니다 (KST 기준).
  * 1분 동안 캐시를 사용합니다.
- */
-export const getServerTime = async (): Promise<string> => {
+ */ 
+export const getServerTime = async (): Promise<Date> => {
   const now = Date.now();
 
+  // 캐시 확인 ( 타입도 Date로 통일 )
   if (cachedServerTime && now - lastFetchTime < CACHE_DURATION) {
-    return cachedServerTime;
+    return cachedServerTime; // 이미 Date 객체  
   }
 
   try {
-    const baseUrl =
-    typeof window === "undefined"
+    const baseUrl = typeof window === "undefined"
       ? process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
       : "";
     const { data } = await axios.get(`${baseUrl}/api/server-time`);
     
-    cachedServerTime = data.serverTime;
+    // Date로 반환해서 캐시
+    cachedServerTime = new Date(data.serverTime);
     lastFetchTime = now;
-    return data.serverTime;
+    return cachedServerTime;
   } catch (error) {
     console.error("서버 시간을 가져오는데 실패했습니다:", error);
-    return new Date().toISOString(); // 실패 시 클라이언트 시간 사용
+    return new Date();
   }
 };
 
@@ -42,11 +43,9 @@ export const getServerTime = async (): Promise<string> => {
 export const checkIsTodayLecture = async (openAt: string): Promise<boolean> => {
   if (!openAt) return false;
 
-  const serverTime = await getServerTime();
-  const serverDate = new Date(serverTime.split("T")[0]);
-  const openDate = new Date(openAt.split("T")[0]);
-
-  return serverDate.getTime() === openDate.getTime();
+  const serverDate = await getServerTime();
+  
+  return serverDate.toDateString() === new Date(openAt).toDateString();
 };
 
 /**
@@ -60,8 +59,8 @@ export const checkIsTodayLecture = async (openAt: string): Promise<boolean> => {
 export const isLectureOpen = async (openAt: string): Promise<boolean> => {
   if (!openAt) return false;
 
-  const serverTime = await getServerTime();
-  return new Date(serverTime) >= new Date(openAt);
+  const serverDate = await getServerTime();
+  return serverDate >= new Date(openAt);
 };
 
 /**
@@ -74,17 +73,18 @@ export const isLectureOpen = async (openAt: string): Promise<boolean> => {
 export const findTodayLectureIndex = async (lectures: Array<{ open_at: string }>): Promise<number> => {
   if (!lectures || lectures.length === 0) return -1;
 
-  const serverTime = await getServerTime();
-  const serverDate = new Date(serverTime.split("T")[0]);
+  const serverDate = await getServerTime();
+  const serverDateString = serverDate.toDateString();
   
   // NOTE: 강의 수가 많아지면 서버에서 미리 처리해야 함
   for (let i = lectures.length - 1; i >= 0; i--) {
-    const openDate = new Date(lectures[i].open_at.split("T")[0]);
+    const openDateString = new Date(lectures[i].open_at).toDateString();
     
-    if (serverDate.getTime() === openDate.getTime()) {
+    if (serverDateString === openDateString) {
       return i;
     }
   }
   
   return -1;
 };
+
