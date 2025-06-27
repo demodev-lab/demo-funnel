@@ -57,7 +57,7 @@ export default function RefundRequestButton({
     <div className="border-gray-700/50 bg-[#1A1D29]/30 px-6 pb-16 relative">
       <Button
         onClick={() => setIsOpen(true)}
-        disabled={!isAllSubmitted || isRefundRequested}
+        // disabled={!isAllSubmitted || isRefundRequested}
         className="absolute right-6 w-auto min-w-[120px] sm:w-1/6 bg-[#5046E4] hover:bg-[#4339D1] text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-500 disabled:hover:bg-gray-500 text-sm sm:text-base whitespace-nowrap"
       >
         {isRefundRequested ? "환급신청 완료" : "환급신청 하기"}

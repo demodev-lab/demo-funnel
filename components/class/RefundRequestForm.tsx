@@ -25,6 +25,7 @@ export interface RefundFormData {
   wantCoffeeChat: boolean;
   coffeeChatContent: string;
   futureContent: string;
+  challengeId: number;
 }
 
 export default function RefundRequestForm({
@@ -46,6 +47,7 @@ export default function RefundRequestForm({
     wantCoffeeChat: false,
     coffeeChatContent: "",
     futureContent: "",
+    challengeId: challengeId,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
