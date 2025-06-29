@@ -83,6 +83,8 @@ export interface LectureWithSequence {
   assignment: string;
   challenge_id: number;
   isLocked: boolean;
+  openDateFormatted?: string;    
+  thumbnailUrl?: string | null; 
 }
 
 export interface LectureFormInitialData {

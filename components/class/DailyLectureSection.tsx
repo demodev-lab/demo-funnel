@@ -12,50 +12,58 @@ import {
 } from "@/components/common/dialog";
 import { PlayCircle, Lock, Calendar, Sparkles } from "lucide-react";
 import { LectureWithSequence } from "@/types/lecture";
-import { useSelectedLectureStore } from "@/lib/store/useSelectedLectureStore";
 
 interface DailyLectureSectionProps {
   lectures: LectureWithSequence[];
+  initialLecture?: LectureWithSequence;
 }
 
 export default function DailyLectureSection({
   lectures,
+  initialLecture,
 }: DailyLectureSectionProps) {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [selectedVideoIdx, setSelectedVideoIdx] = useState(0);
-  const [isLockedModalOpen, setIsLockedModalOpen] = useState(false);
-  const { lectureId } = useSelectedLectureStore();
-  const onSelectedLecture = useSelectedLectureStore(
-    (state) => state.setSelectedLecture,
+  const [selectedLecture, setSelectedLecture] = useState<LectureWithSequence | undefined>(
+    initialLecture
   );
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isLockedModalOpen, setIsLockedModalOpen] = useState(false);
 
   useEffect(() => {
-    if (lectureId && lectures.length > 0) {
-      const index = lectures.findIndex((lecture) => lecture.id === lectureId);
-      if (index !== -1) {
-        setSelectedVideoIdx(index);
-      }
+    if (!selectedLecture && lectures.length > 0) {
+      setSelectedLecture(lectures[0]);
     }
-  }, [lectureId, lectures]);
+  }, [lectures, selectedLecture]);
 
-  const selectedLecture = lectures[selectedVideoIdx];
+  const handleLectureSelect = (lecture: LectureWithSequence) => {
+    if (lecture.isLocked) {
+      setIsLockedModalOpen(true);
+    } else {
+      setSelectedLecture(lecture);
+      setIsPlaying(false);
+    }
+  };
+
+  const openLecturesCount = lectures.filter(l => !l.isLocked).length;
 
   const togglePlay = () => {
     setIsPlaying(!isPlaying);
   };
 
-  const handleVideoSelect = (index: number) => {
-    setSelectedVideoIdx(index);
-    setIsPlaying(false);
-  };
+ 
 
   const handleLockedClick = () => {
     setIsLockedModalOpen(true);
   };
 
-  const openLecturesCount = lectures.filter(
-    (lecture) => !lecture.isLocked,
-  ).length;
+
+  const handleVideoSelect = (lecture: LectureWithSequence) => {
+    if (lecture.isLocked) {
+      setIsLockedModalOpen(true);
+    } else {
+      setSelectedLecture(lecture);
+      setIsPlaying(false);
+    }
+  };
 
   return (
     <>
@@ -90,7 +98,7 @@ export default function DailyLectureSection({
               lectureUrl={selectedLecture.url}
               upload_type={selectedLecture.upload_type}
               isPlaying={isPlaying}
-              onTogglePlay={togglePlay}
+              onTogglePlay={() => setIsPlaying(!isPlaying)}
             />
           )
         ) : (
@@ -122,27 +130,22 @@ export default function DailyLectureSection({
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-          {lectures.length > 0 ? (
-            lectures.map((lecture, index) => (
+        {lectures.length > 0 ? (
+          lectures.map((lecture, index) => (
+            <div key={lecture.id} className="group">
+              <DailyLectureItem
+                dailyLecture={lecture}
+                isSelected={selectedLecture?.id === lecture.id}
+                onSelect={() => handleVideoSelect(lecture)} 
+              />
               <div
-                key={lecture.id}
-                className="group"
-                onClick={() => onSelectedLecture(lecture)}
-              >
-                <DailyLectureItem
-                  dailyLecture={lecture}
-                  onLockedClick={handleLockedClick}
-                  onVideoSelect={handleVideoSelect}
-                  videoIndex={index}
-                />
-                <div
-                  className={`mt-2 h-1 bg-gradient-to-r from-[#5046E4] to-[#8C7DFF] rounded-full transform transition-transform duration-300 ${
-                    index === selectedVideoIdx
-                      ? "scale-x-100"
-                      : "scale-x-0 group-hover:scale-x-100"
-                  }`}
-                />
-              </div>
+                className={`mt-2 h-1 bg-gradient-to-r from-[#5046E4] to-[#8C7DFF] rounded-full transform transition-transform duration-300 ${
+                  selectedLecture?.id === lecture.id
+                    ? "scale-x-100"
+                    : "scale-x-0 group-hover:scale-x-100"
+                }`}
+              />
+            </div>
             ))
           ) : (
             <div className="col-span-full text-center py-12 text-gray-400">

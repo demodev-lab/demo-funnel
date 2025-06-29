@@ -35,7 +35,7 @@ export const getVideoThumbnailUrl = (upload_type: number, url: string) => {
   if (upload_type === 0) {
     const videoId = getYouTubeVideoId(url);
     return videoId
-      ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
+      ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
       : null;
   } else {
     return "https://placehold.co/1280x720/1A1D29/8C7DFF?text=No+Thumbnail";
