@@ -458,13 +458,6 @@ export async function getLecturesByChallenge(
 
     const serverDate = await getServerTime();
 
-    console.log(
-      "서버 시간:",
-      serverDate.toISOString(),
-      "환경:",
-      typeof window === "undefined" ? "서버" : "클라이언트",
-    );
-
     const lectures =
       data?.map((item) => ({
         id: item.Lectures.id,
@@ -480,7 +473,10 @@ export async function getLecturesByChallenge(
         challenge_lecture_id: item.id,
         assignment_title: item.Lectures.Assignments?.[0]?.title || "",
         assignment: item.Lectures.Assignments?.[0]?.contents || "",
-        isLocked: item.open_at ? serverDate < new Date(item.open_at) : false,
+        isLocked: item.open_at
+          ? new Date(serverDate.toDateString()) <
+            new Date(new Date(item.open_at).toDateString())
+          : false,
         openDateFormatted: item.open_at
           ? new Date(item.open_at).toLocaleDateString("ko-KR", {
               month: "long",
@@ -492,12 +488,6 @@ export async function getLecturesByChallenge(
             ? getVideoThumbnailUrl(item.Lectures.upload_type, item.Lectures.url)
             : null,
       })) || [];
-
-    lectures.forEach((lecture) => {
-      console.log(
-        `강의 ${lecture.id}: isLocked=${lecture.isLocked}, serverDate=${serverDate.toISOString()}, openAt=${lecture.open_at}`,
-      );
-    });
 
     return lectures;
   } catch (error) {
