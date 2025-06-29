@@ -478,12 +478,17 @@ export async function getLecturesByChallenge(
           ? new Date(item.open_at).toLocaleDateString("ko-KR", {
               month: "long",
               day: "numeric",
-          })
+            })
           : "",
-        thumbnailUrl: item.Lectures.upload_type === 0
-        ? getVideoThumbnailUrl(item.Lectures.upload_type, item.Lectures.url)
-        : null,
+        thumbnailUrl:
+          item.Lectures.upload_type === 0
+            ? getVideoThumbnailUrl(item.Lectures.upload_type, item.Lectures.url)
+            : null,
       })) || [];
+
+    lectures.forEach((lecture) => {
+      console.log(`${lecture.id}: ${lecture.isLocked}`);
+    });
 
     return lectures;
   } catch (error) {
