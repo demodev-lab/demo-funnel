@@ -6,7 +6,7 @@ import { LectureWithSequence } from "@/types/lecture";
 
 interface DailyLectureItemProps {
   dailyLecture: LectureWithSequence;
-  isSelected: boolean;  // ✅ 추가: 선택 상태
+  isSelected: boolean; // ✅ 추가: 선택 상태
   onSelect: () => void; // ✅ 변경: 단순화
 }
 
@@ -17,15 +17,17 @@ export default function DailyLectureItem({
 }: DailyLectureItemProps) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const { isLocked } = dailyLecture;
-
+  console.log(dailyLecture.id, ": isLocked", isLocked);
   // thumbnailUrl이 이미 있다면 사용, 없으면 계산
-  const thumbnailUrl = dailyLecture.thumbnailUrl || 
-    (dailyLecture.upload_type === 0 
+  const thumbnailUrl =
+    dailyLecture.thumbnailUrl ||
+    (dailyLecture.upload_type === 0
       ? getVideoThumbnailUrl(dailyLecture.upload_type, dailyLecture.url)
       : null);
 
   // openDateFormatted가 있다면 사용, 없으면 계산
-  const openDateText = dailyLecture.openDateFormatted ||
+  const openDateText =
+    dailyLecture.openDateFormatted ||
     (dailyLecture.open_at
       ? new Date(dailyLecture.open_at).toLocaleDateString("ko-KR", {
           month: "long",
@@ -36,8 +38,8 @@ export default function DailyLectureItem({
   return (
     <div
       className={`relative rounded-xl overflow-hidden cursor-pointer transition-all duration-300 shadow-md hover:shadow-xl border ${
-        isSelected 
-          ? "border-[#8C7DFF] ring-2 ring-[#8C7DFF]/50" 
+        isSelected
+          ? "border-[#8C7DFF] ring-2 ring-[#8C7DFF]/50"
           : "border-gray-700/30 hover:border-gray-600/50"
       } group`}
       onClick={onSelect}
@@ -54,7 +56,7 @@ export default function DailyLectureItem({
             alt={dailyLecture.name}
             fill
             sizes="(max-width: 768px) 50vw, 25vw"
-            priority={!isLocked && isSelected}  // 선택된 것 우선
+            priority={!isLocked && isSelected} // 선택된 것 우선
             loading={!isLocked ? "eager" : "lazy"}
             quality={isSelected ? 90 : 75}
             onLoad={() => setImageLoaded(true)}
@@ -63,17 +65,19 @@ export default function DailyLectureItem({
               isLocked ? "opacity-40 blur-[1px]" : "group-hover:scale-105"
             } ${imageLoaded ? "opacity-100" : "opacity-0"}`}
           />
-        ) : dailyLecture.upload_type !== 0 && (
-          <video
-            src={dailyLecture.url}
-            className={`w-full h-full object-cover ${
-              isLocked ? "opacity-40 blur-[1px]" : ""
-            }`}
-            preload="metadata"
-            muted
-            playsInline
-            controlsList="nodownload nofullscreen noremoteplayback"
-          />
+        ) : (
+          dailyLecture.upload_type !== 0 && (
+            <video
+              src={dailyLecture.url}
+              className={`w-full h-full object-cover ${
+                isLocked ? "opacity-40 blur-[1px]" : ""
+              }`}
+              preload="metadata"
+              muted
+              playsInline
+              controlsList="nodownload nofullscreen noremoteplayback"
+            />
+          )
         )}
 
         {isLocked ? (
