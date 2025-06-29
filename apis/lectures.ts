@@ -458,6 +458,13 @@ export async function getLecturesByChallenge(
 
     const serverDate = await getServerTime();
 
+    console.log(
+      "서버 시간:",
+      serverDate.toISOString(),
+      "환경:",
+      typeof window === "undefined" ? "서버" : "클라이언트",
+    );
+
     const lectures =
       data?.map((item) => ({
         id: item.Lectures.id,
@@ -487,7 +494,9 @@ export async function getLecturesByChallenge(
       })) || [];
 
     lectures.forEach((lecture) => {
-      console.log(`${lecture.id}: ${lecture.isLocked}`);
+      console.log(
+        `강의 ${lecture.id}: isLocked=${lecture.isLocked}, serverDate=${serverDate.toISOString()}, openAt=${lecture.open_at}`,
+      );
     });
 
     return lectures;
