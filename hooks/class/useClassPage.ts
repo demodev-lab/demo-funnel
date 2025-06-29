@@ -45,7 +45,7 @@ export function useClassPage({
       return data;
     },
     enabled: !isLoadingUser && !!user?.id,
-    staleTime: 1000 * 60 * 5, // 5분 동안 캐시 유지
+    // staleTime: 1000 * 60 * 5, // 5분 동안 캐시 유지
   });
 
   const challengeLectures = lectures.map((lecture) => ({
