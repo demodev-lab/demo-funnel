@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/common/button";
 import { Input } from "@/components/common/input";
@@ -9,6 +9,7 @@ import { useUser } from "@/hooks/auth/useUser";
 import { updateRefundRequestStatus } from "@/apis/users";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/useToast";
+import { getChallengeName } from "@/apis/challenges";
 
 interface RefundRequestFormProps {
   onSubmit: (data: RefundFormData) => Promise<void>;
@@ -16,9 +17,11 @@ interface RefundRequestFormProps {
 }
 
 export interface RefundFormData {
+  challengeName: string;
   name: string;
   phone: string;
   email: string;
+  bank: string;
   account: string;
   assignmentLink: string;
   wantCoffeeChat: boolean;
@@ -35,10 +38,13 @@ export default function RefundRequestForm({
   const queryClient = useQueryClient();
   const params = useParams();
   const challengeId = Number(params.challengeId);
+
   const [formData, setFormData] = useState<RefundFormData>({
+    challengeName: "",
     name: user?.name ?? "",
-    account: "",
     email: user?.email ?? "",
+    bank: "",
+    account: "",
     phone: user?.phone ?? "",
     assignmentLink: "",
     wantCoffeeChat: false,
@@ -46,15 +52,27 @@ export default function RefundRequestForm({
     futureContent: "",
   });
 
+  useEffect(() => {
+    const fetchChallengeName = async () => {
+      const name = await getChallengeName(challengeId);
+      if (name) {
+        setFormData((prev) => ({ ...prev, challengeName: name }));
+      }
+    };
+
+    fetchChallengeName();
+  }, [challengeId]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // 필수 필드 검증
     const requiredFields = [
       "name",
-      "account",
       "email",
       "phone",
+      "bank",
+      "account",
       "assignmentLink",
       "futureContent",
     ];
@@ -149,19 +167,35 @@ export default function RefundRequestForm({
             className="bg-[#1C1F2B] border-gray-700"
           />
         </div>
-        <div>
-          <Label htmlFor="account">
-            환급받을 계좌<span className="text-red-500 ml-1">*</span>
-          </Label>
-          <Input
-            id="account"
-            value={formData.account}
-            onChange={(e) =>
-              setFormData({ ...formData, account: e.target.value })
-            }
-            required
-            className="bg-[#1C1F2B] border-gray-700"
-          />
+        <div className="flex space-x-4">
+          <div className="flex-1/2">
+            <Label htmlFor="bank">
+              환급받을 은행명<span className="text-red-500 ml-1">*</span>
+            </Label>
+            <Input
+              id="bank"
+              value={formData.bank}
+              onChange={(e) =>
+                setFormData({ ...formData, bank: e.target.value })
+              }
+              required
+              className="bg-[#1C1F2B] border-gray-700"
+            />
+          </div>
+          <div className="flex-1">
+            <Label htmlFor="account">
+              계좌번호<span className="text-red-500 ml-1">*</span>
+            </Label>
+            <Input
+              id="account"
+              value={formData.account}
+              onChange={(e) =>
+                setFormData({ ...formData, account: e.target.value })
+              }
+              required
+              className="bg-[#1C1F2B] border-gray-700"
+            />
+          </div>
         </div>
         <div className="flex items-center space-x-2">
           <Switch
