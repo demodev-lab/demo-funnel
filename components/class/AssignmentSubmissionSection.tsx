@@ -10,16 +10,30 @@ import { useSelectedLectureStore } from "@/lib/store/useSelectedLectureStore";
 import { useEffect, useState } from "react";
 import { SubmittedAssignment } from "@/types/assignment";
 import { checkIsTodayLecture } from "@/utils/date/serverTime";
+import { LectureWithSequence } from "@/types/lecture";
 
 interface AssignmentSubmissionSectionProps {
   userInfo: userInfo;
+  lectures: LectureWithSequence[];
 }
 
 export default function AssignmentSubmissionSection({
   userInfo,
+  lectures,
 }: AssignmentSubmissionSectionProps) {
   const { lectureId, challengeLectureId, open_at } = useSelectedLectureStore();
   const [isTodayLecture, setIsTodayLecture] = useState(false);
+
+  // 현재 선택된 강의가 마지막 강의인지 확인
+  const isLastLecture = () => {
+    if (!lectures || lectures.length === 0 || !challengeLectureId) return false;
+    const currentLecture = lectures.find(
+      (l) => l.challenge_lecture_id === challengeLectureId,
+    );
+    if (!currentLecture) return false;
+    const maxSequence = Math.max(...lectures.map((l) => l.sequence));
+    return currentLecture.sequence === maxSequence;
+  };
 
   useEffect(() => {
     const checkTodayLecture = async () => {
@@ -105,6 +119,7 @@ export default function AssignmentSubmissionSection({
           <AssignmentSubmissionForm
             userInfo={userInfo}
             challengeLectureId={challengeLectureId}
+            isLastLecture={isLastLecture()}
           />
         )}
 

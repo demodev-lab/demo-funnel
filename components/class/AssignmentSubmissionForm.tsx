@@ -16,11 +16,20 @@ import { ImagePreview } from "@/components/common/image-preview";
 interface AssignmentSubmissionFormProps {
   userInfo: userInfo;
   challengeLectureId: number;
+  isLastLecture: boolean;
 }
+
+const isValidReviewLink = (link: string): boolean => {
+  if (link.includes(".vercel.app")) {
+    return false;
+  }
+  return true;
+};
 
 export default function AssignmentSubmissionForm({
   userInfo,
   challengeLectureId,
+  isLastLecture,
 }: AssignmentSubmissionFormProps) {
   const [newSubmission, setNewSubmission] = useState("");
   const [submissionLink, setSubmissionLink] = useState("");
@@ -72,6 +81,11 @@ export default function AssignmentSubmissionForm({
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newSubmission.trim() || !submissionLink.trim()) return;
+
+    if (isLastLecture && !isValidReviewLink(submissionLink)) {
+      toast.error("스레드 혹은 네이버 블로그 링크를 제출해주세요.");
+      return;
+    }
 
     handleSubmit({
       name: userInfo.name,

@@ -65,7 +65,7 @@ export default function ClassPage({
               <DailyLectureSection lectures={lectures} />
             </div>
 
-            <AssignmentSubmissionSection userInfo={user} />
+            <AssignmentSubmissionSection userInfo={user} lectures={lectures} />
 
             <RefundRequestButton
               isAllSubmitted={isAllSubmitted}
