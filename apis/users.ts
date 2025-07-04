@@ -565,16 +565,15 @@ export async function updateRefundRequestStatus(
   challengeId: number,
 ) {
   try {
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from("ChallengeUsers")
       .update({ refund_requested: true })
       .eq("user_id", userId)
-      .eq("challenge_id", challengeId)
-      .select()
-      .single();
+      .eq("challenge_id", challengeId);
 
-    if (error) throw error;
-    return data;
+    if (error) {
+      throw error;
+    }
   } catch (error) {
     handleError(error, "환급 신청 상태 업데이트 실패");
     throw error;

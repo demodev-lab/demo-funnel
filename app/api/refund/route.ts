@@ -11,8 +11,7 @@ export async function POST(request: Request) {
     };
 
     const response = await fetch(
-      // TODO 회사 스프레드 시트랑 연동 필
-      "https://script.google.com/macros/s/AKfycbxMDzoFq2FuMk1sz2h_af5d_u6z_6Oku2P0xZq-IBuD1tB92ZyVJE4jZchdLTBG86ax/exec",
+      "https://script.google.com/macros/s/AKfycbxH82ZgnBbyrJbZ5VZYawOG6WvfKN3ruZRr4J_ZSurh7JgP0lBnwLwJe6p_o3dF3Ve8zA/exec",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

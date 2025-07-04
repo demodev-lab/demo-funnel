@@ -159,3 +159,22 @@ export async function getUserChallenges(
     return [];
   }
 }
+
+export async function getChallengeName(
+  challengeId: number,
+): Promise<string | null> {
+  try {
+    const { data, error } = await supabase
+      .from("Challenges")
+      .select("name")
+      .eq("id", challengeId)
+      .single();
+
+    if (error) throw error;
+
+    return data?.name || null;
+  } catch (error) {
+    handleError(error, "챌린지명 조회 중 오류가 발생했습니다.");
+    return null;
+  }
+}
