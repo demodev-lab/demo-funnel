@@ -103,9 +103,30 @@ export default function AssignmentSubmissionSection({
               <div className="animate-spin rounded-full h-8 w-8 border-2 border-[#8C7DFF] border-t-transparent"></div>
             </div>
           ) : assignmentInfo?.contents ? (
-            <p className="text-gray-300 whitespace-pre-wrap leading-relaxed">
-              {assignmentInfo.contents}
-            </p>
+            <div>
+              <p className="text-gray-300 whitespace-pre-wrap leading-relaxed">
+                {assignmentInfo.contents}
+              </p>
+              {/* TODO: 환급 안내 추후 수정 */}
+              {isLastLecture() && (
+                <div className="not-prose mt-4 rounded-md border border-yellow-400/30 bg-yellow-400/10 p-4">
+                  <p className="text-sm font-semibold text-yellow-300">
+                    [환급 안내]
+                  </p>
+                  <p className="mt-1 text-sm text-gray-300">
+                    후기에{" "}
+                    <span className="font-bold text-yellow-400">
+                      "대모산 개발단"
+                    </span>
+                    과{" "}
+                    <span className="font-bold text-yellow-400">
+                      "참여하신 챌린지명"
+                    </span>
+                    을 적어주셔야 환급이 가능합니다.
+                  </p>
+                </div>
+              )}
+            </div>
           ) : (
             <p className="text-gray-400 italic">등록된 과제가 없습니다.</p>
           )}
