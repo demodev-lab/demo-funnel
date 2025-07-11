@@ -4,7 +4,6 @@ import { Button } from "@/components/common/button";
 import { Input } from "@/components/common/input";
 import { Label } from "@/components/common/label";
 import { Textarea } from "@/components/common/textarea";
-import { Switch } from "@/components/common/switch";
 import { useUser } from "@/hooks/auth/useUser";
 import { updateRefundRequestStatus } from "@/apis/users";
 import { useQueryClient } from "@tanstack/react-query";
@@ -197,35 +196,6 @@ export default function RefundRequestForm({
             />
           </div>
         </div>
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="wantsCoffeeChat"
-            checked={formData.wantCoffeeChat}
-            onCheckedChange={(checked) =>
-              setFormData({ ...formData, wantCoffeeChat: checked })
-            }
-            className="data-[state=checked]:bg-[#5046E4] bg-gray-700"
-          />
-          <Label htmlFor="wantsCoffeeChat">1대1 커피챗 희망 여부</Label>
-          <span className="text-red-500 ml-1">*</span>
-        </div>
-
-        {formData.wantCoffeeChat && (
-          <div>
-            <Label htmlFor="coffeeChatContent">
-              1대1 커피챗 다루고 싶은 내용
-            </Label>
-            <Textarea
-              id="coffeeChatContent"
-              value={formData.coffeeChatContent}
-              onChange={(e) =>
-                setFormData({ ...formData, coffeeChatContent: e.target.value })
-              }
-              placeholder="커피챗에서 다루고 싶은 주제나 질문을 작성해주세요"
-              className="bg-[#1C1F2B] border-gray-700"
-            />
-          </div>
-        )}
 
         <div>
           <Label htmlFor="futureContent">
